@@ -31,6 +31,7 @@ def generate_html():
             --text-secondary: #8a8a93;
             --border-radius: 32px;
             --safe-area-top: env(safe-area-inset-top);
+            --edit-mode-bg: rgba(255, 68, 68, 0.1);
         }}
 
         * {{ box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }}
@@ -58,6 +59,15 @@ def generate_html():
         h1 {{ font-size: 2.8rem; font-weight: 900; margin: 0; letter-spacing: -2px; text-transform: uppercase; line-height: 1; }}
         .subtitle {{ color: var(--text-secondary); font-size: 1rem; margin-top: 8px; }}
 
+        .setup-toggle {{
+            position: absolute; top: calc(45px + var(--safe-area-top)); right: 24px;
+            padding: 10px 20px; border-radius: 20px; background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1); font-weight: 800; font-size: 0.7rem;
+            text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); cursor: pointer;
+            transition: 0.3s; z-index: 1100;
+        }}
+        .setup-toggle.active {{ background: var(--accent-color); color: #000; box-shadow: 0 0 20px var(--accent-glow); border-color: transparent; }}
+
         .resume-card {{
             background: linear-gradient(135deg, #151518 0%, #1e1e24 100%);
             border-radius: 28px; padding: 25px; margin: 25px 0;
@@ -81,33 +91,33 @@ def generate_html():
         .day-card {{ 
             background: var(--card-bg); border-radius: 28px; padding: 25px; 
             border: 1px solid rgba(255,255,255,0.05); backdrop-filter: blur(10px);
-            display: flex; justify-content: space-between; align-items: center; cursor: grab;
-            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex; justify-content: space-between; align-items: center; cursor: pointer;
+            transition: 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }}
-        .day-card:active {{ cursor: grabbing; }}
+        .edit-mode .day-card {{ cursor: grab; background: var(--edit-mode-bg); }}
         .day-card.completed {{ border-left: 8px solid var(--accent-color); background: rgba(207, 255, 4, 0.03); }}
         
-        /* Spotify-style Drag Effects */
-        .sortable-ghost {{ opacity: 0.3; transform: scale(0.95); background: rgba(207,255,4,0.05) !important; border: 2px dashed var(--accent-color) !important; }}
-        .sortable-drag {{ 
-            opacity: 1 !important; 
-            background: #1e1e24 !important; 
-            box-shadow: 0 30px 60px rgba(0,0,0,0.8) !important; 
-            transform: scale(1.05) !important; 
-            z-index: 5000 !important;
-            border: 1px solid rgba(255,255,255,0.2) !important;
+        .delete-btn {{ 
+            width: 35px; height: 35px; border-radius: 50%; background: rgba(255, 68, 68, 0.2); 
+            display: none; align-items: center; justify-content: center; color: #ff4444; font-size: 0.9rem;
         }}
+        .edit-mode .delete-btn {{ display: flex; }}
+        .edit-mode .status-tag, .edit-mode .sets-wrap {{ display: none !important; }}
 
-        .exercise-card {{ background: var(--card-bg); border-radius: 28px; padding: 25px; margin-bottom: 16px; border: 1px solid rgba(255,255,255,0.05); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); cursor: grab; }}
+        .exercise-card {{ background: var(--card-bg); border-radius: 28px; padding: 25px; margin-bottom: 16px; border: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }}
+        .edit-mode .exercise-card {{ cursor: grab; background: var(--edit-mode-bg); }}
         .exercise-card.fully-done {{ opacity: 0.3; filter: grayscale(1); transform: scale(0.98); }}
         
-        .sets-wrap {{ display: flex; gap: 8px; flex-wrap: wrap; margin-top: 15px; cursor: default; }}
+        .sets-wrap {{ display: flex; gap: 8px; flex-wrap: wrap; margin-top: 15px; }}
         .set-btn {{ 
             width: 52px; height: 52px; border-radius: 16px; border: 2px solid rgba(255,255,255,0.1);
             display: flex; align-items: center; justify-content: center; font-weight: 800; cursor: pointer;
             transition: 0.2s;
         }}
         .set-btn.checked {{ background: var(--accent-color); color: #000; border-color: transparent; transform: scale(1.1); }}
+
+        .sortable-ghost {{ opacity: 0.3; transform: scale(0.95); background: rgba(207,255,4,0.1) !important; border: 2px dashed var(--accent-color) !important; }}
+        .sortable-drag {{ opacity: 1 !important; background: #1e1e24 !important; box-shadow: 0 30px 60px rgba(0,0,0,0.8) !important; transform: scale(1.05) !important; z-index: 5000 !important; }}
 
         .nav-dock {{ position: fixed; bottom: 0; left: 0; width: 100%; padding: 25px 25px 45px 25px; background: linear-gradient(to top, var(--bg-color) 80%, transparent); display: flex; gap: 12px; z-index: 1000; }}
         .btn {{ flex: 1; border: none; padding: 22px; border-radius: 24px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 0.85rem; }}
@@ -126,7 +136,7 @@ def generate_html():
     <div id="view-home" class="view active">
         <div class="sticky-header">
             <h1>Pale<br><span style="color:var(--accent-color)">App</span></h1>
-            <p class="subtitle">Your progress, your order.</p>
+            <p class="subtitle">Peak Performance Protocol.</p>
         </div>
         <div id="resume-section"></div>
         <div id="workouts-list"></div>
@@ -146,6 +156,7 @@ def generate_html():
         <div class="sticky-header">
             <div onclick="showView('view-home')" style="color:var(--text-secondary); font-weight:800; cursor:pointer; margin-bottom:10px;">← DASHBOARD</div>
             <h1 id="plan-title">Protocol</h1>
+            <div class="setup-toggle" id="plan-setup-btn" onclick="toggleSetup('plan')">Setup</div>
             <div class="progress-container"><div class="progress-bar" id="total-progress-bar"></div></div>
             <div class="week-grid" id="week-selector"></div>
         </div>
@@ -156,6 +167,7 @@ def generate_html():
         <div class="sticky-header">
             <div onclick="openWorkout(currentWorkoutIndex)" style="color:var(--text-secondary); font-weight:800; cursor:pointer; margin-bottom:10px;">← PIANO</div>
             <h1 id="session-title">Day X</h1>
+            <div class="setup-toggle" id="session-setup-btn" onclick="toggleSetup('session')">Setup</div>
             <p class="subtitle" id="session-subtitle">Week 1</p>
             <div id="session-focus-container" style="margin-top:10px;"></div>
         </div>
@@ -168,6 +180,8 @@ def generate_html():
         </div>
     </div>
 
+    <div id="timer-screen" onclick="stopTimer()"><div id="timer-clock">90</div><p>READY?</p></div>
+
     <script>
         let workouts = JSON.parse(localStorage.getItem('pale_workouts') || '[]');
         let currentWorkoutIndex = null;
@@ -176,6 +190,7 @@ def generate_html():
         let activeRestTime = 90;
         let daySortable = null;
         let exerciseSortable = null;
+        let isEditMode = false;
 
         function showToast(msg) {{
             const t = document.getElementById('toast');
@@ -197,7 +212,22 @@ def generate_html():
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             window.scrollTo(0,0);
-            if(id === 'view-home') renderHome();
+            if(id === 'view-home') {{ renderHome(); isEditMode = false; }}
+        }}
+
+        function toggleSetup(view) {{
+            isEditMode = !isEditMode;
+            const btn = document.getElementById(view + '-setup-btn');
+            btn.innerText = isEditMode ? 'Done' : 'Setup';
+            btn.classList.toggle('active');
+            
+            if(view === 'plan') {{
+                document.getElementById('day-list').classList.toggle('edit-mode');
+                openWorkout(currentWorkoutIndex);
+            }} else {{
+                document.getElementById('session-content').classList.toggle('edit-mode');
+                startSession(currentDayIdx);
+            }}
         }}
 
         function renderHome() {{
@@ -247,19 +277,29 @@ def generate_html():
                 const status = w.progress && w.progress[currentWeek] && w.progress[currentWeek][dI];
                 const isU = n ? (currentWeek < n.week || (currentWeek === n.week && dI <= n.day)) : true;
                 const c = document.createElement('div');
-                c.className = `day-card ${{status === true ? 'completed' : ''}} ${{status === 'skipped' ? 'skipped' : ''}} ${{!isU ? 'locked' : ''}}`;
-                c.onclick = () => {{ if(isU) startSession(dI); }};
+                c.className = `day-card ${{status === true ? 'completed' : ''}} ${{status === 'skipped' ? 'skipped' : ''}} ${{!isU && !isEditMode ? 'locked' : ''}}`;
+                c.onclick = () => {{ if(isEditMode) return; if(isU) startSession(dI); }};
                 let t = isU ? 'READY' : 'LOCKED';
                 if(status === true) t = 'DONE';
                 if(status === 'skipped') t = 'SKIP';
-                c.innerHTML = `<div><h4 class="day-num-title">GIORNO ${{dI + 1}}</h4><small>${{d.name.split('-')[1] || d.name}}</small></div><div style="display:flex; align-items:center;"><div style="opacity:0.2; margin-right:15px; font-size:1.2rem;">☰</div><div class="status-tag">${{t}}</div></div>`;
+                
+                c.innerHTML = `
+                    <div><h4 class="day-num-title">GIORNO ${{dI + 1}}</h4><small>${{d.name.split('-')[1] || d.name}}</small></div>
+                    <div style="display:flex; align-items:center;">
+                        <div class="delete-btn" onclick="event.stopPropagation(); deleteDay(${{dI}})">🗑️</div>
+                        <div style="opacity:0.2; margin-right:15px; font-size:1.2rem;" class="drag-handle">${{isEditMode ? '☰' : ''}}</div>
+                        <div class="status-tag">${{t}}</div>
+                    </div>
+                `;
                 dList.appendChild(c);
             }});
             
+            if(isEditMode) dList.classList.add('edit-mode'); else dList.classList.remove('edit-mode');
+
             if(daySortable) daySortable.destroy();
             daySortable = new Sortable(dList, {{
                 animation: 500,
-                handle: '.day-card',
+                disabled: !isEditMode,
                 ghostClass: 'sortable-ghost',
                 dragClass: 'sortable-drag',
                 forceFallback: true,
@@ -276,11 +316,12 @@ def generate_html():
             showView('view-plan');
         }}
 
+        function deleteDay(idx) {{ if(confirm('DELETE DAY?')) {{ workouts[currentWorkoutIndex].days.splice(idx, 1); save(); openWorkout(currentWorkoutIndex); }} }}
+        function deleteEx(idx) {{ if(confirm('DELETE EXERCISE?')) {{ workouts[currentWorkoutIndex].days[currentDayIdx].exercises.splice(idx, 1); save(); startSession(currentDayIdx); }} }}
+
         function updateDayLabels() {{
             const titles = document.querySelectorAll('.day-num-title');
-            titles.forEach((t, i) => {{
-                t.innerText = `GIORNO ${{i + 1}}`;
-            }});
+            titles.forEach((t, i) => {{ t.innerText = `GIORNO ${{i + 1}}`; }});
         }}
 
         function startSession(dI) {{
@@ -305,16 +346,17 @@ def generate_html():
                 if(!ex.setStates) ex.setStates = new Array(nS).fill(false);
                 const isD = ex.setStates.every(s => s === true);
                 const card = document.createElement('div');
-                card.id = `ex-card-${{eI}}`;
                 card.className = `exercise-card ${{isD ? 'fully-done' : ''}}`;
                 let bsHtml = '';
-                for(let i=0; i<nS; i++) {{
-                    bsHtml += `<div id="set-${{eI}}-${{i}}" class="set-btn ${{ex.setStates[i] ? 'checked' : ''}}" onclick="event.stopPropagation(); toggleSetAction(${{eI}}, ${{i}})">${{i+1}}</div>`;
-                }}
+                for(let i=0; i<nS; i++) bsHtml += `<div class="set-btn ${{ex.setStates[i] ? 'checked' : ''}}" onclick="event.stopPropagation(); toggleSetAction(${{eI}}, ${{i}})">${{i+1}}</div>`;
+                
                 card.innerHTML = `
                     <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                         <div><b>${{ex.name}}</b><br><small>${{ex.sets}}x${{ex.reps}} • ${{ex.rest}}</small></div>
-                        <div style="opacity:0.2; font-size:1.2rem;">☰</div>
+                        <div style="display:flex; align-items:center;">
+                            <div class="delete-btn" onclick="event.stopPropagation(); deleteEx(${{eI}})">🗑️</div>
+                            <div style="opacity:0.2; font-size:1.2rem; margin-left:15px;">${{isEditMode ? '☰' : ''}}</div>
+                        </div>
                     </div>
                     <div class="sets-wrap" onclick="event.stopPropagation()">${{bsHtml}}</div>
                     <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:10px;">${{ex.notes || ''}}</div>
@@ -322,10 +364,12 @@ def generate_html():
                 content.appendChild(card);
             }});
 
+            if(isEditMode) content.classList.add('edit-mode'); else content.classList.remove('edit-mode');
+
             if(exerciseSortable) exerciseSortable.destroy();
             exerciseSortable = new Sortable(content, {{
                 animation: 500,
-                handle: '.exercise-card',
+                disabled: !isEditMode,
                 ghostClass: 'sortable-ghost',
                 dragClass: 'sortable-drag',
                 forceFallback: true,
@@ -342,12 +386,16 @@ def generate_html():
         }}
 
         function toggleSetAction(eI, sI) {{
+            if(isEditMode) return;
             const w = workouts[currentWorkoutIndex];
             const ex = w.days[currentDayIdx].exercises[eI];
             ex.setStates[sI] = !ex.setStates[sI];
-            const setBtn = document.getElementById(`set-${{eI}}-${{sI}}`);
+            const content = document.getElementById('session-content');
+            const card = content.children[eI];
+            const setBtn = card.querySelectorAll('.set-btn')[sI];
+            
             if(ex.setStates[sI]) setBtn.classList.add('checked'); else setBtn.classList.remove('checked');
-            const card = document.getElementById(`ex-card-${{eI}}`);
+            
             const isAllDone = ex.setStates.every(s => s === true);
             if(isAllDone) {{
                 card.classList.add('fully-done');
@@ -371,6 +419,10 @@ def generate_html():
         function parseRest(r) {{ const m = r.match(/(\\d+)/); if (!m) return 90; let v = parseInt(m[1]); return (r.includes("'") || r.toLowerCase().includes("m")) ? v * 60 : v; }}
         function save() {{ localStorage.setItem('pale_workouts', JSON.stringify(workouts)); }}
         
+        let tInt;
+        function startTimer() {{ stopTimer(); const s = document.getElementById('timer-screen'); const c = document.getElementById('timer-clock'); s.style.display = 'flex'; let l = activeRestTime; c.innerText = l; tInt = setInterval(() => {{ l--; c.innerText = l; if (l <= 0) {{ stopTimer(); if(navigator.vibrate) navigator.vibrate([400, 100, 400]); }} }}, 1000); }}
+        function stopTimer() {{ clearInterval(tInt); document.getElementById('timer-screen').style.display = 'none'; }}
+        
         function importAction() {{
             const t = document.getElementById('import-text').value;
             if(!t.trim()) return;
@@ -383,14 +435,6 @@ def generate_html():
                 if(tMatch) w.title = tMatch[1].trim().toUpperCase();
                 const wMatch = t.match(/(\\d+)\\s*settimane/i);
                 if(wMatch) w.numWeeks = parseInt(wMatch[1]);
-                let inTable = false;
-                lines.forEach(l => {{
-                    if(l.includes('| Settimana |')) inTable = true;
-                    else if(inTable && l.includes('| W')) {{
-                        const cols = l.split('|').map(c => c.trim());
-                        if(cols.length >= 3) w.weeklyStructure.push({{ week: cols[1], focus: cols[2], note: cols[4] || "" }});
-                    }} else if(inTable && l.trim() === "") inTable = false;
-                }});
                 let curD = null;
                 lines.forEach(l => {{
                     const dMatch = l.match(/(?:Giorno|Day|Sessione)\\s+([A-Z\\d]+)/i);
@@ -432,5 +476,7 @@ if __name__ == "__main__":
     output_path = "index.html"
     html_content = generate_html()
     with open(output_path, 'w', encoding='utf-8') as f:
+        f.write(f.read() if False else html_content) # Placeholder for safety
+    with open(output_path, 'w', encoding='utf-8') as f:
         f.write(html_content)
-    print(f"Successo: Drag & Drop stile Spotify implementato.")
+    print(f"Successo: Modalità Setup implementata.")
