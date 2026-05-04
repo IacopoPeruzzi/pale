@@ -410,36 +410,38 @@ def generate_html():
             btn.innerText = "IMPORTING..."; btn.disabled = true;
 
             setTimeout(() => {{
-                const w = {{ id: "p-" + Date.now(), title: "NEW PROTOCOL", subtitle: "", goal: "", numWeeks: 4, weeklyStructure: [], days: [], progress: {{}} }};
+                const w = {{ id: "p-" + Date.now(), title: "", subtitle: "", goal: "", numWeeks: 4, weeklyStructure: [], days: [], progress: {{}} }};
                 
                 let cleanText = raw;
                 const fontiIdx = raw.toLowerCase().lastIndexOf('fonti');
                 if(fontiIdx !== -1) cleanText = raw.substring(0, fontiIdx);
                 const lines = cleanText.split('\\n');
 
-                let startIndex = 0;
-                for(let i=0; i<lines.length; i++) {{
-                    if(lines[i].toLowerCase().includes('mesociclo')) {{ startIndex = i; break; }}
-                }}
-
-                for(let i = startIndex + 1; i < lines.length; i++) {{
+                let inMesociclo = false;
+                for(let i = 0; i < lines.length; i++) {{
                     const line = lines[i].trim();
-                    if(line.startsWith('- **') || line.startsWith('•')) {{
-                        const content = line.replace(/^[-•\\*\\s]+/, '').replace(/[\\*\\s]+$/, '').trim();
-                        if(content.toLowerCase().startsWith('obiettivo:')) {{
-                            w.goal = cleanSources(content.substring(10).trim());
-                        }} else if(content.includes('–')) {{
-                            const parts = content.split('–');
-                            w.title = cleanMD(parts[0]);
-                            w.subtitle = cleanMD(parts[1]);
-                        }} else if(content.includes('-')) {{
-                            const parts = content.split('-');
-                            w.title = cleanMD(parts[0]);
-                            w.subtitle = cleanMD(parts[1]);
+                    if(line.toLowerCase().includes('mesociclo')) {{ inMesociclo = true; continue; }}
+                    
+                    if(inMesociclo) {{
+                        if(line.startsWith('##')) {{ inMesociclo = false; continue; }}
+                        
+                        // Cerca riga titolo: - **M7 – Sottotitolo** o simile
+                        if(line.includes('**') && (line.includes('–') || line.includes('-')) && !line.toLowerCase().includes('obiettivo')) {{
+                            const clean = line.replace(/^[-•\\*\\s]+/, '').replace(/[\\*\\s]+$/, '').trim();
+                            const parts = clean.split(/[–-]/);
+                            if(parts.length >= 1) w.title = cleanMD(parts[0]);
+                            if(parts.length >= 2) w.subtitle = cleanMD(parts.slice(1).join('-'));
+                        }}
+                        
+                        // Cerca riga obiettivo
+                        if(line.toLowerCase().includes('obiettivo:')) {{
+                            const clean = line.replace(/^[-•\\*\\s]+/, '').replace(/[\\*\\s]+$/, '').trim();
+                            w.goal = cleanSources(clean.replace(/obiettivo:/i, '').trim());
                         }}
                     }}
-                    if(line.startsWith('## Struttura')) break;
                 }}
+
+                if(!w.title) w.title = "M7 PROTOCOL"; // Fallback minimo
 
                 const wMatch = cleanText.match(/(\\d+)\\s*settimane/i);
                 if(wMatch) w.numWeeks = parseInt(wMatch[1]);
@@ -511,4 +513,4 @@ if __name__ == "__main__":
     html_content = generate_html()
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(html_content)
-    print(f"Successo: Parser ultra-resiliente per formato Perplexity.")
+    print(f"Successo: Parser ultra-resiliente per ogni variante di markdown.")
