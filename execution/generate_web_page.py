@@ -67,9 +67,9 @@ def generate_html():
             transition: transform 0.2s;
         }}
         .resume-card:active {{ transform: scale(0.97); }}
-        .resume-card h2 {{ color: #000; font-size: 1.35rem; margin-bottom: 8px; line-height: 1.2; font-weight: 900; }}
-        .resume-card small {{ font-weight: 800; opacity: 0.6; text-transform: uppercase; letter-spacing: 1px; font-size: 0.7rem; display: block; margin-bottom: 10px; }}
-        .resume-card p {{ font-size: 0.8rem; line-height: 1.4; font-weight: 600; margin: 0; opacity: 0.8; max-width: 90%; }}
+        .resume-card h2 {{ color: #000; font-size: 1.35rem; margin-bottom: 10px; line-height: 1.2; font-weight: 900; }}
+        .resume-card small {{ font-weight: 800; opacity: 0.6; text-transform: uppercase; letter-spacing: 1px; font-size: 0.7rem; display: block; margin-bottom: 6px; }}
+        .resume-card p {{ font-size: 0.85rem; line-height: 1.5; font-weight: 600; margin: 0; opacity: 0.85; max-width: 95%; }}
         .resume-card .play-icon {{ position: absolute; right: 20px; bottom: 20px; font-size: 2.5rem; opacity: 0.15; }}
 
         .action-btn {{
@@ -159,7 +159,6 @@ def generate_html():
 <body>
     <div id="toast"></div>
 
-    <!-- HOME VIEW -->
     <div id="view-home" class="view active">
         <div class="sticky-header"><h1>Pale<br><span style="color:var(--accent-color)">App</span></h1><p class="subtitle">Peak Performance Hub.</p></div>
         <div id="resume-section"></div>
@@ -167,14 +166,12 @@ def generate_html():
         <div onclick="showView('view-import')" style="position: fixed; bottom: 40px; right: 25px; width: 70px; height: 70px; background: var(--accent-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: #000; box-shadow: 0 10px 20px var(--accent-glow); z-index: 1000; cursor: pointer;">+</div>
     </div>
 
-    <!-- IMPORT VIEW -->
     <div id="view-import" class="view">
         <div class="sticky-header"><div onclick="showView('view-home')" style="color:var(--text-secondary); font-weight:800; cursor:pointer; margin-bottom:8px;">← BACK</div><h1>Import</h1></div>
         <textarea id="import-text" style="width: 100%; height: 300px; background: #111; color: #fff; border-radius: 20px; padding: 20px; border: 1px solid #333; margin: 15px 0;" placeholder="Paste protocol..."></textarea>
         <button id="import-btn" class="btn btn-main" style="width: 100%" onclick="importAction()">INITIALIZE</button>
     </div>
 
-    <!-- PLAN VIEW -->
     <div id="view-plan" class="view">
         <div class="sticky-header">
             <div onclick="showView('view-home')" style="color:var(--text-secondary); font-weight:800; cursor:pointer; margin-bottom:8px;">← DASHBOARD</div>
@@ -185,7 +182,6 @@ def generate_html():
         <div class="day-grid" id="day-list"></div>
     </div>
 
-    <!-- SESSION VIEW -->
     <div id="view-session" class="view">
         <div class="sticky-header">
             <div onclick="openWorkout(currentWorkoutIndex)" style="color:var(--text-secondary); font-weight:800; cursor:pointer; margin-bottom:8px;">← PIANO</div>
@@ -198,7 +194,6 @@ def generate_html():
         <div class="nav-dock"><button class="btn btn-main" onclick="finishSession()">CONCLUDI SESSIONE</button></div>
     </div>
 
-    <!-- EXERCISE VIEW -->
     <div id="view-exercise" class="view">
         <div class="sticky-header">
             <div onclick="startSession(currentDayIdx)" style="color:var(--text-secondary); font-weight:800; cursor:pointer; margin-bottom:8px;">← LISTA</div>
@@ -288,7 +283,7 @@ def generate_html():
 
         function sanitize(str) {{ return str ? str.replace(/^[#\\*\\s\\-\\–\\—]+/g, '').replace(/[#\\*\\-\\–\\—\\s]+$/g, '').trim() : ""; }}
         function cleanMD(str) {{ return str ? str.replace(/\\*\\*/g, '').trim() : ""; }}
-        function cleanSources(str) {{ return str ? str.replace(/\\[\\d+\\]/g, '').trim() : ""; }}
+        function cleanSources(str) {{ return str ? str.replace(/\\[[\\d,\\s]+\\]/g, '').trim() : ""; }}
 
         function openWorkout(idx) {{
             currentWorkoutIndex = idx;
@@ -425,7 +420,6 @@ def generate_html():
                     if(inMesociclo) {{
                         if(line.startsWith('##')) {{ inMesociclo = false; continue; }}
                         
-                        // Cerca riga titolo: - **M7 – Sottotitolo** o simile
                         if(line.includes('**') && (line.includes('–') || line.includes('-')) && !line.toLowerCase().includes('obiettivo')) {{
                             const clean = line.replace(/^[-•\\*\\s]+/, '').replace(/[\\*\\s]+$/, '').trim();
                             const parts = clean.split(/[–-]/);
@@ -433,15 +427,22 @@ def generate_html():
                             if(parts.length >= 2) w.subtitle = cleanMD(parts.slice(1).join('-'));
                         }}
                         
-                        // Cerca riga obiettivo
                         if(line.toLowerCase().includes('obiettivo:')) {{
-                            const clean = line.replace(/^[-•\\*\\s]+/, '').replace(/[\\*\\s]+$/, '').trim();
-                            w.goal = cleanSources(clean.replace(/obiettivo:/i, '').trim());
+                            let fullGoal = line.replace(/^[-•\\*\\s]+/, '').replace(/obiettivo:/i, '').replace(/[\\*\\s]+$/, '').trim();
+                            // Controlla righe successive se non sono elenchi puntati
+                            let next = i + 1;
+                            while(next < lines.length && !lines[next].trim().startsWith('-') && !lines[next].trim().startsWith('•') && !lines[next].trim().startsWith('##')) {{
+                                let nextLine = lines[next].trim();
+                                if(nextLine !== "") fullGoal += " " + nextLine;
+                                next++;
+                            }}
+                            w.goal = cleanSources(fullGoal);
+                            i = next - 1;
                         }}
                     }}
                 }}
 
-                if(!w.title) w.title = "M7 PROTOCOL"; // Fallback minimo
+                if(!w.title) w.title = "M7 PROTOCOL";
 
                 const wMatch = cleanText.match(/(\\d+)\\s*settimane/i);
                 if(wMatch) w.numWeeks = parseInt(wMatch[1]);
@@ -513,4 +514,4 @@ if __name__ == "__main__":
     html_content = generate_html()
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(html_content)
-    print(f"Successo: Parser ultra-resiliente per ogni variante di markdown.")
+    print(f"Successo: Raffinato parsing multi-linea obiettivo e pulizia referenze.")
