@@ -29,9 +29,9 @@ def generate_html():
             --accent-glow: rgba(207, 255, 4, 0.35);
             --text-primary: #ffffff;
             --text-secondary: #8a8a93;
-            --border-radius: 32px;
+            --border-radius: 24px;
             --safe-area-top: env(safe-area-inset-top);
-            --edit-mode-bg: rgba(255, 68, 68, 0.1);
+            --edit-mode-bg: rgba(255, 68, 68, 0.05);
         }}
 
         * {{ box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }}
@@ -43,26 +43,26 @@ def generate_html():
             margin: 0; padding: 0; overflow-x: hidden;
         }}
 
-        .view {{ display: none; padding: 0 24px 140px 24px; min-height: 100vh; position: relative; z-index: 10; }}
+        .view {{ display: none; padding: 0 20px 140px 20px; min-height: 100vh; position: relative; z-index: 10; }}
         .view.active {{ display: block; animation: fadeIn 0.3s ease; }}
         @keyframes fadeIn {{ from {{ opacity: 0; transform: translateY(10px); }} to {{ opacity: 1; transform: translateY(0); }} }}
 
         .sticky-header {{
             position: sticky; top: 0; 
-            padding: calc(40px + var(--safe-area-top)) 24px 20px 24px;
-            margin: 0 -24px 20px -24px;
+            padding: calc(30px + var(--safe-area-top)) 20px 15px 20px;
+            margin: 0 -20px 15px -20px;
             background: linear-gradient(to bottom, var(--bg-color) 80%, transparent);
             backdrop-filter: blur(25px);
             z-index: 1000;
         }}
 
-        h1 {{ font-size: 2.8rem; font-weight: 900; margin: 0; letter-spacing: -2px; text-transform: uppercase; line-height: 1; }}
-        .subtitle {{ color: var(--text-secondary); font-size: 1rem; margin-top: 8px; }}
+        h1 {{ font-size: 2.4rem; font-weight: 900; margin: 0; letter-spacing: -1.5px; text-transform: uppercase; line-height: 1; }}
+        .subtitle {{ color: var(--text-secondary); font-size: 0.9rem; margin-top: 6px; }}
 
         .setup-toggle {{
-            position: absolute; top: calc(45px + var(--safe-area-top)); right: 24px;
-            padding: 10px 20px; border-radius: 20px; background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1); font-weight: 800; font-size: 0.7rem;
+            position: absolute; top: calc(35px + var(--safe-area-top)); right: 20px;
+            padding: 8px 16px; border-radius: 15px; background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1); font-weight: 800; font-size: 0.65rem;
             text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); cursor: pointer;
             transition: 0.3s; z-index: 1100;
         }}
@@ -70,64 +70,78 @@ def generate_html():
 
         .resume-card {{
             background: linear-gradient(135deg, #151518 0%, #1e1e24 100%);
-            border-radius: 28px; padding: 25px; margin: 25px 0;
+            border-radius: 20px; padding: 18px; margin: 20px 0;
             border: 1px solid rgba(255,255,255,0.08);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
             cursor: pointer;
         }}
 
-        .progress-container {{ width: 100%; height: 6px; background: rgba(255,255,255,0.03); border-radius: 10px; margin: 20px 0; overflow: hidden; }}
+        .progress-container {{ width: 100%; height: 4px; background: rgba(255,255,255,0.03); border-radius: 10px; margin: 15px 0; overflow: hidden; }}
         .progress-bar {{ height: 100%; background: var(--accent-color); transition: width 0.8s ease; }}
 
-        .week-grid {{ display: flex; gap: 12px; margin-bottom: 25px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none; }}
+        .week-grid {{ display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; }}
         .week-btn {{ 
-            flex: 0 0 100px; padding: 18px; background: var(--card-bg); 
-            border-radius: 22px; text-align: center; cursor: pointer; opacity: 0.3;
+            flex: 0 0 85px; padding: 14px; background: var(--card-bg); 
+            border-radius: 18px; text-align: center; cursor: pointer; opacity: 0.4;
             border: 1px solid rgba(255,255,255,0.05); transition: 0.3s;
         }}
-        .week-btn.active {{ opacity: 1; background: var(--accent-color); color: #000; box-shadow: 0 8px 20px var(--accent-glow); }}
+        .week-btn.active {{ opacity: 1; background: var(--accent-color); color: #000; box-shadow: 0 5px 15px var(--accent-glow); }}
 
-        .day-grid {{ display: grid; gap: 14px; }}
+        .day-grid {{ display: grid; gap: 10px; }}
         .day-card {{ 
-            background: var(--card-bg); border-radius: 28px; padding: 25px; 
+            background: var(--card-bg); border-radius: 20px; padding: 16px; 
             border: 1px solid rgba(255,255,255,0.05); backdrop-filter: blur(10px);
-            display: flex; justify-content: space-between; align-items: center; cursor: pointer;
+            display: flex; align-items: center; cursor: pointer;
             transition: 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }}
-        .edit-mode .day-card {{ cursor: grab; background: var(--edit-mode-bg); }}
-        .day-card.completed {{ border-left: 8px solid var(--accent-color); background: rgba(207, 255, 4, 0.03); }}
+        .edit-mode .day-card {{ cursor: grab; background: var(--edit-mode-bg); border-color: rgba(255,255,255,0.1); }}
+        .day-card.completed {{ border-left: 6px solid var(--accent-color); background: rgba(207, 255, 4, 0.03); }}
         
+        .drag-handle {{ opacity: 0.3; font-size: 1.2rem; margin-right: 15px; display: none; min-width: 20px; }}
+        .edit-mode .drag-handle {{ display: block; }}
+
+        .day-content {{ flex: 1; }}
+
         .delete-btn {{ 
-            width: 35px; height: 35px; border-radius: 50%; background: rgba(255, 68, 68, 0.2); 
-            display: none; align-items: center; justify-content: center; color: #ff4444; font-size: 0.9rem;
+            width: 32px; height: 32px; border-radius: 50%; background: rgba(255, 68, 68, 0.15); 
+            display: none; align-items: center; justify-content: center; color: #ff4444; font-size: 0.85rem; margin-left: 10px;
         }}
         .edit-mode .delete-btn {{ display: flex; }}
         .edit-mode .status-tag, .edit-mode .sets-wrap {{ display: none !important; }}
 
-        .exercise-card {{ background: var(--card-bg); border-radius: 28px; padding: 25px; margin-bottom: 16px; border: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }}
+        .exercise-card {{ 
+            background: var(--card-bg); border-radius: 20px; padding: 16px; margin-bottom: 10px; 
+            border: 1px solid rgba(255,255,255,0.05); transition: 0.3s;
+            display: flex; align-items: center;
+        }}
         .edit-mode .exercise-card {{ cursor: grab; background: var(--edit-mode-bg); }}
         .exercise-card.fully-done {{ opacity: 0.3; filter: grayscale(1); transform: scale(0.98); }}
         
-        .sets-wrap {{ display: flex; gap: 8px; flex-wrap: wrap; margin-top: 15px; }}
+        .ex-info {{ flex: 1; }}
+
+        .sets-wrap {{ display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }}
         .set-btn {{ 
-            width: 52px; height: 52px; border-radius: 16px; border: 2px solid rgba(255,255,255,0.1);
+            width: 44px; height: 44px; border-radius: 12px; border: 2px solid rgba(255,255,255,0.1);
             display: flex; align-items: center; justify-content: center; font-weight: 800; cursor: pointer;
-            transition: 0.2s;
+            font-size: 0.9rem; transition: 0.2s;
         }}
-        .set-btn.checked {{ background: var(--accent-color); color: #000; border-color: transparent; transform: scale(1.1); }}
+        .set-btn.checked {{ background: var(--accent-color); color: #000; border-color: transparent; transform: scale(1.05); }}
 
-        .sortable-ghost {{ opacity: 0.3; transform: scale(0.95); background: rgba(207,255,4,0.1) !important; border: 2px dashed var(--accent-color) !important; }}
-        .sortable-drag {{ opacity: 1 !important; background: #1e1e24 !important; box-shadow: 0 30px 60px rgba(0,0,0,0.8) !important; transform: scale(1.05) !important; z-index: 5000 !important; }}
+        .sortable-ghost {{ opacity: 0.2; transform: scale(0.95); background: var(--accent-color) !important; }}
+        .sortable-drag {{ opacity: 1 !important; background: #1e1e24 !important; box-shadow: 0 20px 40px rgba(0,0,0,0.8) !important; transform: scale(1.02) !important; z-index: 5000 !important; }}
 
-        .nav-dock {{ position: fixed; bottom: 0; left: 0; width: 100%; padding: 25px 25px 45px 25px; background: linear-gradient(to top, var(--bg-color) 80%, transparent); display: flex; gap: 12px; z-index: 1000; }}
-        .btn {{ flex: 1; border: none; padding: 22px; border-radius: 24px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 0.85rem; }}
-        .btn-main {{ background: var(--accent-color); color: #000; box-shadow: 0 10px 25px var(--accent-glow); }}
+        .nav-dock {{ position: fixed; bottom: 0; left: 0; width: 100%; padding: 20px 20px 40px 20px; background: linear-gradient(to top, var(--bg-color) 80%, transparent); display: flex; gap: 10px; z-index: 1000; }}
+        .btn {{ flex: 1; border: none; padding: 18px; border-radius: 20px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 0.8rem; }}
+        .btn-main {{ background: var(--accent-color); color: #000; box-shadow: 0 8px 20px var(--accent-glow); }}
         .btn-alt {{ background: rgba(255,255,255,0.08); color: #fff; }}
 
         #timer-screen {{ position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); z-index: 3000; display: none; flex-direction: column; align-items: center; justify-content: center; }}
         #timer-clock {{ font-size: 10rem; font-weight: 900; color: var(--accent-color); }}
         
-        #toast {{ position: fixed; top: 30px; left: 50%; transform: translateX(-50%); background: var(--accent-color); color: #000; padding: 12px 25px; border-radius: 50px; font-weight: 800; z-index: 5000; display: none; }}
+        #toast {{ position: fixed; top: 30px; left: 50%; transform: translateX(-50%); background: var(--accent-color); color: #000; padding: 10px 20px; border-radius: 50px; font-weight: 800; z-index: 5000; display: none; font-size: 0.8rem; }}
+        
+        h4 {{ margin: 0; font-size: 1.1rem; }}
+        small {{ font-size: 0.75rem; color: var(--text-secondary); }}
     </style>
 </head>
 <body>
@@ -136,25 +150,25 @@ def generate_html():
     <div id="view-home" class="view active">
         <div class="sticky-header">
             <h1>Pale<br><span style="color:var(--accent-color)">App</span></h1>
-            <p class="subtitle">Peak Performance Protocol.</p>
+            <p class="subtitle">Peak Performance Hub.</p>
         </div>
         <div id="resume-section"></div>
         <div id="workouts-list"></div>
-        <div onclick="showView('view-import')" style="position: fixed; bottom: 40px; right: 25px; width: 75px; height: 75px; background: var(--accent-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; color: #000; box-shadow: 0 15px 30px var(--accent-glow); z-index: 1000; cursor: pointer;">+</div>
+        <div onclick="showView('view-import')" style="position: fixed; bottom: 40px; right: 25px; width: 70px; height: 70px; background: var(--accent-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: #000; box-shadow: 0 10px 20px var(--accent-glow); z-index: 1000; cursor: pointer;">+</div>
     </div>
 
     <div id="view-import" class="view">
         <div class="sticky-header">
-            <div onclick="showView('view-home')" style="color:var(--text-secondary); font-weight:800; cursor:pointer; margin-bottom:10px;">← BACK</div>
-            <h1>Import Protocol</h1>
+            <div onclick="showView('view-home')" style="color:var(--text-secondary); font-weight:800; cursor:pointer; margin-bottom:8px;">← BACK</div>
+            <h1>Import</h1>
         </div>
-        <textarea id="import-text" style="width: 100%; height: 350px; background: #111; color: #fff; border-radius: 24px; padding: 25px; border: 1px solid #333; margin: 20px 0;" placeholder="Paste text here..."></textarea>
+        <textarea id="import-text" style="width: 100%; height: 300px; background: #111; color: #fff; border-radius: 20px; padding: 20px; border: 1px solid #333; margin: 15px 0;" placeholder="Paste protocol..."></textarea>
         <button id="import-btn" class="btn btn-main" style="width: 100%" onclick="importAction()">INITIALIZE</button>
     </div>
 
     <div id="view-plan" class="view">
         <div class="sticky-header">
-            <div onclick="showView('view-home')" style="color:var(--text-secondary); font-weight:800; cursor:pointer; margin-bottom:10px;">← DASHBOARD</div>
+            <div onclick="showView('view-home')" style="color:var(--text-secondary); font-weight:800; cursor:pointer; margin-bottom:8px;">← DASHBOARD</div>
             <h1 id="plan-title">Protocol</h1>
             <div class="setup-toggle" id="plan-setup-btn" onclick="toggleSetup('plan')">Setup</div>
             <div class="progress-container"><div class="progress-bar" id="total-progress-bar"></div></div>
@@ -165,11 +179,11 @@ def generate_html():
 
     <div id="view-session" class="view">
         <div class="sticky-header">
-            <div onclick="openWorkout(currentWorkoutIndex)" style="color:var(--text-secondary); font-weight:800; cursor:pointer; margin-bottom:10px;">← PIANO</div>
+            <div onclick="openWorkout(currentWorkoutIndex)" style="color:var(--text-secondary); font-weight:800; cursor:pointer; margin-bottom:8px;">← PIANO</div>
             <h1 id="session-title">Day X</h1>
             <div class="setup-toggle" id="session-setup-btn" onclick="toggleSetup('session')">Setup</div>
             <p class="subtitle" id="session-subtitle">Week 1</p>
-            <div id="session-focus-container" style="margin-top:10px;"></div>
+            <div id="session-focus-container" style="margin-top:8px;"></div>
         </div>
         <div id="session-content"></div>
         <div class="nav-dock">
@@ -222,10 +236,8 @@ def generate_html():
             btn.classList.toggle('active');
             
             if(view === 'plan') {{
-                document.getElementById('day-list').classList.toggle('edit-mode');
                 openWorkout(currentWorkoutIndex);
             }} else {{
-                document.getElementById('session-content').classList.toggle('edit-mode');
                 startSession(currentDayIdx);
             }}
         }}
@@ -243,9 +255,9 @@ def generate_html():
             workouts.forEach((w, i) => {{
                 const card = document.createElement('div');
                 card.className = 'day-card';
-                card.style.opacity = '1'; card.style.marginBottom = '12px';
+                card.style.opacity = '1'; card.style.marginBottom = '10px';
                 card.onclick = () => openWorkout(i);
-                card.innerHTML = `<div><b>${{w.title}}</b><br><small>${{w.numWeeks}} WEEKS</small></div><div style="opacity:0.2" onclick="event.stopPropagation(); deleteWorkout(${{i}})">🗑️</div>`;
+                card.innerHTML = `<div class="day-content"><b>${{w.title}}</b><br><small>${{w.numWeeks}} WEEKS</small></div><div style="opacity:0.2" onclick="event.stopPropagation(); deleteWorkout(${{i}})">🗑️</div>`;
                 list.appendChild(card);
             }});
         }}
@@ -263,9 +275,8 @@ def generate_html():
             const sel = document.getElementById('week-selector');
             sel.innerHTML = '';
             for(let i=1; i<=w.numWeeks; i++) {{
-                const isU = n ? i <= n.week : true;
                 const b = document.createElement('div');
-                b.className = `week-btn ${{currentWeek === i ? 'active' : ''}} ${{isU ? 'unlocked' : ''}}`;
+                b.className = `week-btn ${{currentWeek === i ? 'active' : ''}}`;
                 b.innerHTML = `<span class="week-num">W${{i}}</span>`;
                 b.onclick = () => {{ currentWeek = i; openWorkout(idx); }};
                 sel.appendChild(b);
@@ -275,20 +286,22 @@ def generate_html():
             dList.innerHTML = '';
             w.days.forEach((d, dI) => {{
                 const status = w.progress && w.progress[currentWeek] && w.progress[currentWeek][dI];
-                const isU = n ? (currentWeek < n.week || (currentWeek === n.week && dI <= n.day)) : true;
                 const c = document.createElement('div');
-                c.className = `day-card ${{status === true ? 'completed' : ''}} ${{status === 'skipped' ? 'skipped' : ''}} ${{!isU && !isEditMode ? 'locked' : ''}}`;
-                c.onclick = () => {{ if(isEditMode) return; if(isU) startSession(dI); }};
-                let t = isU ? 'READY' : 'LOCKED';
+                c.className = `day-card ${{status === true ? 'completed' : ''}} ${{status === 'skipped' ? 'skipped' : ''}}`;
+                c.onclick = () => {{ if(isEditMode) return; startSession(dI); }};
+                let t = 'READY';
                 if(status === true) t = 'DONE';
                 if(status === 'skipped') t = 'SKIP';
                 
                 c.innerHTML = `
-                    <div><h4 class="day-num-title">GIORNO ${{dI + 1}}</h4><small>${{d.name.split('-')[1] || d.name}}</small></div>
+                    <div class="drag-handle">☰</div>
+                    <div class="day-content">
+                        <h4 class="day-num-title">GIORNO ${{dI + 1}}</h4>
+                        <small>${{d.name.split('-')[1] || d.name}}</small>
+                    </div>
                     <div style="display:flex; align-items:center;">
-                        <div class="delete-btn" onclick="event.stopPropagation(); deleteDay(${{dI}})">🗑️</div>
-                        <div style="opacity:0.2; margin-right:15px; font-size:1.2rem;" class="drag-handle">${{isEditMode ? '☰' : ''}}</div>
                         <div class="status-tag">${{t}}</div>
+                        <div class="delete-btn" onclick="event.stopPropagation(); deleteDay(${{dI}})">🗑️</div>
                     </div>
                 `;
                 dList.appendChild(c);
@@ -300,6 +313,7 @@ def generate_html():
             daySortable = new Sortable(dList, {{
                 animation: 500,
                 disabled: !isEditMode,
+                handle: '.drag-handle',
                 ghostClass: 'sortable-ghost',
                 dragClass: 'sortable-drag',
                 forceFallback: true,
@@ -337,7 +351,7 @@ def generate_html():
 
             const focus = document.getElementById('session-focus-container');
             const str = w.weeklyStructure?.find(s => s.week.includes(currentWeek.toString())) || (w.weeklyStructure ? w.weeklyStructure[currentWeek-1] : null);
-            focus.innerHTML = str ? `<div style="background:rgba(207,255,4,0.1); padding:15px; border-radius:20px; border:1px solid var(--accent-color); font-size:0.9rem;"><b>${{str.focus}}</b><br><small>${{str.note}}</small></div>` : '';
+            focus.innerHTML = str ? `<div style="background:rgba(207,255,4,0.08); padding:12px; border-radius:15px; border:1px solid var(--accent-color); font-size:0.8rem;"><b>${{str.focus}}</b><br><small>${{str.note}}</small></div>` : '';
 
             const content = document.getElementById('session-content');
             content.innerHTML = '';
@@ -351,15 +365,15 @@ def generate_html():
                 for(let i=0; i<nS; i++) bsHtml += `<div class="set-btn ${{ex.setStates[i] ? 'checked' : ''}}" onclick="event.stopPropagation(); toggleSetAction(${{eI}}, ${{i}})">${{i+1}}</div>`;
                 
                 card.innerHTML = `
-                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                        <div><b>${{ex.name}}</b><br><small>${{ex.sets}}x${{ex.reps}} • ${{ex.rest}}</small></div>
-                        <div style="display:flex; align-items:center;">
+                    <div class="drag-handle">☰</div>
+                    <div class="ex-info">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                            <div><b>${{ex.name}}</b><br><small>${{ex.sets}}x${{ex.reps}} • ${{ex.rest}}</small></div>
                             <div class="delete-btn" onclick="event.stopPropagation(); deleteEx(${{eI}})">🗑️</div>
-                            <div style="opacity:0.2; font-size:1.2rem; margin-left:15px;">${{isEditMode ? '☰' : ''}}</div>
                         </div>
+                        <div class="sets-wrap" onclick="event.stopPropagation()">${{bsHtml}}</div>
+                        <div style="font-size:0.7rem; color:var(--text-secondary); margin-top:8px;">${{ex.notes || ''}}</div>
                     </div>
-                    <div class="sets-wrap" onclick="event.stopPropagation()">${{bsHtml}}</div>
-                    <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:10px;">${{ex.notes || ''}}</div>
                 `;
                 content.appendChild(card);
             }});
@@ -370,6 +384,7 @@ def generate_html():
             exerciseSortable = new Sortable(content, {{
                 animation: 500,
                 disabled: !isEditMode,
+                handle: '.drag-handle',
                 ghostClass: 'sortable-ghost',
                 dragClass: 'sortable-drag',
                 forceFallback: true,
@@ -476,7 +491,5 @@ if __name__ == "__main__":
     output_path = "index.html"
     html_content = generate_html()
     with open(output_path, 'w', encoding='utf-8') as f:
-        f.write(f.read() if False else html_content) # Placeholder for safety
-    with open(output_path, 'w', encoding='utf-8') as f:
         f.write(html_content)
-    print(f"Successo: Modalità Setup implementata.")
+    print(f"Successo: Layout Spotify, card compatte e giorni sbloccati.")
