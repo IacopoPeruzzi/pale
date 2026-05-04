@@ -82,14 +82,14 @@ def generate_html():
             background: var(--card-bg); border-radius: 28px; padding: 25px; 
             border: 1px solid rgba(255,255,255,0.05); backdrop-filter: blur(10px);
             display: flex; justify-content: space-between; align-items: center; cursor: grab;
-            transition: 0.2s;
+            transition: transform 0.2s, opacity 0.2s;
         }}
         .day-card:active {{ cursor: grabbing; }}
         .day-card.locked {{ opacity: 0.2; filter: grayscale(1); }}
         .day-card.completed {{ border-left: 8px solid var(--accent-color); background: rgba(207, 255, 4, 0.03); }}
         
-        .sortable-ghost {{ opacity: 0.2; background: var(--accent-glow); transform: scale(0.95); }}
-        .sortable-chosen {{ background: rgba(255,255,255,0.1); }}
+        .sortable-ghost {{ opacity: 0.1 !important; transform: scale(0.9); }}
+        .sortable-chosen {{ background: rgba(255,255,255,0.15) !important; }}
 
         .exercise-card {{ background: var(--card-bg); border-radius: 28px; padding: 25px; margin-bottom: 16px; border: 1px solid rgba(255,255,255,0.05); transition: 0.4s; cursor: grab; }}
         .exercise-card.fully-done {{ opacity: 0.3; filter: grayscale(1); transform: scale(0.98); }}
@@ -169,6 +169,8 @@ def generate_html():
         let currentWeek = 1;
         let currentDayIdx = null;
         let activeRestTime = 90;
+        let daySortable = null;
+        let exerciseSortable = null;
 
         function showToast(msg) {{
             const t = document.getElementById('toast');
@@ -245,11 +247,12 @@ def generate_html():
                 let t = isU ? 'READY' : 'LOCKED';
                 if(status === true) t = 'DONE';
                 if(status === 'skipped') t = 'SKIP';
-                c.innerHTML = `<div><h4>GIORNO ${{dI + 1}}</h4><small>${{d.name.split('-')[1] || d.name}}</small></div><div style="display:flex; align-items:center;"><div style="opacity:0.2; margin-right:15px; font-size:1.2rem;">☰</div><div class="status-tag">${{t}}</div></div>`;
+                c.innerHTML = `<div><h4 class="day-num-title">GIORNO ${{dI + 1}}</h4><small>${{d.name.split('-')[1] || d.name}}</small></div><div style="display:flex; align-items:center;"><div style="opacity:0.2; margin-right:15px; font-size:1.2rem;">☰</div><div class="status-tag">${{t}}</div></div>`;
                 dList.appendChild(c);
             }});
             
-            new Sortable(dList, {{
+            if(daySortable) daySortable.destroy();
+            daySortable = new Sortable(dList, {{
                 animation: 600,
                 handle: '.day-card',
                 ghostClass: 'sortable-ghost',
@@ -260,12 +263,19 @@ def generate_html():
                     const movedItem = w.days.splice(evt.oldIndex, 1)[0];
                     w.days.splice(evt.newIndex, 0, movedItem);
                     save();
-                    // Invece di openWorkout istantaneo, aspettiamo la fine dell'animazione
-                    setTimeout(() => openWorkout(currentWorkoutIndex), 100);
+                    // Aggiorna solo i titoli senza re-renderizzare tutto
+                    updateDayLabels();
                 }}
             }});
             
             showView('view-plan');
+        }}
+
+        function updateDayLabels() {{
+            const titles = document.querySelectorAll('.day-num-title');
+            titles.forEach((t, i) => {{
+                t.innerText = `GIORNO ${{i + 1}}`;
+            }});
         }}
 
         function startSession(dI) {{
@@ -307,7 +317,8 @@ def generate_html():
                 content.appendChild(card);
             }});
 
-            new Sortable(content, {{
+            if(exerciseSortable) exerciseSortable.destroy();
+            exerciseSortable = new Sortable(content, {{
                 animation: 600,
                 handle: '.exercise-card',
                 ghostClass: 'sortable-ghost',
@@ -318,7 +329,7 @@ def generate_html():
                     const movedItem = d.exercises.splice(evt.oldIndex, 1)[0];
                     d.exercises.splice(evt.newIndex, 0, movedItem);
                     save();
-                    setTimeout(() => startSession(currentDayIdx), 100);
+                    // Non serve re-renderizzare gli esercizi perché l'ordine DOM è già OK
                 }}
             }});
 
@@ -336,7 +347,7 @@ def generate_html():
             if(isAllDone) {{
                 card.classList.add('fully-done');
                 setTimeout(() => {{
-                    const nextCard = document.getElementById(`ex-card-${{eI + 1}}`);
+                    const nextCard = card.nextElementSibling;
                     if(nextCard) nextCard.scrollIntoView({{ behavior: 'smooth', block: 'center' }});
                 }}, 400);
             }} else card.classList.remove('fully-done');
@@ -420,4 +431,4 @@ if __name__ == "__main__":
     html_content = generate_html()
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(html_content)
-    print(f"Successo: Animazione rallentata e fix drag multiplo.")
+    print(f"Successo: Drag & Drop stabilizzato e animazione 600ms.")
