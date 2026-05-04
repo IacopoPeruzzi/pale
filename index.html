@@ -251,8 +251,9 @@
             });
         }
 
-        function sanitizeName(name) {
-            return name.replace(/^#+\s*/, '').replace(/^\*+\s*/, '').replace(/^-\s*/, '').trim();
+        function sanitize(str) {
+            if(!str) return "";
+            return str.replace(/^[#\*\s\-\–\—]+/g, '').replace(/[#\*\-\–\—\s]+$/g, '').trim();
         }
 
         function openWorkout(idx) {
@@ -261,7 +262,7 @@
             const n = getInc(w);
             if(!currentWeek) currentWeek = n ? n.week : 1;
 
-            document.getElementById('plan-title').innerText = sanitizeName(w.title);
+            document.getElementById('plan-title').innerText = sanitize(w.title);
             updateProg(w);
 
             const sel = document.getElementById('week-selector');
@@ -285,12 +286,14 @@
                 if(status === true) t = 'DONE';
                 if(status === 'skipped') t = 'SKIP';
                 
-                const cleanName = sanitizeName(d.name.split('-')[1] || d.name);
+                let dayName = sanitize(d.name.includes(' – ') ? d.name.split(' – ')[1] : (d.name.includes(' - ') ? d.name.split(' - ')[1] : d.name));
+                if(!dayName || dayName.toLowerCase().startsWith('giorno')) dayName = sanitize(d.name);
+
                 c.innerHTML = `
                     <div class="drag-handle">☰</div>
                     <div class="day-content">
                         <h4 class="day-num-title">GIORNO ${dI + 1}</h4>
-                        <small>${cleanName}</small>
+                        <small>${dayName}</small>
                     </div>
                     <div style="display:flex; align-items:center;">
                         <div class="status-tag">${t}</div>
@@ -302,12 +305,7 @@
             
             if(isEditMode) dList.classList.add('edit-mode'); else dList.classList.remove('edit-mode');
             new Sortable(dList, {
-                animation: 500,
-                disabled: !isEditMode,
-                handle: '.drag-handle',
-                ghostClass: 'sortable-ghost',
-                dragClass: 'sortable-drag',
-                forceFallback: true,
+                animation: 500, disabled: !isEditMode, handle: '.drag-handle', ghostClass: 'sortable-ghost', dragClass: 'sortable-drag', forceFallback: true,
                 onEnd: function(evt) {
                     const w = workouts[currentWorkoutIndex];
                     const movedItem = w.days.splice(evt.oldIndex, 1)[0];
@@ -330,16 +328,18 @@
             const w = workouts[currentWorkoutIndex];
             const d = w.days[dI];
             const status = w.progress && w.progress[currentWeek] && w.progress[currentWeek][dI];
-            const cleanDayName = sanitizeName(d.name.split('-')[1] || d.name);
             
+            let dayName = sanitize(d.name.includes(' – ') ? d.name.split(' – ')[1] : (d.name.includes(' - ') ? d.name.split(' - ')[1] : d.name));
+            if(!dayName || dayName.toLowerCase().startsWith('giorno')) dayName = sanitize(d.name);
+
             document.getElementById('session-title').innerText = `GIORNO ${dI + 1}`;
-            document.getElementById('session-subtitle').innerText = `WEEK ${currentWeek} • ${cleanDayName}`;
+            document.getElementById('session-subtitle').innerText = `WEEK ${currentWeek} • ${dayName}`;
             document.getElementById('restart-btn').style.display = status ? 'block' : 'none';
             document.getElementById('finish-btn').style.display = status ? 'none' : 'block';
             document.getElementById('skip-btn').style.display = status ? 'none' : 'block';
 
             const focus = document.getElementById('session-focus-container');
-            const str = w.weeklyStructure?.find(s => s.week.includes(currentWeek.toString())) || (w.weeklyStructure ? w.weeklyStructure[currentWeek-1] : null);
+            const str = w.weeklyStructure?.find(s => s.week === 'W' + currentWeek) || (w.weeklyStructure ? w.weeklyStructure[currentWeek-1] : null);
             focus.innerHTML = str ? `<div style="background:rgba(207,255,4,0.08); padding:12px; border-radius:15px; border:1px solid var(--accent-color); font-size:0.8rem;"><b>${str.focus}</b><br><small>${str.note}</small></div>` : '';
 
             const content = document.getElementById('session-content');
@@ -357,7 +357,7 @@
                     <div class="drag-handle" style="margin-top:10px">☰</div>
                     <div class="ex-info">
                         <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
-                            <div class="ex-name">${sanitizeName(ex.name)}</div>
+                            <div class="ex-name">${sanitize(ex.name)}</div>
                             <div class="delete-btn" onclick="event.stopPropagation(); deleteEx(${eI})">🗑️</div>
                         </div>
                         <div class="metrics-row">
@@ -366,7 +366,7 @@
                             <div class="metric-badge"><b>${ex.rest}</b> REST</div>
                         </div>
                         <div class="sets-wrap" onclick="event.stopPropagation()">${bsHtml}</div>
-                        ${ex.notes ? `<div class="note-box">${ex.notes}</div>` : ''}
+                        ${ex.notes ? `<div class="note-box">${sanitize(ex.notes)}</div>` : ''}
                     </div>
                 `;
                 content.appendChild(card);
@@ -374,12 +374,7 @@
 
             if(isEditMode) content.classList.add('edit-mode'); else content.classList.remove('edit-mode');
             new Sortable(content, {
-                animation: 500,
-                disabled: !isEditMode,
-                handle: '.drag-handle',
-                ghostClass: 'sortable-ghost',
-                dragClass: 'sortable-drag',
-                forceFallback: true,
+                animation: 500, disabled: !isEditMode, handle: '.drag-handle', ghostClass: 'sortable-ghost', dragClass: 'sortable-drag', forceFallback: true,
                 onEnd: function(evt) {
                     const d = workouts[currentWorkoutIndex].days[currentDayIdx];
                     const movedItem = d.exercises.splice(evt.oldIndex, 1)[0];
@@ -399,13 +394,9 @@
             const card = content.children[eI];
             const setBtn = card.querySelectorAll('.set-btn')[sI];
             if(ex.setStates[sI]) setBtn.classList.add('checked'); else setBtn.classList.remove('checked');
-            const isAllDone = ex.setStates.every(s => s === true);
-            if(isAllDone) {
+            if(ex.setStates.every(s => s === true)) {
                 card.classList.add('fully-done');
-                setTimeout(() => {
-                    const nextCard = card.nextElementSibling;
-                    if(nextCard) nextCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }, 400);
+                setTimeout(() => { if(card.nextElementSibling) card.nextElementSibling.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 400);
             } else card.classList.remove('fully-done');
             if(ex.setStates[sI]) activeRestTime = parseRest(ex.rest);
             save();
@@ -435,29 +426,35 @@
                 const w = { id: "p-" + Date.now(), title: "NEW PROTOCOL", numWeeks: 4, weeklyStructure: [], days: [], progress: {} };
                 const lines = t.split('\n');
                 const tMatch = t.match(/(?:#|\*\*|Perfetto:)\s*\*?\*?([A-Z0-9 ]+)\b/i);
-                if(tMatch) w.title = tMatch[1].trim().toUpperCase();
+                if(tMatch) w.title = sanitize(tMatch[1]);
                 const wMatch = t.match(/(\d+)\s*settimane/i);
                 if(wMatch) w.numWeeks = parseInt(wMatch[1]);
+                
+                let structureLines = [];
+                let inStructureTable = false;
+                lines.forEach(l => {
+                    if(l.includes('| Settimana |')) inStructureTable = true;
+                    else if(inStructureTable && l.includes('| W')) structureLines.push(l);
+                    else if(inStructureTable && l.trim() === "") inStructureTable = false;
+                });
+                structureLines.forEach(l => {
+                    const cols = l.split('|').map(c => c.trim());
+                    if(cols.length >= 3 && cols[1].startsWith('W')) 
+                        w.weeklyStructure.push({ week: cols[1], focus: cols[2], note: cols[4] || "" });
+                });
+
                 let curD = null;
                 lines.forEach(l => {
-                    const dMatch = l.match(/(?:Giorno|Day|Sessione)\s+([A-Z\d]+)/i);
-                    if(dMatch) {
+                    const dMatch = l.match(/##\s*(?:Giorno|Day|Sessione)\s+([A-Z\d]+)/i) || l.match(/##\s*([A-Za-z ]+)/);
+                    if(l.startsWith('## ') && (l.toLowerCase().includes('giorno') || l.toLowerCase().includes('sessione'))) {
                         if(curD && curD.exercises.length > 0) w.days.push(curD);
-                        curD = { name: l.trim(), exercises: [] };
+                        curD = { name: sanitize(l), exercises: [] };
                     } else if(curD) {
                         const exMatch = l.match(/(\d+)\s*[xX]\s*(\d+(?:-\d+)?)/);
-                        if(exMatch || l.includes('|')) {
+                        if(l.includes('|') && !l.includes('Esercizio') && !l.includes('---')) {
                             const cols = l.split('|').map(c => c.trim());
-                            if(cols.length >= 4) {
-                                const name = cols[1];
-                                if(name && !name.includes('---') && !name.includes('Esercizio')) {
-                                    curD.exercises.push({ name: name, sets: cols[2], reps: cols[3], rest: cols[4] || "90s", notes: cols[5] || "" });
-                                };
-                            } else if(exMatch) {
-                                const name = l.split(exMatch[0])[0].replace(/[-•*]/g, '').trim();
-                                if(name && name.length > 2) {
-                                    curD.exercises.push({ name: name, sets: exMatch[1], reps: exMatch[2], rest: "90s", notes: "" });
-                                }
+                            if(cols.length >= 4 && cols[1] !== "") {
+                                curD.exercises.push({ name: sanitize(cols[1]), sets: cols[2], reps: cols[3], rest: cols[4] || "90s", notes: cols[5] || "" });
                             }
                         }
                     }
