@@ -39,6 +39,7 @@ def generate_html():
             color: var(--text-primary);
             font-family: 'Outfit', sans-serif;
             margin: 0; padding: 0; overflow-x: hidden;
+            scroll-behavior: smooth;
         }}
 
         .view {{ display: none; padding: calc(40px + var(--safe-area-top)) 24px 140px 24px; min-height: 100vh; position: relative; z-index: 10; }}
@@ -82,15 +83,16 @@ def generate_html():
         .status-tag {{ font-size: 0.7rem; font-weight: 900; padding: 6px 12px; border-radius: 12px; background: rgba(255,255,255,0.05); }}
         .completed .status-tag {{ background: var(--accent-color); color: #000; }}
 
-        .exercise-card {{ background: var(--card-bg); border-radius: 28px; padding: 25px; margin-bottom: 16px; border: 1px solid rgba(255,255,255,0.05); }}
-        .exercise-card.fully-done {{ opacity: 0.3; filter: grayscale(1); }}
+        .exercise-card {{ background: var(--card-bg); border-radius: 28px; padding: 25px; margin-bottom: 16px; border: 1px solid rgba(255,255,255,0.05); transition: 0.4s; }}
+        .exercise-card.fully-done {{ opacity: 0.3; filter: grayscale(1); transform: scale(0.98); }}
         
         .sets-wrap {{ display: flex; gap: 8px; flex-wrap: wrap; margin-top: 15px; }}
         .set-btn {{ 
             width: 48px; height: 48px; border-radius: 14px; border: 2px solid rgba(255,255,255,0.1);
             display: flex; align-items: center; justify-content: center; font-weight: 800; cursor: pointer;
+            transition: 0.2s;
         }}
-        .set-btn.checked {{ background: var(--accent-color); color: #000; border-color: transparent; }}
+        .set-btn.checked {{ background: var(--accent-color); color: #000; border-color: transparent; transform: scale(1.1); }}
 
         .nav-dock {{ position: fixed; bottom: 0; left: 0; width: 100%; padding: 25px 25px 45px 25px; background: linear-gradient(to top, var(--bg-color) 80%, transparent); display: flex; gap: 12px; z-index: 100; }}
         .btn {{ flex: 1; border: none; padding: 22px; border-radius: 24px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 0.85rem; }}
@@ -100,7 +102,7 @@ def generate_html():
         #timer-screen {{ position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); z-index: 3000; display: none; flex-direction: column; align-items: center; justify-content: center; }}
         #timer-clock {{ font-size: 10rem; font-weight: 900; color: var(--accent-color); }}
         
-        #toast {{ position: fixed; top: 30px; left: 50%; transform: translateX(-50%); background: var(--accent-gradient); color: #000; padding: 12px 25px; border-radius: 50px; font-weight: 800; z-index: 5000; display: none; }}
+        #toast {{ position: fixed; top: 30px; left: 50%; transform: translateX(-50%); background: var(--accent-color); color: #000; padding: 12px 25px; border-radius: 50px; font-weight: 800; z-index: 5000; display: none; }}
     </style>
 </head>
 <body>
@@ -254,6 +256,7 @@ def generate_html():
                 if(!ex.setStates) ex.setStates = new Array(nS).fill(false);
                 const isD = ex.setStates.every(s => s === true);
                 const card = document.createElement('div');
+                card.id = `ex-card-${{eI}}`;
                 card.className = `exercise-card ${{isD ? 'fully-done' : ''}}`;
                 let bs = '';
                 for(let i=0; i<nS; i++) bs += `<div class="set-btn ${{ex.setStates[i] ? 'checked' : ''}}" onclick="toggleSetAction(${{eI}}, ${{i}})">${{i+1}}</div>`;
@@ -266,7 +269,22 @@ def generate_html():
         function toggleSetAction(eI, sI) {{
             const ex = workouts[currentWorkoutIndex].days[currentDayIdx].exercises[eI];
             ex.setStates[sI] = !ex.setStates[sI];
-            if(ex.setStates[sI]) activeRestTime = parseRest(ex.rest);
+            
+            if(ex.setStates[sI]) {{
+                activeRestTime = parseRest(ex.rest);
+                // Controllo se l'esercizio è completato
+                const isAllDone = ex.setStates.every(s => s === true);
+                if(isAllDone) {{
+                    // Scorrimento all'esercizio successivo dopo un breve ritardo per l'animazione
+                    setTimeout(() => {{
+                        const nextCard = document.getElementById(`ex-card-${{eI + 1}}`);
+                        if(nextCard) {{
+                            nextCard.scrollIntoView({{ behavior: 'smooth', block: 'center' }});
+                        }}
+                    }}, 300);
+                }}
+            }}
+            
             startSession(currentDayIdx);
             save();
         }}
@@ -288,36 +306,22 @@ def generate_html():
             btn.innerText = "ANALYZING..."; btn.disabled = true;
 
             setTimeout(() => {{
-                const w = {{ 
-                    id: "p-" + Date.now(), 
-                    title: "NEW PROTOCOL", 
-                    numWeeks: 4, 
-                    weeklyStructure: [], 
-                    days: [], 
-                    progress: {{}} 
-                }};
-
+                const w = {{ id: "p-" + Date.now(), title: "NEW PROTOCOL", numWeeks: 4, weeklyStructure: [], days: [], progress: {{}} }};
                 const lines = t.split('\\n');
                 const tMatch = t.match(/(?:#|\\*\\*|Perfetto:)\\s*\\*?\\*?([A-Z0-9 ]+)\\b/i);
                 if(tMatch) w.title = tMatch[1].trim().toUpperCase();
-
                 const wMatch = t.match(/(\\d+)\\s*settimane/i);
                 if(wMatch) w.numWeeks = parseInt(wMatch[1]);
-
                 let inTable = false;
                 lines.forEach(l => {{
                     if(l.includes('| Settimana |')) inTable = true;
                     else if(inTable && l.includes('| W')) {{
                         const cols = l.split('|').map(c => c.trim());
-                        if(cols.length >= 3) {{
-                            w.weeklyStructure.push({{ week: cols[1], focus: cols[2], note: cols[4] || "" }});
-                        }}
+                        if(cols.length >= 3) w.weeklyStructure.push({{ week: cols[1], focus: cols[2], note: cols[4] || "" }});
                     }} else if(inTable && l.trim() === "") inTable = false;
                 }});
-
                 let curD = null;
                 lines.forEach(l => {{
-                    // Match flessibile per i giorni (senza ^ per supportare ### o **)
                     const dMatch = l.match(/(?:Giorno|Day|Sessione)\\s+([A-Z\\d]+)/i);
                     if(dMatch) {{
                         if(curD && curD.exercises.length > 0) w.days.push(curD);
@@ -329,40 +333,23 @@ def generate_html():
                             if(cols.length >= 4) {{
                                 const name = cols[1];
                                 if(name && !name.includes('---') && !name.includes('Esercizio')) {{
-                                    curD.exercises.push({{
-                                        name: name,
-                                        sets: cols[2],
-                                        reps: cols[3],
-                                        rest: cols[4] || "90s",
-                                        notes: cols[5] || ""
-                                    }});
+                                    curD.exercises.push({{ name: name, sets: cols[2], reps: cols[3], rest: cols[4] || "90s", notes: cols[5] || "" }});
                                 }};
                             }} else if(exMatch) {{
                                 const name = l.split(exMatch[0])[0].replace(/[-•*]/g, '').trim();
                                 if(name && name.length > 2) {{
-                                    curD.exercises.push({{
-                                        name: name,
-                                        sets: exMatch[1],
-                                        reps: exMatch[2],
-                                        rest: "90s",
-                                        notes: ""
-                                    }});
+                                    curD.exercises.push({{ name: name, sets: exMatch[1], reps: exMatch[2], rest: "90s", notes: "" }});
                                 }}
                             }}
                         }}
                     }}
                 }});
                 if(curD && curD.exercises.length > 0) w.days.push(curD);
-
-                if(w.days.length > 0) {{
-                    workouts.unshift(w); save(); showToast("PROTOCOL INJECTED"); showView('view-home');
-                }} else {{
-                    alert("PARSING FAILED. No valid days or exercises found.");
-                }}
+                if(w.days.length > 0) {{ workouts.unshift(w); save(); showToast("PROTOCOL INJECTED"); showView('view-home'); }}
+                else {{ alert("PARSING FAILED."); }}
                 btn.innerText = "INITIALIZE"; btn.disabled = false;
             }}, 800);
         }}
-
         function deleteWorkout(i) {{ if(confirm('DELETE?')) {{ workouts.splice(i, 1); save(); renderHome(); }} }}
         renderHome();
     </script>
@@ -376,4 +363,4 @@ if __name__ == "__main__":
     html_content = generate_html()
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(html_content)
-    print(f"Successo: Parser JS ripristinato e flessibile.")
+    print(f"Successo: Scorrimento automatico implementato.")
