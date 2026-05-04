@@ -402,36 +402,49 @@ def generate_html():
         function deleteWorkout(i) {{ if(confirm('DELETE?')) {{ workouts.splice(i, 1); save(); renderHome(); }} }}
 
         function importAction() {{
-            const t = document.getElementById('import-text').value;
-            if(!t.trim()) return;
+            const raw = document.getElementById('import-text').value;
+            if(!raw.trim()) return;
             const btn = document.getElementById('import-btn');
             btn.innerText = "IMPORTING..."; btn.disabled = true;
+
             setTimeout(() => {{
                 const w = {{ id: "p-" + Date.now(), title: "NEW PROTOCOL", subtitle: "", goal: "", numWeeks: 4, weeklyStructure: [], days: [], progress: {{}} }};
-                const lines = t.split('\\n');
                 
-                // 1. Titolo e Sottotitolo
-                const firstLine = lines[0].replace(/^[#\\s]+/, '').trim();
-                if(firstLine) {{
-                    const parts = firstLine.split(/[–\\-]/);
-                    w.title = parts[0].trim();
-                    if(parts.length > 1) w.subtitle = parts.slice(1).join('-').trim();
+                // 1. Taglia il testo dopo "fonti" o "Fonti"
+                let cleanText = raw;
+                const fontiIdx = raw.toLowerCase().lastIndexOf('fonti');
+                if(fontiIdx !== -1) cleanText = raw.substring(0, fontiIdx);
+                const lines = cleanText.split('\\n');
+
+                // 2. Trova la sezione Mesociclo
+                let startIndex = 0;
+                for(let i=0; i<lines.length; i++) {{
+                    if(lines[i].toLowerCase().includes('mesociclo')) {{ startIndex = i; break; }}
                 }}
 
-                // 2. Estrazione Obiettivo Strategico (Long Goal)
-                let inGoal = false;
-                lines.forEach(l => {{
-                    const cleanL = l.trim();
-                    if(cleanL.toLowerCase().includes('## obiettivo')) {{ inGoal = true; return; }}
-                    if(inGoal && cleanL.startsWith('##')) {{ inGoal = false; return; }}
-                    if(inGoal && cleanL !== "" && !cleanL.startsWith('|')) {{
-                        w.goal += cleanL + " ";
+                // 3. Estrazione Titolo, Sottotitolo e Obiettivo Strategico dai punti elenco
+                for(let i = startIndex; i < lines.length; i++) {{
+                    const line = lines[i].trim();
+                    if(line.startsWith('•')) {{
+                        const content = line.substring(1).trim();
+                        if(content.toLowerCase().startsWith('obiettivo:')) {{
+                            w.goal = content.substring(10).trim();
+                        }} else if(content.includes('–')) {{
+                            const parts = content.split('–');
+                            w.title = parts[0].trim();
+                            w.subtitle = parts[1].trim();
+                        }} else if(content.includes('-')) {{
+                            const parts = content.split('-');
+                            w.title = parts[0].trim();
+                            w.subtitle = parts[1].trim();
+                        }}
                     }}
-                }});
-                w.goal = w.goal.trim();
+                    if(line.startsWith('## ') && (line.toLowerCase().includes('giorno') || line.toLowerCase().includes('sessione'))) break;
+                }}
 
-                const wMatch = t.match(/(\\d+)\\s*settimane/i);
+                const wMatch = cleanText.match(/(\\d+)\\s*settimane/i);
                 if(wMatch) w.numWeeks = parseInt(wMatch[1]);
+
                 let structureTable = []; let inStructureTable = false;
                 lines.forEach(l => {{
                     if(l.includes('| Settimana |')) inStructureTable = true;
@@ -443,6 +456,7 @@ def generate_html():
                     if(cols.length >= 3 && cols[1].startsWith('W')) 
                         w.weeklyStructure.push({{ week: cols[1], focus: cols[2], note: cols[4] || "" }});
                 }});
+
                 let inRules = false;
                 lines.forEach(l => {{
                     const cleanL = l.trim();
@@ -459,6 +473,7 @@ def generate_html():
                         }}
                     }}
                 }});
+
                 let curD = null;
                 lines.forEach(l => {{
                     if(l.startsWith('## ') && (l.toLowerCase().includes('giorno') || l.toLowerCase().includes('sessione') || l.toLowerCase().includes('giorno extra'))) {{
@@ -474,7 +489,13 @@ def generate_html():
                     }}
                 }});
                 if(curD && curD.exercises.length > 0) w.days.push(curD);
-                if(w.days.length > 0) {{ workouts.unshift(w); save(); showToast("IMPORTED"); showView('view-home'); }}
+                
+                if(w.days.length > 0) {{ 
+                    workouts.unshift(w); save(); 
+                    showToast("IMPORTED"); 
+                    renderHome(); // AGGIORNA DASHBOARD SUBITO
+                    showView('view-home'); 
+                }}
                 btn.innerText = "INITIALIZE"; btn.disabled = false;
             }}, 800);
         }}
@@ -491,4 +512,4 @@ if __name__ == "__main__":
     html_content = generate_html()
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(html_content)
-    print(f"Successo: Implementato parsing narrativo dell'Obiettivo Strategico.")
+    print(f"Successo: Parser ultra-specifico per Mesociclo ed Obiettivi.")
