@@ -69,7 +69,7 @@ def generate_html():
             transition: transform 0.2s;
         }}
         .resume-card:active {{ transform: scale(0.97); }}
-        .resume-card h2 {{ color: #000; font-size: 1.5rem; margin-bottom: 4px; }}
+        .resume-card h2 {{ color: #000; font-size: 1.35rem; margin-bottom: 4px; line-height: 1.2; font-weight: 900; }}
         .resume-card small {{ font-weight: 800; opacity: 0.7; text-transform: uppercase; letter-spacing: 1px; font-size: 0.75rem; }}
         .resume-card .play-icon {{ position: absolute; right: 24px; bottom: 20px; font-size: 2.5rem; opacity: 0.2; }}
 
@@ -207,23 +207,17 @@ def generate_html():
             <div class="action-btn danger" onclick="resetExAction()">Reset</div>
             <p class="subtitle" id="ex-detail-meta">Serie 1 di 4</p>
         </div>
-
         <div class="metrics-grid">
             <div class="metric-box"><div class="metric-label">Serie</div><div class="metric-value" id="val-sets">4</div></div>
             <div class="metric-box"><div class="metric-label">Reps</div><div class="metric-value" id="val-reps">---</div></div>
             <div class="metric-box"><div class="metric-label">Rest</div><div class="metric-value" id="val-rest">90"</div></div>
         </div>
-        
         <div id="sets-blocks-container"></div>
-        
         <div class="session-notes-box">
             <label>NOTE DI SESSIONE</label>
             <textarea class="session-notes-textarea" id="session-notes" placeholder="Com'è andata oggi?" oninput="updateSessionNotes()"></textarea>
         </div>
-
-        <div class="nav-dock">
-            <button class="btn btn-main" onclick="nextExercise()">PROSSIMO</button>
-        </div>
+        <div class="nav-dock"><button class="btn btn-main" onclick="nextExercise()">PROSSIMO</button></div>
     </div>
 
     <script>
@@ -262,10 +256,11 @@ def generate_html():
                 const w = workouts[0];
                 const n = getInc(w);
                 if (n) {{
-                    let obj = w.title.toLowerCase().includes('m7') ? 'Massa & Forza' : 'Performance';
+                    let titleStr = sanitize(w.title);
+                    if(w.goal) titleStr += " - " + sanitize(w.goal);
                     res.innerHTML = `
                         <div class="resume-card" onclick="resumeWorkout(0)">
-                            <h2>Continua: ${{sanitize(w.title)}} - ${{obj}}</h2>
+                            <h2>Continua: ${{titleStr}}</h2>
                             <small>W${{n.week}} • GIORNO ${{n.day+1}} • PRONTI?</small>
                             <div class="play-icon">▶</div>
                         </div>`;
@@ -277,7 +272,7 @@ def generate_html():
                 const card = document.createElement('div');
                 card.className = 'list-card';
                 card.onclick = () => openWorkout(i);
-                card.innerHTML = `<div style="flex:1"><b>${{w.title}}</b></div><div style="opacity:0.2" onclick="event.stopPropagation(); deleteWorkout(${{i}})">🗑️</div>`;
+                card.innerHTML = `<div style="flex:1"><b>${{w.title}}</b><br><small style="opacity:0.5">${{w.goal || ""}}</small></div><div style="opacity:0.2" onclick="event.stopPropagation(); deleteWorkout(${{i}})">🗑️</div>`;
                 list.appendChild(card);
             }});
         }}
@@ -286,10 +281,8 @@ def generate_html():
             const w = workouts[idx];
             const n = getInc(w);
             currentWorkoutIndex = idx;
-            if(n) {{
-                currentWeek = n.week;
-                startSession(n.day);
-            }} else openWorkout(idx);
+            if(n) {{ currentWeek = n.week; startSession(n.day); }} 
+            else openWorkout(idx);
         }}
 
         function sanitize(str) {{ return str ? str.replace(/^[#\\*\\s\\-\\–\\—]+/g, '').replace(/[#\\*\\-\\–\\—\\s]+$/g, '').trim() : ""; }}
@@ -385,11 +378,7 @@ def generate_html():
                     block.className = 'set-block';
                     let subHtml = '';
                     subExs.forEach((sx, sI) => {{
-                        subHtml += `
-                            <div class="sub-ex-row">
-                                <div class="sub-ex-info"><div class="sub-ex-name">${{sx.name}}</div><div class="sub-ex-reps">${{sx.reps}}</div></div>
-                                <div class="load-input-wrap"><input type="number" class="load-input" value="${{round.subLoads[sI] || ""}}" placeholder="---" oninput="updateSubLoad(${{rI}}, ${{sI}}, this.value)"><span class="load-unit">KG</span></div>
-                            </div>`;
+                        subHtml += `<div class="sub-ex-row"><div class="sub-ex-info"><div class="sub-ex-name">${{sx.name}}</div><div class="sub-ex-reps">${{sx.reps}}</div></div><div class="load-input-wrap"><input type="number" class="load-input" value="${{round.subLoads[sI] || ""}}" placeholder="---" oninput="updateSubLoad(${{rI}}, ${{sI}}, this.value)"><span class="load-unit">KG</span></div></div>`;
                     }});
                     block.innerHTML = `<div class="set-header"><div class="set-circle ${{round.done ? 'active' : ''}}" onclick="toggleRound(${{rI}})">${{rI+1}}</div><div style="font-weight:800; font-size:0.8rem; color:var(--text-secondary)">${{subExs.length > 1 ? 'GIRO COMPLETO' : 'SERIE'}}</div></div><div class="sub-ex-list">${{subHtml}}</div>`;
                     container.appendChild(block);
@@ -410,6 +399,72 @@ def generate_html():
         function exportToCSV() {{ const w = workouts[currentWorkoutIndex]; const d = w.days[currentDayIdx]; let csv = "Data,Piano,Settimana,Giorno,Esercizio,SottoEsercizio,Giro,Carico,Note\\n"; const date = new Date().toLocaleDateString(); d.exercises.forEach(ex => {{ const data = ex.sessionData && ex.sessionData[currentWeek]; if(data) {{ data.rounds.forEach((round, rI) => {{ round.subLoads.forEach((load, sI) => {{ csv += `"${{date}}","${{w.title}}","W${{currentWeek}}","${{sanitize(d.name)}}","${{sanitize(ex.name)}}","Set ${{sI+1}}",${{rI+1}},"${{load}}","${{(data.notes||'').replace(/"/g, '""')}}"\\n`; }}); }}); }} }}); const blob = new Blob([csv], {{ type: 'text/csv' }}); const url = window.URL.createObjectURL(blob); const a = document.createElement('a'); a.setAttribute('hidden', ''); a.setAttribute('href', url); a.setAttribute('download', `workout_log_${{new Date().getTime()}}.csv`); document.body.appendChild(a); a.click(); document.body.removeChild(a); }}
         function save() {{ localStorage.setItem('pale_workouts', JSON.stringify(workouts)); }}
         function deleteWorkout(i) {{ if(confirm('DELETE?')) {{ workouts.splice(i, 1); save(); renderHome(); }} }}
+
+        function importAction() {{
+            const t = document.getElementById('import-text').value;
+            if(!t.trim()) return;
+            const btn = document.getElementById('import-btn');
+            btn.innerText = "IMPORTING..."; btn.disabled = true;
+            setTimeout(() => {{
+                const w = {{ id: "p-" + Date.now(), title: "NEW PROTOCOL", goal: "", numWeeks: 4, weeklyStructure: [], days: [], progress: {{}} }};
+                const lines = t.split('\\n');
+                
+                // Estrazione Titolo e Obiettivo
+                const firstLine = lines[0].replace(/^[#\\s]+/, '').trim();
+                if(firstLine) {{
+                    const parts = firstLine.split(/[–\\-]/);
+                    w.title = parts[0].trim();
+                    if(parts.length > 1) w.goal = parts.slice(1).join('-').trim();
+                }}
+
+                const wMatch = t.match(/(\\d+)\\s*settimane/i);
+                if(wMatch) w.numWeeks = parseInt(wMatch[1]);
+                let structureTable = []; let inStructureTable = false;
+                lines.forEach(l => {{
+                    if(l.includes('| Settimana |')) inStructureTable = true;
+                    else if(inStructureTable && l.includes('| W')) structureTable.push(l);
+                    else if(inStructureTable && l.trim() === "") inStructureTable = false;
+                }});
+                structureTable.forEach(l => {{
+                    const cols = l.split('|').map(c => c.trim());
+                    if(cols.length >= 3 && cols[1].startsWith('W')) 
+                        w.weeklyStructure.push({{ week: cols[1], focus: cols[2], note: cols[4] || "" }});
+                }});
+                let inRules = false;
+                lines.forEach(l => {{
+                    const cleanL = l.trim();
+                    if(cleanL.toLowerCase().includes('## regole')) {{ inRules = true; return; }}
+                    if(inRules && cleanL.startsWith('##')) {{ inRules = false; return; }}
+                    if(inRules) {{
+                        const ruleMatch = cleanL.match(/(?:-|\\*)\\s*\\**W(\\d+)\\**\\s*:?\\s*(.*)/i);
+                        if(ruleMatch) {{
+                            const wkNum = 'W' + ruleMatch[1];
+                            const content = ruleMatch[2].trim();
+                            let existing = w.weeklyStructure.find(s => s.week === wkNum);
+                            if(existing) existing.note = content;
+                            else w.weeklyStructure.push({{ week: wkNum, focus: "Regola", note: content }});
+                        }}
+                    }}
+                }});
+                let curD = null;
+                lines.forEach(l => {{
+                    if(l.startsWith('## ') && (l.toLowerCase().includes('giorno') || l.toLowerCase().includes('sessione') || l.toLowerCase().includes('giorno extra'))) {{
+                        if(curD && curD.exercises.length > 0) w.days.push(curD);
+                        curD = {{ name: sanitize(l), exercises: [] }};
+                    }} else if(curD) {{
+                        if(l.includes('|') && !l.includes('Esercizio') && !l.includes('---')) {{
+                            const cols = l.split('|').map(c => c.trim());
+                            if(cols.length >= 4 && cols[1] !== "") {{
+                                curD.exercises.push({{ name: sanitize(cols[1]), sets: cols[2], reps: cols[3], rest: cols[4] || "90s", notes: cols[5] || "" }});
+                            }}
+                        }}
+                    }}
+                }});
+                if(curD && curD.exercises.length > 0) w.days.push(curD);
+                if(w.days.length > 0) {{ workouts.unshift(w); save(); showToast("IMPORTED"); showView('view-home'); }}
+                btn.innerText = "INITIALIZE"; btn.disabled = false;
+            }}, 800);
+        }}
         function updateProg(w) {{ let t = w.numWeeks * (w.days?w.days.length:0); let d = 0; if (w.progress) Object.values(w.progress).forEach(wk => {{ d += Object.keys(wk).length; }}); document.getElementById('total-progress-bar').style.width = `${{t?(d / t) * 100:0}}%`; }}
         renderHome();
     </script>
@@ -423,4 +478,4 @@ if __name__ == "__main__":
     html_content = generate_html()
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(html_content)
-    print(f"Successo: Potenziata Resume Card e logica di lancio rapido.")
+    print(f"Successo: Titolo ed obiettivo estratti correttamente. Dashboard potenziata.")
