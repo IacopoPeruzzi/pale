@@ -189,7 +189,7 @@ def generate_html():
                 c.style.opacity = '1'; c.style.marginBottom = '12px';
                 c.onclick = () => openWorkout(i);
                 c.innerHTML = `<div><b>${{w.title}}</b><br><small>${{w.numWeeks}} WEEKS</small></div><div style="opacity:0.2" onclick="event.stopPropagation(); deleteWorkout(${{i}})">🗑️</div>`;
-                list.appendChild(c);
+                list.appendChild(card);
             }});
         }}
 
@@ -242,7 +242,6 @@ def generate_html():
             document.getElementById('finish-btn').style.display = status ? 'none' : 'block';
             document.getElementById('skip-btn').style.display = status ? 'none' : 'block';
 
-            // Focus card
             const focus = document.getElementById('session-focus-container');
             const str = w.weeklyStructure?.find(s => s.week.includes(currentWeek.toString())) || (w.weeklyStructure ? w.weeklyStructure[currentWeek-1] : null);
             focus.innerHTML = str ? `<div style="background:rgba(207,255,4,0.1); padding:15px; border-radius:20px; border:1px solid var(--accent-color); font-size:0.9rem;"><b>${{str.focus}}</b><br><small>${{str.note}}</small></div>` : '';
@@ -297,18 +296,13 @@ def generate_html():
                     progress: {{}} 
                 }};
 
-                // Robust Parser
                 const lines = t.split('\\n');
-                
-                // Estrai Titolo
                 const tMatch = t.match(/(?:#|\\*\\*|Perfetto:)\\s*\\*?\\*?([A-Z0-9 ]+)\\b/i);
                 if(tMatch) w.title = tMatch[1].trim().toUpperCase();
 
-                // Estrai Settimane
                 const wMatch = t.match(/(\\d+)\\s*settimane/i);
                 if(wMatch) w.numWeeks = parseInt(wMatch[1]);
 
-                // Estrai Struttura Settimanale (Tabelle)
                 let inTable = false;
                 lines.forEach(l => {{
                     if(l.includes('| Settimana |')) inTable = true;
@@ -320,7 +314,6 @@ def generate_html():
                     }} else if(inTable && l.trim() === "") inTable = false;
                 }});
 
-                // Estrai Giorni ed Esercizi
                 let curD = null;
                 lines.forEach(l => {{
                     const dMatch = l.match(/(?:Giorno|Day|Sessione)\\s+([A-Z\\d]+)/i);
@@ -328,26 +321,32 @@ def generate_html():
                         if(curD) w.days.push(curD);
                         curD = {{ name: l.trim(), exercises: [] }};
                     }} else if(curD) {{
-                        // Tabella esercizi o lista
                         const exMatch = l.match(/(\\d+)\\s*[xX]\\s*(\\d+(?:-\\d+)?)/);
                         if(exMatch || l.includes('|')) {{
                             const cols = l.split('|').map(c => c.trim());
-                            if(cols.length >= 4 && !cols[1].includes('Esercizio')) {{
-                                curD.exercises.push({{
-                                    name: cols[1],
-                                    sets: cols[2],
-                                    reps: cols[3],
-                                    rest: cols[4] || "90s",
-                                    notes: cols[5] || ""
-                                }});
+                            // Condizione migliorata: deve esserci un nome e non deve essere solo trattini
+                            if(cols.length >= 4) {{
+                                const name = cols[1];
+                                if(name && !name.includes('---') && !name.includes('Esercizio')) {{
+                                    curD.exercises.push({{
+                                        name: name,
+                                        sets: cols[2],
+                                        reps: cols[3],
+                                        rest: cols[4] || "90s",
+                                        notes: cols[5] || ""
+                                    }});
+                                }};
                             }} else if(exMatch) {{
-                                curD.exercises.push({{
-                                    name: l.split(exMatch[0])[0].replace(/[-•*]/g, '').trim(),
-                                    sets: exMatch[1],
-                                    reps: exMatch[2],
-                                    rest: "90s",
-                                    notes: ""
-                                }});
+                                const name = l.split(exMatch[0])[0].replace(/[-•*]/g, '').trim();
+                                if(name) {{
+                                    curD.exercises.push({{
+                                        name: name,
+                                        sets: exMatch[1],
+                                        reps: exMatch[2],
+                                        rest: "90s",
+                                        notes: ""
+                                    }});
+                                }}
                             }}
                         }}
                     }}
@@ -376,4 +375,4 @@ if __name__ == "__main__":
     html_content = generate_html()
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(html_content)
-    print(f"Successo: Parser JS potenziato e sincronizzato.")
+    print(f"Successo: Fix esercizio vuoto e sincronizzazione.")
