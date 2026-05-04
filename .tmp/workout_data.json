@@ -1,0 +1,477 @@
+{
+    "id": "m7",
+    "title": "M7",
+    "numWeeks": 4,
+    "weeklyStructure": [
+        {
+            "week": "W1",
+            "focus": "Entrata",
+            "note": "Familiarizzazione"
+        },
+        {
+            "week": "W2",
+            "focus": "Progressione",
+            "note": "+reps o +carico"
+        },
+        {
+            "week": "W3",
+            "focus": "Picco",
+            "note": "Più densa"
+        },
+        {
+            "week": "W4",
+            "focus": "Deload",
+            "note": "-40% serie, no tecniche [8]"
+        },
+        {
+            "week": "Esercizio",
+            "focus": "Serie",
+            "note": "Recupero"
+        },
+        {
+            "week": "---",
+            "focus": "---:",
+            "note": "---:"
+        },
+        {
+            "week": "Single-arm lat pulldown",
+            "focus": "4",
+            "note": "1'45\"–2'00\""
+        },
+        {
+            "week": "Chest-supported T-bar row",
+            "focus": "4",
+            "note": "2'00\"–2'30\""
+        },
+        {
+            "week": "Straight-arm pulldown",
+            "focus": "3",
+            "note": "1'15\"–1'30\""
+        },
+        {
+            "week": "High row machine/cavo alto",
+            "focus": "3",
+            "note": "1'30\"–1'45\""
+        },
+        {
+            "week": "Face pull",
+            "focus": "3",
+            "note": "1'00\"–1'15\""
+        },
+        {
+            "week": "Hollow hold",
+            "focus": "3",
+            "note": "30\"–45\""
+        },
+        {
+            "week": "Pallof press",
+            "focus": "3",
+            "note": "30\"–45\""
+        },
+        {
+            "week": "Esercizio",
+            "focus": "Serie",
+            "note": "Recupero"
+        },
+        {
+            "week": "---",
+            "focus": "---:",
+            "note": "---:"
+        },
+        {
+            "week": "Landmine press",
+            "focus": "4",
+            "note": "2'00\"–2'30\""
+        },
+        {
+            "week": "Machine lateral raise o laterali al cavo singolo",
+            "focus": "3",
+            "note": "1'00\"–1'15\""
+        },
+        {
+            "week": "Side-lying lateral raise",
+            "focus": "2",
+            "note": "1'00\""
+        },
+        {
+            "week": "Rear delt cable fly",
+            "focus": "3",
+            "note": "1'00\""
+        },
+        {
+            "week": "Overhead rope extension",
+            "focus": "3",
+            "note": "1'15\"–1'30\""
+        },
+        {
+            "week": "Dead bug",
+            "focus": "3",
+            "note": "30\"–45\""
+        },
+        {
+            "week": "Hollow hold",
+            "focus": "2",
+            "note": "30\"–45\""
+        },
+        {
+            "week": "Esercizio",
+            "focus": "Serie",
+            "note": "Recupero"
+        },
+        {
+            "week": "---",
+            "focus": "---:",
+            "note": "---:"
+        },
+        {
+            "week": "Incline dumbbell curl",
+            "focus": "4",
+            "note": "1'30\"–1'45\""
+        },
+        {
+            "week": "Drag curl",
+            "focus": "3",
+            "note": "1'15\"–1'30\""
+        },
+        {
+            "week": "EZ-bar skullcrusher",
+            "focus": "4",
+            "note": "1'45\"–2'00\""
+        },
+        {
+            "week": "Pushdown V-bar",
+            "focus": "3",
+            "note": "1'15\"–1'30\""
+        },
+        {
+            "week": "Cross-body hammer curl",
+            "focus": "3",
+            "note": "1'15\""
+        },
+        {
+            "week": "Pallof press",
+            "focus": "4",
+            "note": "30\"–45\""
+        },
+        {
+            "week": "Esercizio",
+            "focus": "Serie",
+            "note": "Recupero"
+        },
+        {
+            "week": "---",
+            "focus": "---:",
+            "note": "---:"
+        },
+        {
+            "week": "Pulldown presa neutra stretta",
+            "focus": "3",
+            "note": "1'30\"–1'45\""
+        },
+        {
+            "week": "Seal row o rematore chest-supported manubri",
+            "focus": "3",
+            "note": "1'45\"–2'00\""
+        },
+        {
+            "week": "Pullover cavo",
+            "focus": "3",
+            "note": "1'00\"–1'15\""
+        },
+        {
+            "week": "Reverse pec deck / rear delt machine",
+            "focus": "3",
+            "note": "1'00\""
+        },
+        {
+            "week": "Face pull alto",
+            "focus": "2",
+            "note": "45\"–1'00\""
+        },
+        {
+            "week": "Circuito core",
+            "focus": "3 giri",
+            "note": "1'00\" tra giri"
+        },
+        {
+            "week": "Esercizio",
+            "focus": "Serie",
+            "note": "Recupero"
+        },
+        {
+            "week": "---",
+            "focus": "---:",
+            "note": "---:"
+        },
+        {
+            "week": "Hack squat o Leg Press bilat",
+            "focus": "3",
+            "note": "2'00\"–2'30\""
+        },
+        {
+            "week": "Leg extension bilat",
+            "focus": "3",
+            "note": "1'15\"–1'30\""
+        },
+        {
+            "week": "Seated leg curl",
+            "focus": "3",
+            "note": "1'30\"–1'45\""
+        },
+        {
+            "week": "L-sit",
+            "focus": "3",
+            "note": "45\"–60\""
+        },
+        {
+            "week": "Seated calf raise o calf press",
+            "focus": "3",
+            "note": "1'00\"–1'15\""
+        }
+    ],
+    "days": [
+        {
+            "name": "Giorno A - Back",
+            "exercises": [
+                {
+                    "name": "Single-arm lat pulldown",
+                    "sets": "4",
+                    "reps": "10–12/lato",
+                    "rest": "1'45\"–2'00\"",
+                    "notes": "Ultima serie con 4–5 partials lunghe"
+                },
+                {
+                    "name": "Chest-supported T-bar row",
+                    "sets": "4",
+                    "reps": "8–10",
+                    "rest": "2'00\"–2'30\"",
+                    "notes": "Lineare"
+                },
+                {
+                    "name": "Straight-arm pulldown",
+                    "sets": "3",
+                    "reps": "12–15",
+                    "rest": "1'15\"–1'30\"",
+                    "notes": "Eccentrica 3\""
+                },
+                {
+                    "name": "High row machine/cavo alto",
+                    "sets": "3",
+                    "reps": "10–12",
+                    "rest": "1'30\"–1'45\"",
+                    "notes": "Pausa 1\" in chiusura"
+                },
+                {
+                    "name": "Face pull",
+                    "sets": "3",
+                    "reps": "15–20",
+                    "rest": "1'00\"–1'15\"",
+                    "notes": "Pausa 2\""
+                },
+                {
+                    "name": "Hollow hold",
+                    "sets": "3",
+                    "reps": "40–45\"",
+                    "rest": "30\"–45\"",
+                    "notes": "Core"
+                },
+                {
+                    "name": "Pallof press",
+                    "sets": "3",
+                    "reps": "12–15/lato",
+                    "rest": "30\"–45\"",
+                    "notes": "Core"
+                }
+            ]
+        },
+        {
+            "name": "Giorno B - Shoulders",
+            "exercises": [
+                {
+                    "name": "Landmine press",
+                    "sets": "4",
+                    "reps": "8–10",
+                    "rest": "2'00\"–2'30\"",
+                    "notes": "1 top set + 2 back-off + 1 serie lineare"
+                },
+                {
+                    "name": "Machine lateral raise o laterali al cavo singolo",
+                    "sets": "3",
+                    "reps": "12–15",
+                    "rest": "1'00\"–1'15\"",
+                    "notes": "Ultima Myo-reps"
+                },
+                {
+                    "name": "Side-lying lateral raise",
+                    "sets": "2",
+                    "reps": "12–15",
+                    "rest": "1'00\"",
+                    "notes": "Controllo totale"
+                },
+                {
+                    "name": "Rear delt cable fly",
+                    "sets": "3",
+                    "reps": "15–20",
+                    "rest": "1'00\"",
+                    "notes": "Pausa 2\""
+                },
+                {
+                    "name": "Overhead rope extension",
+                    "sets": "3",
+                    "reps": "10–12",
+                    "rest": "1'15\"–1'30\"",
+                    "notes": "Stretch pieno"
+                },
+                {
+                    "name": "Dead bug",
+                    "sets": "3",
+                    "reps": "12/lato",
+                    "rest": "30\"–45\"",
+                    "notes": "Core"
+                },
+                {
+                    "name": "Hollow hold",
+                    "sets": "2",
+                    "reps": "35–40\"",
+                    "rest": "30\"–45\"",
+                    "notes": "Core"
+                }
+            ]
+        },
+        {
+            "name": "Giorno C - Arms",
+            "exercises": [
+                {
+                    "name": "Incline dumbbell curl",
+                    "sets": "4",
+                    "reps": "8–10",
+                    "rest": "1'30\"–1'45\"",
+                    "notes": "Ultima serie con 4 partials in allungamento"
+                },
+                {
+                    "name": "Drag curl",
+                    "sets": "3",
+                    "reps": "10–12",
+                    "rest": "1'15\"–1'30\"",
+                    "notes": "Eccentrica 3\""
+                },
+                {
+                    "name": "EZ-bar skullcrusher",
+                    "sets": "4",
+                    "reps": "8–10",
+                    "rest": "1'45\"–2'00\"",
+                    "notes": "Lineare"
+                },
+                {
+                    "name": "Pushdown V-bar",
+                    "sets": "3",
+                    "reps": "12–15",
+                    "rest": "1'15\"–1'30\"",
+                    "notes": "Ultima drop 10%"
+                },
+                {
+                    "name": "Cross-body hammer curl",
+                    "sets": "3",
+                    "reps": "10–12",
+                    "rest": "1'15\"",
+                    "notes": "Lineare"
+                },
+                {
+                    "name": "Pallof press",
+                    "sets": "4",
+                    "reps": "15/lato",
+                    "rest": "30\"–45\"",
+                    "notes": "Core"
+                }
+            ]
+        },
+        {
+            "name": "Giorno D - Recall",
+            "exercises": [
+                {
+                    "name": "Pulldown presa neutra stretta",
+                    "sets": "3",
+                    "reps": "12–15",
+                    "rest": "1'30\"–1'45\"",
+                    "notes": "Tensione continua"
+                },
+                {
+                    "name": "Seal row o rematore chest-supported manubri",
+                    "sets": "3",
+                    "reps": "10–12",
+                    "rest": "1'45\"–2'00\"",
+                    "notes": "Pausa 1\""
+                },
+                {
+                    "name": "Pullover cavo",
+                    "sets": "3",
+                    "reps": "15–20",
+                    "rest": "1'00\"–1'15\"",
+                    "notes": "Eccentrica 3\""
+                },
+                {
+                    "name": "Reverse pec deck / rear delt machine",
+                    "sets": "3",
+                    "reps": "15–20",
+                    "rest": "1'00\"",
+                    "notes": "Ultima Myo-reps"
+                },
+                {
+                    "name": "Face pull alto",
+                    "sets": "2",
+                    "reps": "20",
+                    "rest": "45\"–1'00\"",
+                    "notes": "Pump"
+                },
+                {
+                    "name": "Circuito core",
+                    "sets": "3 giri",
+                    "reps": "—",
+                    "rest": "1'00\" tra giri",
+                    "notes": "Hollow 35\" + Dead bug 12/lato + Pallof 15/lato"
+                }
+            ]
+        },
+        {
+            "name": "Giorno extra",
+            "exercises": [
+                {
+                    "name": "Hack squat o Leg Press bilat",
+                    "sets": "3",
+                    "reps": "10–12",
+                    "rest": "2'00\"–2'30\"",
+                    "notes": "1 top set + 2 back-off"
+                },
+                {
+                    "name": "Leg extension bilat",
+                    "sets": "3",
+                    "reps": "12–15",
+                    "rest": "1'15\"–1'30\"",
+                    "notes": "Ultima Myo-reps"
+                },
+                {
+                    "name": "Seated leg curl",
+                    "sets": "3",
+                    "reps": "10–12",
+                    "rest": "1'30\"–1'45\"",
+                    "notes": "Pausa 1\""
+                },
+                {
+                    "name": "L-sit",
+                    "sets": "3",
+                    "reps": "60–80\"",
+                    "rest": "45\"–60\"",
+                    "notes": "Pulito"
+                },
+                {
+                    "name": "Seated calf raise o calf press",
+                    "sets": "3",
+                    "reps": "12–20",
+                    "rest": "1'00\"–1'15\"",
+                    "notes": "5 partials finali in allungamento [1]"
+                }
+            ]
+        }
+    ],
+    "totalEx": 31
+}
