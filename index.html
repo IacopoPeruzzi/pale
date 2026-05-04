@@ -30,9 +30,18 @@
             scroll-behavior: smooth;
         }
 
-        .view { display: none; padding: calc(40px + var(--safe-area-top)) 24px 140px 24px; min-height: 100vh; position: relative; z-index: 10; }
+        .view { display: none; padding: 0 24px 140px 24px; min-height: 100vh; position: relative; z-index: 10; }
         .view.active { display: block; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .sticky-header {
+            position: sticky; top: 0; 
+            padding: calc(40px + var(--safe-area-top)) 24px 20px 24px;
+            margin: 0 -24px 20px -24px;
+            background: linear-gradient(to bottom, var(--bg-color) 70%, transparent);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+        }
 
         h1 { font-size: 2.8rem; font-weight: 900; margin: 0; letter-spacing: -2px; text-transform: uppercase; line-height: 1; }
         .subtitle { color: var(--text-secondary); font-size: 1rem; margin-top: 8px; }
@@ -82,7 +91,7 @@
         }
         .set-btn.checked { background: var(--accent-color); color: #000; border-color: transparent; transform: scale(1.1); }
 
-        .nav-dock { position: fixed; bottom: 0; left: 0; width: 100%; padding: 25px 25px 45px 25px; background: linear-gradient(to top, var(--bg-color) 80%, transparent); display: flex; gap: 12px; z-index: 100; }
+        .nav-dock { position: fixed; bottom: 0; left: 0; width: 100%; padding: 25px 25px 45px 25px; background: linear-gradient(to top, var(--bg-color) 80%, transparent); display: flex; gap: 12px; z-index: 1000; }
         .btn { flex: 1; border: none; padding: 22px; border-radius: 24px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 0.85rem; }
         .btn-main { background: var(--accent-color); color: #000; box-shadow: 0 10px 25px var(--accent-glow); }
         .btn-alt { background: rgba(255,255,255,0.08); color: #fff; }
@@ -97,34 +106,42 @@
     <div id="toast"></div>
 
     <div id="view-home" class="view active">
-        <h1>Pale<br><span style="color:var(--accent-color)">App</span></h1>
-        <p class="subtitle">Peak Performance Protocol.</p>
+        <div class="sticky-header">
+            <h1>Pale<br><span style="color:var(--accent-color)">App</span></h1>
+            <p class="subtitle">Peak Performance Protocol.</p>
+        </div>
         <div id="resume-section"></div>
         <div id="workouts-list"></div>
         <div onclick="showView('view-import')" style="position: fixed; bottom: 40px; right: 25px; width: 75px; height: 75px; background: var(--accent-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; color: #000; box-shadow: 0 15px 30px var(--accent-glow); z-index: 1000; cursor: pointer;">+</div>
     </div>
 
     <div id="view-import" class="view">
-        <div onclick="showView('view-home')" style="color:var(--text-secondary); font-weight:800; cursor:pointer; margin-bottom:25px;">← BACK</div>
-        <h1>Import Protocol</h1>
+        <div class="sticky-header">
+            <div onclick="showView('view-home')" style="color:var(--text-secondary); font-weight:800; cursor:pointer; margin-bottom:10px;">← BACK</div>
+            <h1>Import Protocol</h1>
+        </div>
         <textarea id="import-text" style="width: 100%; height: 350px; background: #111; color: #fff; border-radius: 24px; padding: 25px; border: 1px solid #333; margin: 20px 0;" placeholder="Paste text here..."></textarea>
         <button id="import-btn" class="btn btn-main" style="width: 100%" onclick="importAction()">INITIALIZE</button>
     </div>
 
     <div id="view-plan" class="view">
-        <div onclick="showView('view-home')" style="color:var(--text-secondary); font-weight:800; cursor:pointer; margin-bottom:25px;">← DASHBOARD</div>
-        <h1 id="plan-title">Protocol</h1>
-        <div class="progress-container"><div class="progress-bar" id="total-progress-bar"></div></div>
-        <div class="week-grid" id="week-selector"></div>
+        <div class="sticky-header">
+            <div onclick="showView('view-home')" style="color:var(--text-secondary); font-weight:800; cursor:pointer; margin-bottom:10px;">← DASHBOARD</div>
+            <h1 id="plan-title">Protocol</h1>
+            <div class="progress-container"><div class="progress-bar" id="total-progress-bar"></div></div>
+            <div class="week-grid" id="week-selector"></div>
+        </div>
         <div class="day-grid" id="day-list"></div>
     </div>
 
     <div id="view-session" class="view">
-        <div onclick="openWorkout(currentWorkoutIndex)" style="color:var(--text-secondary); font-weight:800; cursor:pointer; margin-bottom:25px;">← PIANO</div>
-        <h1 id="session-title">Day X</h1>
-        <p class="subtitle" id="session-subtitle">Week 1</p>
-        <div id="session-focus-container"></div>
-        <div id="session-content" style="margin-top:20px;"></div>
+        <div class="sticky-header">
+            <div onclick="openWorkout(currentWorkoutIndex)" style="color:var(--text-secondary); font-weight:800; cursor:pointer; margin-bottom:10px;">← PIANO</div>
+            <h1 id="session-title">Day X</h1>
+            <p class="subtitle" id="session-subtitle">Week 1</p>
+            <div id="session-focus-container" style="margin-top:10px;"></div>
+        </div>
+        <div id="session-content"></div>
         <div class="nav-dock">
             <button id="restart-btn" class="btn btn-alt" style="display:none; color:#ff4444;" onclick="resetAction()">RESET</button>
             <button id="skip-btn" class="btn btn-alt" onclick="quickSkipAction()" style="flex: 0.3">SKIP</button>
@@ -161,6 +178,7 @@
         function showView(id) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.getElementById(id).classList.add('active');
+            window.scrollTo(0,0);
             if(id === 'view-home') renderHome();
         }
 
@@ -175,12 +193,12 @@
             const list = document.getElementById('workouts-list');
             list.innerHTML = workouts.length === 0 ? '<p>Nessun piano.</p>' : '<h3>I tuoi Piani</h3>';
             workouts.forEach((w, i) => {
-                const c = document.createElement('div');
-                c.className = 'day-card';
-                c.style.opacity = '1'; c.style.marginBottom = '12px';
-                c.onclick = () => openWorkout(i);
-                c.innerHTML = `<div><b>${w.title}</b><br><small>${w.numWeeks} WEEKS</small></div><div style="opacity:0.2" onclick="event.stopPropagation(); deleteWorkout(${i})">🗑️</div>`;
-                list.appendChild(c);
+                const card = document.createElement('div');
+                card.className = 'day-card';
+                card.style.opacity = '1'; card.style.marginBottom = '12px';
+                card.onclick = () => openWorkout(i);
+                card.innerHTML = `<div><b>${w.title}</b><br><small>${w.numWeeks} WEEKS</small></div><div style="opacity:0.2" onclick="event.stopPropagation(); deleteWorkout(${i})">🗑️</div>`;
+                list.appendChild(card);
             });
         }
 
@@ -257,22 +275,16 @@
         function toggleSetAction(eI, sI) {
             const ex = workouts[currentWorkoutIndex].days[currentDayIdx].exercises[eI];
             ex.setStates[sI] = !ex.setStates[sI];
-            
             if(ex.setStates[sI]) {
                 activeRestTime = parseRest(ex.rest);
-                // Controllo se l'esercizio è completato
                 const isAllDone = ex.setStates.every(s => s === true);
                 if(isAllDone) {
-                    // Scorrimento all'esercizio successivo dopo un breve ritardo per l'animazione
                     setTimeout(() => {
                         const nextCard = document.getElementById(`ex-card-${eI + 1}`);
-                        if(nextCard) {
-                            nextCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        }
+                        if(nextCard) nextCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     }, 300);
                 }
             }
-            
             startSession(currentDayIdx);
             save();
         }
@@ -292,7 +304,6 @@
             if(!t.trim()) return;
             const btn = document.getElementById('import-btn');
             btn.innerText = "ANALYZING..."; btn.disabled = true;
-
             setTimeout(() => {
                 const w = { id: "p-" + Date.now(), title: "NEW PROTOCOL", numWeeks: 4, weeklyStructure: [], days: [], progress: {} };
                 const lines = t.split('\n');
@@ -334,7 +345,6 @@
                 });
                 if(curD && curD.exercises.length > 0) w.days.push(curD);
                 if(w.days.length > 0) { workouts.unshift(w); save(); showToast("PROTOCOL INJECTED"); showView('view-home'); }
-                else { alert("PARSING FAILED."); }
                 btn.innerText = "INITIALIZE"; btn.disabled = false;
             }, 800);
         }
