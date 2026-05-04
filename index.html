@@ -50,16 +50,15 @@
         .resume-card {
             background: linear-gradient(135deg, var(--accent-color) 0%, #b8e600 100%);
             border-radius: 28px; padding: 24px; margin: 20px 0;
-            border: none;
-            box-shadow: 0 15px 35px var(--accent-glow);
-            cursor: pointer; color: #000;
-            position: relative; overflow: hidden;
+            border: none; box-shadow: 0 15px 35px var(--accent-glow);
+            cursor: pointer; color: #000; position: relative; overflow: hidden;
             transition: transform 0.2s;
         }
         .resume-card:active { transform: scale(0.97); }
-        .resume-card h2 { color: #000; font-size: 1.35rem; margin-bottom: 4px; line-height: 1.2; font-weight: 900; }
-        .resume-card small { font-weight: 800; opacity: 0.7; text-transform: uppercase; letter-spacing: 1px; font-size: 0.75rem; }
-        .resume-card .play-icon { position: absolute; right: 24px; bottom: 20px; font-size: 2.5rem; opacity: 0.2; }
+        .resume-card h2 { color: #000; font-size: 1.35rem; margin-bottom: 8px; line-height: 1.2; font-weight: 900; }
+        .resume-card small { font-weight: 800; opacity: 0.6; text-transform: uppercase; letter-spacing: 1px; font-size: 0.7rem; display: block; margin-bottom: 10px; }
+        .resume-card p { font-size: 0.8rem; line-height: 1.4; font-weight: 600; margin: 0; opacity: 0.8; max-width: 90%; }
+        .resume-card .play-icon { position: absolute; right: 20px; bottom: 20px; font-size: 2.5rem; opacity: 0.15; }
 
         .action-btn {
             position: absolute; top: calc(35px + var(--safe-area-top)); right: 20px;
@@ -245,11 +244,13 @@
                 const n = getInc(w);
                 if (n) {
                     let titleStr = sanitize(w.title);
-                    if(w.goal) titleStr += " - " + sanitize(w.goal);
+                    if(w.subtitle) titleStr += " - " + sanitize(w.subtitle);
                     res.innerHTML = `
                         <div class="resume-card" onclick="resumeWorkout(0)">
-                            <h2>Continua: ${titleStr}</h2>
-                            <small>W${n.week} • GIORNO ${n.day+1} • PRONTI?</small>
+                            <small>Continua</small>
+                            <h2>${titleStr}</h2>
+                            ${w.goal ? `<p>${w.goal}</p>` : ''}
+                            <div style="margin-top:15px; font-weight:900; font-size:0.65rem; opacity:0.5;">W${n.week} • GIORNO ${n.day+1}</div>
                             <div class="play-icon">▶</div>
                         </div>`;
                 }
@@ -260,7 +261,7 @@
                 const card = document.createElement('div');
                 card.className = 'list-card';
                 card.onclick = () => openWorkout(i);
-                card.innerHTML = `<div style="flex:1"><b>${w.title}</b><br><small style="opacity:0.5">${w.goal || ""}</small></div><div style="opacity:0.2" onclick="event.stopPropagation(); deleteWorkout(${i})">🗑️</div>`;
+                card.innerHTML = `<div style="flex:1"><b>${w.title}</b><br><small style="opacity:0.5">${w.subtitle || ""}</small></div><div style="opacity:0.2" onclick="event.stopPropagation(); deleteWorkout(${i})">🗑️</div>`;
                 list.appendChild(card);
             });
         }
@@ -394,16 +395,28 @@
             const btn = document.getElementById('import-btn');
             btn.innerText = "IMPORTING..."; btn.disabled = true;
             setTimeout(() => {
-                const w = { id: "p-" + Date.now(), title: "NEW PROTOCOL", goal: "", numWeeks: 4, weeklyStructure: [], days: [], progress: {} };
+                const w = { id: "p-" + Date.now(), title: "NEW PROTOCOL", subtitle: "", goal: "", numWeeks: 4, weeklyStructure: [], days: [], progress: {} };
                 const lines = t.split('\n');
                 
-                // Estrazione Titolo e Obiettivo
+                // 1. Titolo e Sottotitolo
                 const firstLine = lines[0].replace(/^[#\s]+/, '').trim();
                 if(firstLine) {
                     const parts = firstLine.split(/[–\-]/);
                     w.title = parts[0].trim();
-                    if(parts.length > 1) w.goal = parts.slice(1).join('-').trim();
+                    if(parts.length > 1) w.subtitle = parts.slice(1).join('-').trim();
                 }
+
+                // 2. Estrazione Obiettivo Strategico (Long Goal)
+                let inGoal = false;
+                lines.forEach(l => {
+                    const cleanL = l.trim();
+                    if(cleanL.toLowerCase().includes('## obiettivo')) { inGoal = true; return; }
+                    if(inGoal && cleanL.startsWith('##')) { inGoal = false; return; }
+                    if(inGoal && cleanL !== "" && !cleanL.startsWith('|')) {
+                        w.goal += cleanL + " ";
+                    }
+                });
+                w.goal = w.goal.trim();
 
                 const wMatch = t.match(/(\d+)\s*settimane/i);
                 if(wMatch) w.numWeeks = parseInt(wMatch[1]);
