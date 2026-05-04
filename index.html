@@ -430,7 +430,6 @@
                 const wMatch = t.match(/(\d+)\s*settimane/i);
                 if(wMatch) w.numWeeks = parseInt(wMatch[1]);
                 
-                // Parsing Focus da Tabella
                 let structureTable = [];
                 let inStructureTable = false;
                 lines.forEach(l => {
@@ -444,19 +443,24 @@
                         w.weeklyStructure.push({ week: cols[1], focus: cols[2], note: cols[4] || "" });
                 });
 
-                // Parsing Focus da sezione "Regole" (Overwrite o integrazione)
                 let inRules = false;
                 lines.forEach(l => {
-                    if(l.toLowerCase().includes('## regole')) inRules = true;
-                    else if(inRules && l.startsWith('##')) inRules = false;
-                    else if(inRules && l.includes('W')) {
-                        const ruleMatch = l.match(/(?:-|\*)\s*\*?W(\d+)\*?:?\s*(.*)/i);
+                    const cleanL = l.trim();
+                    if(cleanL.toLowerCase().includes('## regole')) { inRules = true; return; }
+                    if(inRules && cleanL.startsWith('##')) { inRules = false; return; }
+                    
+                    if(inRules) {
+                        const ruleMatch = cleanL.match(/(?:-|\*)\s*\**W(\d+)\**\s*:?\s*(.*)/i);
                         if(ruleMatch) {
                             const wkNum = 'W' + ruleMatch[1];
                             const content = ruleMatch[2].trim();
                             let existing = w.weeklyStructure.find(s => s.week === wkNum);
-                            if(existing) existing.note = content;
-                            else w.weeklyStructure.push({ week: wkNum, focus: "Regola", note: content });
+                            if(existing) {
+                                existing.focus = sanitize(existing.focus);
+                                existing.note = content;
+                            } else {
+                                w.weeklyStructure.push({ week: wkNum, focus: "Regola", note: content });
+                            }
                         }
                     }
                 });
