@@ -102,31 +102,29 @@ def generate_html():
         .metric-label {{ font-size: 0.65rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }}
         .metric-value {{ font-size: 1.1rem; font-weight: 800; color: var(--accent-color); }}
 
-        .circuit-list {{ 
-            background: rgba(207, 255, 4, 0.05); border-radius: 20px; padding: 20px; margin-bottom: 25px;
-            border: 1px solid var(--accent-glow);
+        .set-block {{ 
+            background: rgba(255,255,255,0.03); border-radius: 20px; padding: 18px; margin-bottom: 15px;
+            border: 1px solid rgba(255,255,255,0.05);
         }}
-        .circuit-item {{ display: flex; align-items: center; gap: 12px; margin-bottom: 10px; color: #fff; font-weight: 600; }}
-        .circuit-dot {{ width: 8px; height: 8px; border-radius: 50%; background: var(--accent-color); flex-shrink: 0; }}
-
-        .set-row {{ 
-            display: flex; align-items: center; gap: 15px; margin-bottom: 12px; 
-            background: rgba(255,255,255,0.03); padding: 10px 15px; border-radius: 18px;
-            border: 1px solid rgba(255,255,255,0.03);
-        }}
+        .set-header {{ display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }}
         .set-circle {{ 
             width: 45px; height: 45px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.1);
             display: flex; align-items: center; justify-content: center; font-size: 1.1rem; font-weight: 900;
             transition: 0.3s; cursor: pointer; flex-shrink: 0;
         }}
         .set-circle.active {{ background: var(--accent-color); color: #000; border-color: transparent; box-shadow: 0 0 20px var(--accent-glow); }}
-
-        .load-input-wrap {{ flex: 1; display: flex; align-items: center; gap: 8px; }}
+        
+        .sub-ex-row {{ display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-top: 1px solid rgba(255,255,255,0.03); gap: 10px; }}
+        .sub-ex-info {{ flex: 1; }}
+        .sub-ex-name {{ font-size: 0.9rem; font-weight: 700; color: #fff; }}
+        .sub-ex-reps {{ font-size: 0.75rem; color: var(--text-secondary); }}
+        
+        .load-input-wrap {{ width: 80px; display: flex; align-items: center; gap: 4px; }}
         .load-input {{ 
             width: 100%; background: transparent; border: none; border-bottom: 2px solid rgba(255,255,255,0.1); 
-            color: #fff; font-size: 1.2rem; font-weight: 800; padding: 4px 0; text-align: center;
+            color: var(--accent-color); font-size: 1rem; font-weight: 800; padding: 2px 0; text-align: center;
         }}
-        .load-input:focus {{ border-color: var(--accent-color); }}
+        .load-unit {{ font-size: 0.6rem; color: var(--text-secondary); font-weight: 800; }}
 
         .session-notes-box {{ 
             background: rgba(255,255,255,0.02); border-radius: 20px; padding: 20px; margin-top: 30px;
@@ -192,15 +190,13 @@ def generate_html():
             <p class="subtitle" id="ex-detail-meta">Serie 1 di 4</p>
         </div>
 
-        <div id="circuit-box" style="display:none"></div>
-
         <div class="metrics-grid">
             <div class="metric-box"><div class="metric-label">Serie</div><div class="metric-value" id="val-sets">4</div></div>
-            <div class="metric-box"><div class="metric-label">Reps</div><div class="metric-value" id="val-reps">10-12</div></div>
+            <div class="metric-box"><div class="metric-label">Reps</div><div class="metric-value" id="val-reps">---</div></div>
             <div class="metric-box"><div class="metric-label">Rest</div><div class="metric-value" id="val-rest">90"</div></div>
         </div>
         
-        <div id="sets-rows-container"></div>
+        <div id="sets-blocks-container"></div>
         
         <div class="session-notes-box">
             <label>NOTE DI SESSIONE</label>
@@ -304,55 +300,77 @@ def generate_html():
             currentExIdx = eI;
             const ex = workouts[currentWorkoutIndex].days[currentDayIdx].exercises[eI];
             if(!ex.sessionData) ex.sessionData = {{}};
-            if(!ex.sessionData[currentWeek]) ex.sessionData[currentWeek] = {{ completed: false, sets: [], notes: "" }};
+            if(!ex.sessionData[currentWeek]) ex.sessionData[currentWeek] = {{ completed: false, rounds: [], notes: "" }};
             const data = ex.sessionData[currentWeek];
-            const nS = parseInt(ex.sets) || 1;
-            while(data.sets.length < nS) data.sets.push({{ done: false, load: "" }});
+            
+            // Smontaggio Circuito / Superserie
+            let subExs = [];
+            if(ex.notes && (ex.notes.includes('+') || ex.name.toLowerCase().includes('circuito') || ex.name.toLowerCase().includes('superserie'))) {{
+                subExs = ex.notes.split('+').map(s => {{
+                    const clean = s.trim();
+                    const m = clean.match(/(.*?)\\s*(\\d+.*)/);
+                    return {{ name: m?m[1].trim():clean, reps: m?m[2].trim():"" }};
+                }});
+            }} else {{
+                subExs = [{{ name: sanitize(ex.name), reps: ex.reps }}];
+            }}
+
+            const nR = parseInt(ex.sets) || 1;
+            while(data.rounds.length < nR) {{
+                data.rounds.push({{ done: false, subLoads: new Array(subExs.length).fill("") }});
+            }}
 
             document.getElementById('ex-detail-name').innerText = sanitize(ex.name);
             document.getElementById('val-sets').innerText = ex.sets;
-            document.getElementById('val-reps').innerText = ex.reps;
+            document.getElementById('val-reps').innerText = subExs.length > 1 ? "Circuito" : ex.reps;
             document.getElementById('val-rest').innerText = ex.rest;
             document.getElementById('session-notes').value = data.notes;
 
-            // Gestione Circuiti
-            const circuitBox = document.getElementById('circuit-box');
-            if(ex.name.toLowerCase().includes('circuito') && ex.notes) {{
-                const subExs = ex.notes.split('+').map(s => s.trim());
-                if(subExs.length > 1) {{
-                    circuitBox.innerHTML = '<div class="circuit-list">' + subExs.map(s => `<div class="circuit-item"><div class="circuit-dot"></div>${{sanitize(s)}}</div>`).join('') + '</div>';
-                    circuitBox.style.display = 'block';
-                }} else circuitBox.style.display = 'none';
-            }} else circuitBox.style.display = 'none';
-
-            const container = document.getElementById('sets-rows-container');
+            const container = document.getElementById('sets-blocks-container');
             container.innerHTML = '';
-            data.sets.forEach((s, i) => {{
-                const row = document.createElement('div');
-                row.className = 'set-row';
-                row.innerHTML = `
-                    <div class="set-circle ${{s.done ? 'active' : ''}}" onclick="toggleSet(${{i}})">${{i+1}}</div>
-                    <div class="load-input-wrap">
-                        <input type="number" class="load-input" value="${{s.load}}" placeholder="---" oninput="updateLoad(${{i}}, this.value)">
-                        <span style="font-size:0.7rem; color:var(--text-secondary); font-weight:800;">KG</span>
+            data.rounds.forEach((round, rI) => {{
+                const block = document.createElement('div');
+                block.className = 'set-block';
+                let subHtml = '';
+                subExs.forEach((sx, sI) => {{
+                    subHtml += `
+                        <div class="sub-ex-row">
+                            <div class="sub-ex-info">
+                                <div class="sub-ex-name">${{sx.name}}</div>
+                                <div class="sub-ex-reps">${{sx.reps}}</div>
+                            </div>
+                            <div class="load-input-wrap">
+                                <input type="number" class="load-input" value="${{round.subLoads[sI] || ""}}" placeholder="---" oninput="updateSubLoad(${{rI}}, ${{sI}}, this.value)">
+                                <span class="load-unit">KG</span>
+                            </div>
+                        </div>
+                    `;
+                }});
+                
+                block.innerHTML = `
+                    <div class="set-header">
+                        <div class="set-circle ${{round.done ? 'active' : ''}}" onclick="toggleRound(${{rI}})">${{rI+1}}</div>
+                        <div style="font-weight:800; font-size:0.8rem; color:var(--text-secondary)">${{subExs.length > 1 ? 'GIRO COMPLETO' : 'SERIE'}}</div>
                     </div>
+                    <div class="sub-ex-list">${{subHtml}}</div>
                 `;
-                container.appendChild(row);
+                container.appendChild(block);
             }});
 
             updateExMeta();
             showView('view-exercise');
         }}
 
-        function toggleSet(sI) {{
+        function toggleRound(rI) {{
             const data = workouts[currentWorkoutIndex].days[currentDayIdx].exercises[currentExIdx].sessionData[currentWeek];
-            data.sets[sI].done = !data.sets[sI].done;
+            data.rounds[rI].done = !data.rounds[rI].done;
             save(); openExercise(currentExIdx);
         }}
 
-        function updateLoad(sI, val) {{
+        function updateSubLoad(rI, sI, val) {{
             const data = workouts[currentWorkoutIndex].days[currentDayIdx].exercises[currentExIdx].sessionData[currentWeek];
-            data.sets[sI].load = val; save();
+            data.rounds[rI].subLoads[sI] = val;
+            save();
         }}
 
         function updateSessionNotes() {{
@@ -363,9 +381,9 @@ def generate_html():
 
         function updateExMeta() {{
             const data = workouts[currentWorkoutIndex].days[currentDayIdx].exercises[currentExIdx].sessionData[currentWeek];
-            const done = data.sets.filter(s => s.done).length;
-            document.getElementById('ex-detail-meta').innerText = `Serie ${{done}} di ${{data.sets.length}} completate`;
-            data.completed = (done === data.sets.length);
+            const done = data.rounds.filter(r => r.done).length;
+            document.getElementById('ex-detail-meta').innerText = `${{done}} di ${{data.rounds.length}} giri completati`;
+            data.completed = (done === data.rounds.length);
             save();
         }}
 
@@ -403,13 +421,15 @@ def generate_html():
         function exportToCSV() {{
             const w = workouts[currentWorkoutIndex];
             const d = w.days[currentDayIdx];
-            let csv = "Data,Piano,Settimana,Giorno,Esercizio,Serie,Carico,Note\\n";
+            let csv = "Data,Piano,Settimana,Giorno,Esercizio,SottoEsercizio,Giro,Carico,Note\\n";
             const date = new Date().toLocaleDateString();
             d.exercises.forEach(ex => {{
                 const data = ex.sessionData && ex.sessionData[currentWeek];
                 if(data) {{
-                    data.sets.forEach((s, i) => {{
-                        csv += `"${{date}}","${{w.title}}","W${{currentWeek}}","${{sanitize(d.name)}}","${{sanitize(ex.name)}}",${{i+1}},"${{s.load}}","${{data.notes.replace(/"/g, '""')}}"\\n`;
+                    data.rounds.forEach((round, rI) => {{
+                        round.subLoads.forEach((load, sI) => {{
+                            csv += `"${{date}}","${{w.title}}","W${{currentWeek}}","${{sanitize(d.name)}}","${{sanitize(ex.name)}}","Set ${{sI+1}}",${{rI+1}},"${{load}}","${{data.notes.replace(/"/g, '""')}}"\\n`;
+                        }});
                     }});
                 }}
             }});
@@ -495,4 +515,4 @@ if __name__ == "__main__":
     html_content = generate_html()
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(html_content)
-    print(f"Successo: Implementata visualizzazione speciale per circuiti.")
+    print(f"Successo: Implementata gestione avanzata circuiti e superserie con multi-carico.")
