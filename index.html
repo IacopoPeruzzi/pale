@@ -45,6 +45,7 @@
         }
 
         h1 { font-size: 2.4rem; font-weight: 900; margin: 0; letter-spacing: -1.5px; text-transform: uppercase; line-height: 1; }
+        h2 { font-size: 1.8rem; font-weight: 800; margin: 0; letter-spacing: -1px; }
         .subtitle { color: var(--text-secondary); font-size: 0.9rem; margin-top: 6px; }
 
         .setup-toggle {
@@ -76,63 +77,61 @@
         .week-btn.active { opacity: 1; background: var(--accent-color); color: #000; box-shadow: 0 5px 15px var(--accent-glow); }
 
         .day-grid { display: grid; gap: 10px; }
-        .day-card { 
+        .list-card { 
             background: var(--card-bg); border-radius: 20px; padding: 16px; 
             border: 1px solid rgba(255,255,255,0.05); backdrop-filter: blur(10px);
             display: flex; align-items: center; cursor: pointer;
             transition: 0.3s;
         }
-        .edit-mode .day-card { cursor: grab; background: var(--edit-mode-bg); }
-        .day-card.completed { border-left: 6px solid var(--accent-color); background: rgba(207, 255, 4, 0.03); }
+        .list-card.completed { border-left: 6px solid var(--accent-color); background: rgba(207, 255, 4, 0.03); }
         
         .drag-handle { opacity: 0.3; font-size: 1.2rem; margin-right: 15px; display: none; min-width: 20px; }
         .edit-mode .drag-handle { display: block; }
 
-        .day-content { flex: 1; }
+        .card-content { flex: 1; }
         .delete-btn { 
             width: 32px; height: 32px; border-radius: 50%; background: rgba(255, 68, 68, 0.15); 
             display: none; align-items: center; justify-content: center; color: #ff4444; font-size: 0.85rem; margin-left: 10px;
         }
         .edit-mode .delete-btn { display: flex; }
 
-        .exercise-card { 
-            background: var(--card-bg); border-radius: 24px; padding: 18px; margin-bottom: 12px; 
-            border: 1px solid rgba(255,255,255,0.05); transition: 0.3s;
-            display: flex; align-items: flex-start;
+        .ex-item { 
+            background: var(--card-bg); border-radius: 20px; padding: 16px; margin-bottom: 10px;
+            display: flex; align-items: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.05);
         }
-        .exercise-card.fully-done { opacity: 0.3; filter: grayscale(1); transform: scale(0.98); }
-        
-        .ex-info { flex: 1; }
-        .ex-name { font-size: 1.15rem; font-weight: 800; margin-bottom: 8px; color: #fff; }
-        
-        .metrics-row { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
-        .metric-badge { 
-            background: rgba(255,255,255,0.04); padding: 5px 12px; border-radius: 10px;
-            font-size: 0.7rem; font-weight: 800; color: var(--text-secondary);
-            border: 1px solid rgba(255,255,255,0.03); text-transform: uppercase;
-        }
-        .metric-badge b { color: var(--accent-color); margin-right: 4px; }
+        .ex-item.done { opacity: 0.4; border-left: 4px solid var(--accent-color); }
+        .ex-item-name { font-weight: 700; flex: 1; font-size: 1rem; }
+        .ex-item-meta { font-size: 0.75rem; color: var(--text-secondary); }
 
-        .sets-wrap { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
-        .set-btn { 
-            width: 44px; height: 44px; border-radius: 12px; border: 2px solid rgba(255,255,255,0.1);
-            display: flex; align-items: center; justify-content: center; font-weight: 800; cursor: pointer;
-            font-size: 0.9rem; transition: 0.2s;
+        .exercise-detail-view { padding-top: 20px; }
+        .metrics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0; }
+        .metric-box { 
+            background: rgba(255,255,255,0.03); padding: 15px 10px; border-radius: 18px; 
+            text-align: center; border: 1px solid rgba(255,255,255,0.05);
         }
-        .set-btn.checked { background: var(--accent-color); color: #000; border-color: transparent; transform: scale(1.05); }
+        .metric-label { font-size: 0.65rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+        .metric-value { font-size: 1.1rem; font-weight: 800; color: var(--accent-color); }
 
-        .note-box { 
-            background: rgba(207, 255, 4, 0.03); border-left: 3px solid var(--accent-color); 
-            padding: 8px 12px; border-radius: 8px; font-size: 0.75rem; color: #aaa; line-height: 1.4;
+        .sets-main-wrap { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin: 30px 0; }
+        .set-circle { 
+            width: 65px; height: 65px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.1);
+            display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 900;
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer;
         }
+        .set-circle.active { background: var(--accent-color); color: #000; border-color: transparent; transform: scale(1.1); box-shadow: 0 0 30px var(--accent-glow); }
 
-        .sortable-ghost { opacity: 0.2; transform: scale(0.95); background: var(--accent-color) !important; }
-        .sortable-drag { opacity: 1 !important; background: #1e1e24 !important; box-shadow: 0 20px 40px rgba(0,0,0,0.8) !important; transform: scale(1.02) !important; z-index: 5000 !important; }
+        .notes-area { 
+            background: rgba(255,255,255,0.02); border-radius: 20px; padding: 20px; margin-top: 30px;
+            border: 1px solid rgba(255,255,255,0.05); position: relative;
+        }
+        .notes-area::before { content: 'TECHNICAL NOTES'; position: absolute; top: -10px; left: 20px; background: var(--bg-color); padding: 0 10px; font-size: 0.65rem; font-weight: 900; color: var(--accent-color); letter-spacing: 1px; }
+        .notes-content { font-size: 0.95rem; line-height: 1.6; color: #ccc; }
 
         .nav-dock { position: fixed; bottom: 0; left: 0; width: 100%; padding: 20px 20px 40px 20px; background: linear-gradient(to top, var(--bg-color) 80%, transparent); display: flex; gap: 10px; z-index: 1000; }
-        .btn { flex: 1; border: none; padding: 18px; border-radius: 20px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 0.8rem; }
+        .btn { flex: 1; border: none; padding: 18px; border-radius: 20px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 0.8rem; transition: 0.2s; }
         .btn-main { background: var(--accent-color); color: #000; box-shadow: 0 8px 20px var(--accent-glow); }
         .btn-alt { background: rgba(255,255,255,0.08); color: #fff; }
+        .btn:active { transform: scale(0.95); }
 
         #timer-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); z-index: 3000; display: none; flex-direction: column; align-items: center; justify-content: center; }
         #timer-clock { font-size: 10rem; font-weight: 900; color: var(--accent-color); }
@@ -142,6 +141,7 @@
 <body>
     <div id="toast"></div>
 
+    <!-- HOME VIEW -->
     <div id="view-home" class="view active">
         <div class="sticky-header">
             <h1>Pale<br><span style="color:var(--accent-color)">App</span></h1>
@@ -152,6 +152,7 @@
         <div onclick="showView('view-import')" style="position: fixed; bottom: 40px; right: 25px; width: 70px; height: 70px; background: var(--accent-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: #000; box-shadow: 0 10px 20px var(--accent-glow); z-index: 1000; cursor: pointer;">+</div>
     </div>
 
+    <!-- IMPORT VIEW -->
     <div id="view-import" class="view">
         <div class="sticky-header">
             <div onclick="showView('view-home')" style="color:var(--text-secondary); font-weight:800; cursor:pointer; margin-bottom:8px;">← BACK</div>
@@ -161,6 +162,7 @@
         <button id="import-btn" class="btn btn-main" style="width: 100%" onclick="importAction()">INITIALIZE</button>
     </div>
 
+    <!-- PLAN VIEW (Weeks & Days) -->
     <div id="view-plan" class="view">
         <div class="sticky-header">
             <div onclick="showView('view-home')" style="color:var(--text-secondary); font-weight:800; cursor:pointer; margin-bottom:8px;">← DASHBOARD</div>
@@ -172,20 +174,42 @@
         <div class="day-grid" id="day-list"></div>
     </div>
 
+    <!-- SESSION VIEW (Exercise List) -->
     <div id="view-session" class="view">
         <div class="sticky-header">
             <div onclick="openWorkout(currentWorkoutIndex)" style="color:var(--text-secondary); font-weight:800; cursor:pointer; margin-bottom:8px;">← PIANO</div>
             <h1 id="session-title">Day X</h1>
             <div class="setup-toggle" id="session-setup-btn" onclick="toggleSetup('session')">Setup</div>
             <p class="subtitle" id="session-subtitle">Week 1</p>
-            <div id="session-focus-container" style="margin-top:8px;"></div>
+            <div id="session-focus-container" style="margin-top:12px;"></div>
         </div>
-        <div id="session-content"></div>
+        <div id="exercise-list"></div>
         <div class="nav-dock">
-            <button id="restart-btn" class="btn btn-alt" style="display:none; color:#ff4444;" onclick="resetAction()">RESET</button>
-            <button id="skip-btn" class="btn btn-alt" onclick="quickSkipAction()" style="flex: 0.3">SKIP</button>
-            <button class="btn btn-main" id="timerBtn" onclick="startTimer()">REC</button>
-            <button id="finish-btn" class="btn btn-alt" onclick="finishAction()">FINE</button>
+            <button id="finish-btn" class="btn btn-main" onclick="finishSession()">CONCLUDI SESSIONE</button>
+        </div>
+    </div>
+
+    <!-- EXERCISE VIEW (Detail Focus) -->
+    <div id="view-exercise" class="view">
+        <div class="sticky-header">
+            <div onclick="startSession(currentDayIdx)" style="color:var(--text-secondary); font-weight:800; cursor:pointer; margin-bottom:8px;">← LISTA</div>
+            <h2 id="ex-detail-name">Exercise Name</h2>
+            <p class="subtitle" id="ex-detail-meta">Set 1 di 4</p>
+        </div>
+        <div class="exercise-detail-view">
+            <div class="metrics-grid">
+                <div class="metric-box"><div class="metric-label">Serie</div><div class="metric-value" id="val-sets">4</div></div>
+                <div class="metric-box"><div class="metric-label">Reps</div><div class="metric-value" id="val-reps">10-12</div></div>
+                <div class="metric-box"><div class="metric-label">Rest</div><div class="metric-value" id="val-rest">90"</div></div>
+            </div>
+            
+            <div class="sets-main-wrap" id="sets-container"></div>
+            
+            <div id="ex-notes-container"></div>
+        </div>
+        <div class="nav-dock">
+            <button class="btn btn-alt" id="timerBtn" onclick="startTimer()" style="flex: 0.4">TIMER</button>
+            <button class="btn btn-main" id="nextExBtn" onclick="nextExercise()">PROSSIMO</button>
         </div>
     </div>
 
@@ -196,6 +220,7 @@
         let currentWorkoutIndex = null;
         let currentWeek = 1;
         let currentDayIdx = null;
+        let currentExIdx = null;
         let activeRestTime = 90;
         let isEditMode = false;
 
@@ -228,7 +253,7 @@
             btn.innerText = isEditMode ? 'Done' : 'Setup';
             btn.classList.toggle('active');
             if(view === 'plan') openWorkout(currentWorkoutIndex);
-            else startSession(currentDayIdx);
+            else if(view === 'session') startSession(currentDayIdx);
         }
 
         function renderHome() {
@@ -243,10 +268,10 @@
             list.innerHTML = workouts.length === 0 ? '<p>Nessun piano.</p>' : '<h3>I tuoi Piani</h3>';
             workouts.forEach((w, i) => {
                 const card = document.createElement('div');
-                card.className = 'day-card';
-                card.style.opacity = '1'; card.style.marginBottom = '10px';
+                card.className = 'list-card';
+                card.style.marginBottom = '10px';
                 card.onclick = () => openWorkout(i);
-                card.innerHTML = `<div class="day-content"><b>${w.title}</b><br><small>${w.numWeeks} WEEKS</small></div><div style="opacity:0.2" onclick="event.stopPropagation(); deleteWorkout(${i})">🗑️</div>`;
+                card.innerHTML = `<div class="card-content"><b>${w.title}</b><br><small>${w.numWeeks} WEEKS</small></div><div style="opacity:0.2" onclick="event.stopPropagation(); deleteWorkout(${i})">🗑️</div>`;
                 list.appendChild(card);
             });
         }
@@ -280,25 +305,19 @@
             w.days.forEach((d, dI) => {
                 const status = w.progress && w.progress[currentWeek] && w.progress[currentWeek][dI];
                 const c = document.createElement('div');
-                c.className = `day-card ${status === true ? 'completed' : ''} ${status === 'skipped' ? 'skipped' : ''}`;
+                c.className = `list-card ${status === true ? 'completed' : ''}`;
                 c.onclick = () => { if(isEditMode) return; startSession(dI); };
-                let t = 'READY';
-                if(status === true) t = 'DONE';
-                if(status === 'skipped') t = 'SKIP';
                 
                 let dayName = sanitize(d.name.includes(' – ') ? d.name.split(' – ')[1] : (d.name.includes(' - ') ? d.name.split(' - ')[1] : d.name));
                 if(!dayName || dayName.toLowerCase().startsWith('giorno')) dayName = sanitize(d.name);
 
                 c.innerHTML = `
                     <div class="drag-handle">☰</div>
-                    <div class="day-content">
-                        <h4 class="day-num-title">GIORNO ${dI + 1}</h4>
-                        <small>${dayName}</small>
+                    <div class="card-content">
+                        <h4 style="margin:0; font-size:0.8rem; color:var(--accent-color)">GIORNO ${dI + 1}</h4>
+                        <b style="font-size:1.1rem">${dayName}</b>
                     </div>
-                    <div style="display:flex; align-items:center;">
-                        <div class="status-tag">${t}</div>
-                        <div class="delete-btn" onclick="event.stopPropagation(); deleteDay(${dI})">🗑️</div>
-                    </div>
+                    <div class="delete-btn" onclick="event.stopPropagation(); deleteDay(${dI})">🗑️</div>
                 `;
                 dList.appendChild(c);
             });
@@ -310,70 +329,45 @@
                     const w = workouts[currentWorkoutIndex];
                     const movedItem = w.days.splice(evt.oldIndex, 1)[0];
                     w.days.splice(evt.newIndex, 0, movedItem);
-                    save(); updateDayLabels();
+                    save(); openWorkout(currentWorkoutIndex);
                 }
             });
             showView('view-plan');
-        }
-
-        function deleteDay(idx) { if(confirm('DELETE DAY?')) { workouts[currentWorkoutIndex].days.splice(idx, 1); save(); openWorkout(currentWorkoutIndex); } }
-        function deleteEx(idx) { if(confirm('DELETE EXERCISE?')) { workouts[currentWorkoutIndex].days[currentDayIdx].exercises.splice(idx, 1); save(); startSession(currentDayIdx); } }
-        function updateDayLabels() {
-            const titles = document.querySelectorAll('.day-num-title');
-            titles.forEach((t, i) => { t.innerText = `GIORNO ${i + 1}`; });
         }
 
         function startSession(dI) {
             currentDayIdx = dI;
             const w = workouts[currentWorkoutIndex];
             const d = w.days[dI];
-            const status = w.progress && w.progress[currentWeek] && w.progress[currentWeek][dI];
             
             let dayName = sanitize(d.name.includes(' – ') ? d.name.split(' – ')[1] : (d.name.includes(' - ') ? d.name.split(' - ')[1] : d.name));
             if(!dayName || dayName.toLowerCase().startsWith('giorno')) dayName = sanitize(d.name);
 
             document.getElementById('session-title').innerText = `GIORNO ${dI + 1}`;
             document.getElementById('session-subtitle').innerText = `WEEK ${currentWeek} • ${dayName}`;
-            document.getElementById('restart-btn').style.display = status ? 'block' : 'none';
-            document.getElementById('finish-btn').style.display = status ? 'none' : 'block';
-            document.getElementById('skip-btn').style.display = status ? 'none' : 'block';
 
             const focus = document.getElementById('session-focus-container');
             const str = w.weeklyStructure?.find(s => s.week === 'W' + currentWeek) || (w.weeklyStructure ? w.weeklyStructure[currentWeek-1] : null);
-            focus.innerHTML = str ? `<div style="background:rgba(207,255,4,0.08); padding:12px; border-radius:15px; border:1px solid var(--accent-color); font-size:0.8rem;"><b>${str.focus}</b><br><small>${str.note}</small></div>` : '';
+            focus.innerHTML = str ? `<div style="background:rgba(207,255,4,0.08); padding:12px; border-radius:15px; border:1px solid var(--accent-color); font-size:0.8rem;"><b>${str.focus}</b>: ${str.note}</div>` : '';
 
-            const content = document.getElementById('session-content');
-            content.innerHTML = '';
+            const list = document.getElementById('exercise-list');
+            list.innerHTML = '';
             d.exercises.forEach((ex, eI) => {
-                const nS = parseInt(ex.sets) || 1;
-                if(!ex.setStates) ex.setStates = new Array(nS).fill(false);
-                const isD = ex.setStates.every(s => s === true);
-                const card = document.createElement('div');
-                card.className = `exercise-card ${isD ? 'fully-done' : ''}`;
-                let bsHtml = '';
-                for(let i=0; i<nS; i++) bsHtml += `<div class="set-btn ${ex.setStates[i] ? 'checked' : ''}" onclick="event.stopPropagation(); toggleSetAction(${eI}, ${i})">${i+1}</div>`;
-                
-                card.innerHTML = `
-                    <div class="drag-handle" style="margin-top:10px">☰</div>
-                    <div class="ex-info">
-                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
-                            <div class="ex-name">${sanitize(ex.name)}</div>
-                            <div class="delete-btn" onclick="event.stopPropagation(); deleteEx(${eI})">🗑️</div>
-                        </div>
-                        <div class="metrics-row">
-                            <div class="metric-badge"><b>${ex.sets}</b> SETS</div>
-                            <div class="metric-badge"><b>${ex.reps}</b> REPS</div>
-                            <div class="metric-badge"><b>${ex.rest}</b> REST</div>
-                        </div>
-                        <div class="sets-wrap" onclick="event.stopPropagation()">${bsHtml}</div>
-                        ${ex.notes ? `<div class="note-box">${sanitize(ex.notes)}</div>` : ''}
-                    </div>
+                const isD = ex.setStates && ex.setStates.every(s => s === true);
+                const item = document.createElement('div');
+                item.className = `ex-item ${isD ? 'done' : ''}`;
+                item.onclick = () => { if(isEditMode) return; openExercise(eI); };
+                item.innerHTML = `
+                    <div class="drag-handle">☰</div>
+                    <div class="ex-item-name">${sanitize(ex.name)}</div>
+                    <div class="ex-item-meta">${ex.sets} SETS</div>
+                    <div class="delete-btn" onclick="event.stopPropagation(); deleteEx(${eI})">🗑️</div>
                 `;
-                content.appendChild(card);
+                list.appendChild(item);
             });
 
-            if(isEditMode) content.classList.add('edit-mode'); else content.classList.remove('edit-mode');
-            new Sortable(content, {
+            if(isEditMode) list.classList.add('edit-mode'); else list.classList.remove('edit-mode');
+            new Sortable(list, {
                 animation: 500, disabled: !isEditMode, handle: '.drag-handle', ghostClass: 'sortable-ghost', dragClass: 'sortable-drag', forceFallback: true,
                 onEnd: function(evt) {
                     const d = workouts[currentWorkoutIndex].days[currentDayIdx];
@@ -385,31 +379,67 @@
             showView('view-session');
         }
 
-        function toggleSetAction(eI, sI) {
-            if(isEditMode) return;
-            const w = workouts[currentWorkoutIndex];
-            const ex = w.days[currentDayIdx].exercises[eI];
-            ex.setStates[sI] = !ex.setStates[sI];
-            const content = document.getElementById('session-content');
-            const card = content.children[eI];
-            const setBtn = card.querySelectorAll('.set-btn')[sI];
-            if(ex.setStates[sI]) setBtn.classList.add('checked'); else setBtn.classList.remove('checked');
-            if(ex.setStates.every(s => s === true)) {
-                card.classList.add('fully-done');
-                setTimeout(() => { if(card.nextElementSibling) card.nextElementSibling.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 400);
-            } else card.classList.remove('fully-done');
-            if(ex.setStates[sI]) activeRestTime = parseRest(ex.rest);
-            save();
+        function openExercise(eI) {
+            currentExIdx = eI;
+            const ex = workouts[currentWorkoutIndex].days[currentDayIdx].exercises[eI];
+            
+            document.getElementById('ex-detail-name').innerText = sanitize(ex.name);
+            document.getElementById('val-sets').innerText = ex.sets;
+            document.getElementById('val-reps').innerText = ex.reps;
+            document.getElementById('val-rest').innerText = ex.rest;
+            
+            const nS = parseInt(ex.sets) || 1;
+            if(!ex.setStates) ex.setStates = new Array(nS).fill(false);
+            
+            const container = document.getElementById('sets-container');
+            container.innerHTML = '';
+            for(let i=0; i<nS; i++) {
+                const c = document.createElement('div');
+                c.className = `set-circle ${ex.setStates[i] ? 'active' : ''}`;
+                c.innerText = i+1;
+                c.onclick = () => toggleSet(i);
+                container.appendChild(c);
+            }
+
+            const notes = document.getElementById('ex-notes-container');
+            notes.innerHTML = ex.notes ? `<div class="notes-area"><div class="notes-content">${sanitize(ex.notes)}</div></div>` : '';
+            
+            updateExMeta();
+            activeRestTime = parseRest(ex.rest);
+            showView('view-exercise');
         }
 
-        function resetAction() { if(confirm('RESET?')) { const w = workouts[currentWorkoutIndex]; delete w.progress[currentWeek][currentDayIdx]; w.days[currentDayIdx].exercises.forEach(ex => delete ex.setStates); save(); startSession(currentDayIdx); } }
-        async function finishAction() {
+        function toggleSet(sI) {
+            const ex = workouts[currentWorkoutIndex].days[currentDayIdx].exercises[currentExIdx];
+            ex.setStates[sI] = !ex.setStates[sI];
+            const circles = document.querySelectorAll('.set-circle');
+            if(ex.setStates[sI]) circles[sI].classList.add('active'); else circles[sI].classList.remove('active');
+            if(ex.setStates[sI]) startTimer();
+            save();
+            updateExMeta();
+        }
+
+        function updateExMeta() {
+            const ex = workouts[currentWorkoutIndex].days[currentDayIdx].exercises[currentExIdx];
+            const done = ex.setStates.filter(s => s).length;
+            document.getElementById('ex-detail-meta').innerText = `Serie ${done} di ${ex.sets} completate`;
+        }
+
+        function nextExercise() {
+            const d = workouts[currentWorkoutIndex].days[currentDayIdx];
+            if(currentExIdx < d.exercises.length - 1) openExercise(currentExIdx + 1);
+            else startSession(currentDayIdx);
+        }
+
+        async function finishSession() {
             const w = workouts[currentWorkoutIndex];
             if (!w.progress[currentWeek]) w.progress[currentWeek] = {};
             w.progress[currentWeek][currentDayIdx] = true;
-            save(); showToast("GREAT JOB!"); openWorkout(currentWorkoutIndex);
+            save(); showToast("SESSIONE COMPLETATA!"); openWorkout(currentWorkoutIndex);
         }
-        function updateProg(w) { let t = w.numWeeks * w.days.length; let d = 0; if (w.progress) Object.values(w.progress).forEach(wk => { d += Object.keys(wk).length; }); document.getElementById('total-progress-bar').style.width = `${(d / t) * 100}%`; }
+
+        function deleteDay(idx) { if(confirm('DELETE DAY?')) { workouts[currentWorkoutIndex].days.splice(idx, 1); save(); openWorkout(currentWorkoutIndex); } }
+        function deleteEx(idx) { if(confirm('DELETE EXERCISE?')) { workouts[currentWorkoutIndex].days[currentDayIdx].exercises.splice(idx, 1); save(); startSession(currentDayIdx); } }
         function parseRest(r) { const m = r.match(/(\d+)/); if (!m) return 90; let v = parseInt(m[1]); return (r.includes("'") || r.toLowerCase().includes("m")) ? v * 60 : v; }
         function save() { localStorage.setItem('pale_workouts', JSON.stringify(workouts)); }
         
@@ -448,26 +478,21 @@
                     const cleanL = l.trim();
                     if(cleanL.toLowerCase().includes('## regole')) { inRules = true; return; }
                     if(inRules && cleanL.startsWith('##')) { inRules = false; return; }
-                    
                     if(inRules) {
                         const ruleMatch = cleanL.match(/(?:-|\*)\s*\**W(\d+)\**\s*:?\s*(.*)/i);
                         if(ruleMatch) {
                             const wkNum = 'W' + ruleMatch[1];
                             const content = ruleMatch[2].trim();
                             let existing = w.weeklyStructure.find(s => s.week === wkNum);
-                            if(existing) {
-                                existing.focus = sanitize(existing.focus);
-                                existing.note = content;
-                            } else {
-                                w.weeklyStructure.push({ week: wkNum, focus: "Regola", note: content });
-                            }
+                            if(existing) existing.note = content;
+                            else w.weeklyStructure.push({ week: wkNum, focus: "Regola", note: content });
                         }
                     }
                 });
 
                 let curD = null;
                 lines.forEach(l => {
-                    if(l.startsWith('## ') && (l.toLowerCase().includes('giorno') || l.toLowerCase().includes('sessione'))) {
+                    if(l.startsWith('## ') && (l.toLowerCase().includes('giorno') || l.toLowerCase().includes('sessione') || l.toLowerCase().includes('giorno extra'))) {
                         if(curD && curD.exercises.length > 0) w.days.push(curD);
                         curD = { name: sanitize(l), exercises: [] };
                     } else if(curD) {
@@ -485,6 +510,7 @@
             }, 800);
         }
         function deleteWorkout(i) { if(confirm('DELETE?')) { workouts.splice(i, 1); save(); renderHome(); } }
+        function updateProg(w) { let t = w.numWeeks * w.days.length; let d = 0; if (w.progress) Object.values(w.progress).forEach(wk => { d += Object.keys(wk).length; }); document.getElementById('total-progress-bar').style.width = `${(d / t) * 100}%`; }
         renderHome();
     </script>
 </body>
