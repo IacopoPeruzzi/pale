@@ -442,27 +442,43 @@ def generate_html():
                 const wMatch = t.match(/(\\d+)\\s*settimane/i);
                 if(wMatch) w.numWeeks = parseInt(wMatch[1]);
                 
-                let structureLines = [];
+                // Parsing Focus da Tabella
+                let structureTable = [];
                 let inStructureTable = false;
                 lines.forEach(l => {{
                     if(l.includes('| Settimana |')) inStructureTable = true;
-                    else if(inStructureTable && l.includes('| W')) structureLines.push(l);
+                    else if(inStructureTable && l.includes('| W')) structureTable.push(l);
                     else if(inStructureTable && l.trim() === "") inStructureTable = false;
                 }});
-                structureLines.forEach(l => {{
+                structureTable.forEach(l => {{
                     const cols = l.split('|').map(c => c.trim());
                     if(cols.length >= 3 && cols[1].startsWith('W')) 
                         w.weeklyStructure.push({{ week: cols[1], focus: cols[2], note: cols[4] || "" }});
                 }});
 
+                // Parsing Focus da sezione "Regole" (Overwrite o integrazione)
+                let inRules = false;
+                lines.forEach(l => {{
+                    if(l.toLowerCase().includes('## regole')) inRules = true;
+                    else if(inRules && l.startsWith('##')) inRules = false;
+                    else if(inRules && l.includes('W')) {{
+                        const ruleMatch = l.match(/(?:-|\\*)\\s*\\*?W(\\d+)\\*?:?\\s*(.*)/i);
+                        if(ruleMatch) {{
+                            const wkNum = 'W' + ruleMatch[1];
+                            const content = ruleMatch[2].trim();
+                            let existing = w.weeklyStructure.find(s => s.week === wkNum);
+                            if(existing) existing.note = content;
+                            else w.weeklyStructure.push({{ week: wkNum, focus: "Regola", note: content }});
+                        }}
+                    }}
+                }});
+
                 let curD = null;
                 lines.forEach(l => {{
-                    const dMatch = l.match(/##\\s*(?:Giorno|Day|Sessione)\\s+([A-Z\\d]+)/i) || l.match(/##\\s*([A-Za-z ]+)/);
                     if(l.startsWith('## ') && (l.toLowerCase().includes('giorno') || l.toLowerCase().includes('sessione'))) {{
                         if(curD && curD.exercises.length > 0) w.days.push(curD);
                         curD = {{ name: sanitize(l), exercises: [] }};
                     }} else if(curD) {{
-                        const exMatch = l.match(/(\\d+)\\s*[xX]\\s*(\\d+(?:-\\d+)?)/);
                         if(l.includes('|') && !l.includes('Esercizio') && !l.includes('---')) {{
                             const cols = l.split('|').map(c => c.trim());
                             if(cols.length >= 4 && cols[1] !== "") {{
@@ -489,4 +505,4 @@ if __name__ == "__main__":
     html_content = generate_html()
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(html_content)
-    print(f"Successo: Fix Giorno 5 e Weekly Focus corretti.")
+    print(f"Successo: Integrazione sezione Regole nel Focus settimanale.")
