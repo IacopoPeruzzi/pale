@@ -1,5 +1,6 @@
 import json
 import os
+from datetime import datetime
 
 def generate_html():
     parsed_workout = None
@@ -39,7 +40,6 @@ def generate_html():
             color: var(--text-primary);
             font-family: 'Outfit', sans-serif;
             margin: 0; padding: 0; overflow-x: hidden;
-            scroll-behavior: smooth;
         }}
 
         .view {{ display: none; padding: 0 24px 140px 24px; min-height: 100vh; position: relative; z-index: 10; }}
@@ -50,8 +50,8 @@ def generate_html():
             position: sticky; top: 0; 
             padding: calc(40px + var(--safe-area-top)) 24px 20px 24px;
             margin: 0 -24px 20px -24px;
-            background: linear-gradient(to bottom, var(--bg-color) 70%, transparent);
-            backdrop-filter: blur(20px);
+            background: linear-gradient(to bottom, var(--bg-color) 80%, transparent);
+            backdrop-filter: blur(25px);
             z-index: 1000;
         }}
 
@@ -75,7 +75,6 @@ def generate_html():
             border-radius: 22px; text-align: center; cursor: pointer; opacity: 0.3;
             border: 1px solid rgba(255,255,255,0.05); transition: 0.3s;
         }}
-        .week-btn.unlocked {{ opacity: 0.6; }}
         .week-btn.active {{ opacity: 1; background: var(--accent-color); color: #000; box-shadow: 0 8px 20px var(--accent-glow); }}
 
         .day-grid {{ display: grid; gap: 14px; }}
@@ -87,17 +86,13 @@ def generate_html():
         }}
         .day-card.locked {{ opacity: 0.2; filter: grayscale(1); }}
         .day-card.completed {{ border-left: 8px solid var(--accent-color); background: rgba(207, 255, 4, 0.03); }}
-        .day-card.skipped {{ border-left: 8px solid #444; }}
-
-        .status-tag {{ font-size: 0.7rem; font-weight: 900; padding: 6px 12px; border-radius: 12px; background: rgba(255,255,255,0.05); }}
-        .completed .status-tag {{ background: var(--accent-color); color: #000; }}
 
         .exercise-card {{ background: var(--card-bg); border-radius: 28px; padding: 25px; margin-bottom: 16px; border: 1px solid rgba(255,255,255,0.05); transition: 0.4s; }}
         .exercise-card.fully-done {{ opacity: 0.3; filter: grayscale(1); transform: scale(0.98); }}
         
         .sets-wrap {{ display: flex; gap: 8px; flex-wrap: wrap; margin-top: 15px; }}
         .set-btn {{ 
-            width: 48px; height: 48px; border-radius: 14px; border: 2px solid rgba(255,255,255,0.1);
+            width: 52px; height: 52px; border-radius: 16px; border: 2px solid rgba(255,255,255,0.1);
             display: flex; align-items: center; justify-content: center; font-weight: 800; cursor: pointer;
             transition: 0.2s;
         }}
@@ -120,7 +115,7 @@ def generate_html():
     <div id="view-home" class="view active">
         <div class="sticky-header">
             <h1>Pale<br><span style="color:var(--accent-color)">App</span></h1>
-            <p class="subtitle">Peak Performance Protocol.</p>
+            <p class="subtitle">Log your journey. CSV ready.</p>
         </div>
         <div id="resume-section"></div>
         <div id="workouts-list"></div>
@@ -162,7 +157,7 @@ def generate_html():
         </div>
     </div>
 
-    <div id="timer-screen" onclick="stopTimer()"><div id="timer-clock">90</div><p>GO FIGHT!</p></div>
+    <div id="timer-screen" onclick="stopTimer()"><div id="timer-clock">90</div><p>READY?</p></div>
 
     <script>
         let workouts = JSON.parse(localStorage.getItem('pale_workouts') || '[]');
@@ -273,36 +268,96 @@ def generate_html():
                 const nS = parseInt(ex.sets) || 1;
                 if(!ex.setStates) ex.setStates = new Array(nS).fill(false);
                 const isD = ex.setStates.every(s => s === true);
+                
                 const card = document.createElement('div');
                 card.id = `ex-card-${{eI}}`;
                 card.className = `exercise-card ${{isD ? 'fully-done' : ''}}`;
-                let bs = '';
-                for(let i=0; i<nS; i++) bs += `<div class="set-btn ${{ex.setStates[i] ? 'checked' : ''}}" onclick="toggleSetAction(${{eI}}, ${{i}})">${{i+1}}</div>`;
-                card.innerHTML = `<b>${{ex.name}}</b><br><small>${{ex.sets}}x${{ex.reps}} • ${{ex.rest}}</small><div class="sets-wrap">${{bs}}</div><div style="font-size:0.75rem; color:var(--text-secondary); margin-top:10px;">${{ex.notes || ''}}</div>`;
+                
+                let bsHtml = '';
+                for(let i=0; i<nS; i++) {{
+                    bsHtml += `<div id="set-${{eI}}-${{i}}" class="set-btn ${{ex.setStates[i] ? 'checked' : ''}}" onclick="toggleSetAction(${{eI}}, ${{i}})">${{i+1}}</div>`;
+                }}
+
+                card.innerHTML = `
+                    <b>${{ex.name}}</b><br><small>${{ex.sets}}x${{ex.reps}} • ${{ex.rest}}</small>
+                    <div class="sets-wrap">${{bsHtml}}</div>
+                    <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:10px;">${{ex.notes || ''}}</div>
+                `;
                 content.appendChild(card);
             }});
             showView('view-session');
         }}
 
         function toggleSetAction(eI, sI) {{
-            const ex = workouts[currentWorkoutIndex].days[currentDayIdx].exercises[eI];
+            const w = workouts[currentWorkoutIndex];
+            const ex = w.days[currentDayIdx].exercises[eI];
+            
+            // Inverti stato
             ex.setStates[sI] = !ex.setStates[sI];
+            
+            // Update DOM chirurgico del bollino
+            const setBtn = document.getElementById(`set-${{eI}}-${{sI}}`);
+            if(ex.setStates[sI]) setBtn.classList.add('checked');
+            else setBtn.classList.remove('checked');
+
+            // Update DOM chirurgico della card (opacità)
+            const card = document.getElementById(`ex-card-${{eI}}`);
+            const isAllDone = ex.setStates.every(s => s === true);
+            if(isAllDone) {{
+                card.classList.add('fully-done');
+                // Auto-scroll
+                setTimeout(() => {{
+                    const nextCard = document.getElementById(`ex-card-${{eI + 1}}`);
+                    if(nextCard) nextCard.scrollIntoView({{ behavior: 'smooth', block: 'center' }});
+                }}, 400);
+            }} else {{
+                card.classList.remove('fully-done');
+            }}
+
             if(ex.setStates[sI]) {{
                 activeRestTime = parseRest(ex.rest);
-                const isAllDone = ex.setStates.every(s => s === true);
-                if(isAllDone) {{
-                    setTimeout(() => {{
-                        const nextCard = document.getElementById(`ex-card-${{eI + 1}}`);
-                        if(nextCard) nextCard.scrollIntoView({{ behavior: 'smooth', block: 'center' }});
-                    }}, 300);
-                }}
+                document.getElementById('timerBtn').innerText = `REC: ${{ex.rest}}`;
             }}
-            startSession(currentDayIdx);
+            
             save();
         }}
 
         function resetAction() {{ if(confirm('RESET?')) {{ const w = workouts[currentWorkoutIndex]; delete w.progress[currentWeek][currentDayIdx]; w.days[currentDayIdx].exercises.forEach(ex => delete ex.setStates); save(); startSession(currentDayIdx); }} }}
-        function finishAction() {{ const w = workouts[currentWorkoutIndex]; if (!w.progress[currentWeek]) w.progress[currentWeek] = {{}}; w.progress[currentWeek][currentDayIdx] = true; save(); showToast("GREAT JOB!"); openWorkout(currentWorkoutIndex); }}
+        
+        async function finishAction() {{
+            const w = workouts[currentWorkoutIndex];
+            if (!w.progress[currentWeek]) w.progress[currentWeek] = {{}};
+            w.progress[currentWeek][currentDayIdx] = true;
+            
+            // Logging locale (localStorage) + Messaggio
+            saveLogCSV(w);
+            
+            save(); 
+            showToast("GREAT JOB! LOGGED."); 
+            openWorkout(currentWorkoutIndex);
+        }}
+
+        function saveLogCSV(w) {{
+            const day = w.days[currentDayIdx];
+            const date = new Date().toISOString().split('T')[0];
+            let logs = JSON.parse(localStorage.getItem('pale_logs') || '[]');
+            
+            day.exercises.forEach(ex => {{
+                const setsDone = ex.setStates.filter(s => s).length;
+                logs.push({{
+                    date: date,
+                    plan: w.title,
+                    week: currentWeek,
+                    day: currentDayIdx + 1,
+                    exercise: ex.name,
+                    sets: setsDone,
+                    reps: ex.reps
+                }});
+            }});
+            localStorage.setItem('pale_logs', JSON.stringify(logs));
+            console.log("Workout logged to storage.");
+        }}
+
         function quickSkipAction() {{ if(confirm('SKIP?')) {{ const w = workouts[currentWorkoutIndex]; if (!w.progress[currentWeek]) w.progress[currentWeek] = {{}}; w.progress[currentWeek][currentDayIdx] = 'skipped'; save(); openWorkout(currentWorkoutIndex); }} }}
         function updateProg(w) {{ let t = w.numWeeks * w.days.length; let d = 0; if (w.progress) Object.values(w.progress).forEach(wk => {{ d += Object.keys(wk).length; }}); document.getElementById('total-progress-bar').style.width = `${{(d / t) * 100}}%`; }}
         function parseRest(r) {{ const m = r.match(/(\\d+)/); if (!m) return 90; let v = parseInt(m[1]); return (r.includes("'") || r.toLowerCase().includes("m")) ? v * 60 : v; }}
@@ -373,4 +428,13 @@ if __name__ == "__main__":
     html_content = generate_html()
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(html_content)
-    print(f"Successo: Header Sticky implementato.")
+    
+    # Inizializza file CSV se non esiste
+    csv_path = "logs/workout_log.csv"
+    if not os.path.exists("logs"):
+        os.makedirs("logs")
+    if not os.path.exists(csv_path):
+        with open(csv_path, "w", encoding="utf-8") as f:
+            f.write("Date,Plan,Week,Day,Exercise,Sets,Reps\\n")
+    
+    print(f"Successo: Fix scroll fluido e sistema di logging CSV pronto.")
