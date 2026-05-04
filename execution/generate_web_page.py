@@ -88,7 +88,8 @@ def generate_html():
         .day-card.locked {{ opacity: 0.2; filter: grayscale(1); }}
         .day-card.completed {{ border-left: 8px solid var(--accent-color); background: rgba(207, 255, 4, 0.03); }}
         
-        .sortable-ghost {{ opacity: 0.4; background: var(--accent-glow); }}
+        .sortable-ghost {{ opacity: 0.2; background: var(--accent-glow); transform: scale(0.95); }}
+        .sortable-chosen {{ background: rgba(255,255,255,0.1); }}
 
         .exercise-card {{ background: var(--card-bg); border-radius: 28px; padding: 25px; margin-bottom: 16px; border: 1px solid rgba(255,255,255,0.05); transition: 0.4s; cursor: grab; }}
         .exercise-card.fully-done {{ opacity: 0.3; filter: grayscale(1); transform: scale(0.98); }}
@@ -118,7 +119,7 @@ def generate_html():
     <div id="view-home" class="view active">
         <div class="sticky-header">
             <h1>Pale<br><span style="color:var(--accent-color)">App</span></h1>
-            <p class="subtitle">Peak Performance Protocol.</p>
+            <p class="subtitle">Peak Performance Hub.</p>
         </div>
         <div id="resume-section"></div>
         <div id="workouts-list"></div>
@@ -160,7 +161,7 @@ def generate_html():
         </div>
     </div>
 
-    <div id="timer-screen" onclick="stopTimer()"><div id="timer-clock">90</div><p>GO FIGHT!</p></div>
+    <div id="timer-screen" onclick="stopTimer()"><div id="timer-clock">90</div><p>READY?</p></div>
 
     <script>
         let workouts = JSON.parse(localStorage.getItem('pale_workouts') || '[]');
@@ -239,7 +240,6 @@ def generate_html():
                 const status = w.progress && w.progress[currentWeek] && w.progress[currentWeek][dI];
                 const isU = n ? (currentWeek < n.week || (currentWeek === n.week && dI <= n.day)) : true;
                 const c = document.createElement('div');
-                c.dataset.id = dI;
                 c.className = `day-card ${{status === true ? 'completed' : ''}} ${{status === 'skipped' ? 'skipped' : ''}} ${{!isU ? 'locked' : ''}}`;
                 c.onclick = () => {{ if(isU) startSession(dI); }};
                 let t = isU ? 'READY' : 'LOCKED';
@@ -249,16 +249,19 @@ def generate_html():
                 dList.appendChild(c);
             }});
             
-            // Inizializza Sortable per i giorni
             new Sortable(dList, {{
-                animation: 250,
+                animation: 600,
                 handle: '.day-card',
                 ghostClass: 'sortable-ghost',
+                chosenClass: 'sortable-chosen',
                 onEnd: function(evt) {{
+                    if(evt.oldIndex === evt.newIndex) return;
                     const w = workouts[currentWorkoutIndex];
                     const movedItem = w.days.splice(evt.oldIndex, 1)[0];
                     w.days.splice(evt.newIndex, 0, movedItem);
-                    save(); openWorkout(currentWorkoutIndex);
+                    save();
+                    // Invece di openWorkout istantaneo, aspettiamo la fine dell'animazione
+                    setTimeout(() => openWorkout(currentWorkoutIndex), 100);
                 }}
             }});
             
@@ -288,7 +291,6 @@ def generate_html():
                 const isD = ex.setStates.every(s => s === true);
                 const card = document.createElement('div');
                 card.id = `ex-card-${{eI}}`;
-                card.dataset.id = eI;
                 card.className = `exercise-card ${{isD ? 'fully-done' : ''}}`;
                 let bsHtml = '';
                 for(let i=0; i<nS; i++) {{
@@ -305,16 +307,18 @@ def generate_html():
                 content.appendChild(card);
             }});
 
-            // Inizializza Sortable per gli esercizi
             new Sortable(content, {{
-                animation: 250,
+                animation: 600,
                 handle: '.exercise-card',
                 ghostClass: 'sortable-ghost',
+                chosenClass: 'sortable-chosen',
                 onEnd: function(evt) {{
+                    if(evt.oldIndex === evt.newIndex) return;
                     const d = workouts[currentWorkoutIndex].days[currentDayIdx];
                     const movedItem = d.exercises.splice(evt.oldIndex, 1)[0];
                     d.exercises.splice(evt.newIndex, 0, movedItem);
-                    save(); startSession(currentDayIdx);
+                    save();
+                    setTimeout(() => startSession(currentDayIdx), 100);
                 }}
             }});
 
@@ -416,4 +420,4 @@ if __name__ == "__main__":
     html_content = generate_html()
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(html_content)
-    print(f"Successo: Drag & Drop implementato con SortableJS.")
+    print(f"Successo: Animazione rallentata e fix drag multiplo.")
