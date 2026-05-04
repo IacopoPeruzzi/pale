@@ -317,10 +317,9 @@ def generate_html():
 
                 let curD = null;
                 lines.forEach(l => {{
-                    // Match più rigoroso per evitare righe di testo generico
-                    const dMatch = l.match(/^(?:Giorno|Day|Sessione)\\s+([A-Z\\d]+)/i);
+                    // Match flessibile per i giorni (senza ^ per supportare ### o **)
+                    const dMatch = l.match(/(?:Giorno|Day|Sessione)\\s+([A-Z\\d]+)/i);
                     if(dMatch) {{
-                        // Aggiungiamo il giorno precedente solo se aveva esercizi
                         if(curD && curD.exercises.length > 0) w.days.push(curD);
                         curD = {{ name: l.trim(), exercises: [] }};
                     }} else if(curD) {{
@@ -353,13 +352,12 @@ def generate_html():
                         }}
                     }}
                 }});
-                // Push finale solo se ci sono esercizi
                 if(curD && curD.exercises.length > 0) w.days.push(curD);
 
                 if(w.days.length > 0) {{
                     workouts.unshift(w); save(); showToast("PROTOCOL INJECTED"); showView('view-home');
                 }} else {{
-                    alert("PARSING FAILED. Check text format.");
+                    alert("PARSING FAILED. No valid days or exercises found.");
                 }}
                 btn.innerText = "INITIALIZE"; btn.disabled = false;
             }}, 800);
@@ -378,4 +376,4 @@ if __name__ == "__main__":
     html_content = generate_html()
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(html_content)
-    print(f"Successo: Filtro giorni vuoti e sincronizzazione.")
+    print(f"Successo: Parser JS ripristinato e flessibile.")
