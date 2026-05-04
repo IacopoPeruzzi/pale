@@ -102,6 +102,13 @@ def generate_html():
         .metric-label {{ font-size: 0.65rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }}
         .metric-value {{ font-size: 1.1rem; font-weight: 800; color: var(--accent-color); }}
 
+        .circuit-list {{ 
+            background: rgba(207, 255, 4, 0.05); border-radius: 20px; padding: 20px; margin-bottom: 25px;
+            border: 1px solid var(--accent-glow);
+        }}
+        .circuit-item {{ display: flex; align-items: center; gap: 12px; margin-bottom: 10px; color: #fff; font-weight: 600; }}
+        .circuit-dot {{ width: 8px; height: 8px; border-radius: 50%; background: var(--accent-color); flex-shrink: 0; }}
+
         .set-row {{ 
             display: flex; align-items: center; gap: 15px; margin-bottom: 12px; 
             background: rgba(255,255,255,0.03); padding: 10px 15px; border-radius: 18px;
@@ -120,7 +127,6 @@ def generate_html():
             color: #fff; font-size: 1.2rem; font-weight: 800; padding: 4px 0; text-align: center;
         }}
         .load-input:focus {{ border-color: var(--accent-color); }}
-        .load-unit {{ font-size: 0.7rem; color: var(--text-secondary); font-weight: 800; }}
 
         .session-notes-box {{ 
             background: rgba(255,255,255,0.02); border-radius: 20px; padding: 20px; margin-top: 30px;
@@ -143,7 +149,6 @@ def generate_html():
 <body>
     <div id="toast"></div>
 
-    <!-- HOME VIEW -->
     <div id="view-home" class="view active">
         <div class="sticky-header"><h1>Pale<br><span style="color:var(--accent-color)">App</span></h1><p class="subtitle">Peak Performance Hub.</p></div>
         <div id="resume-section"></div>
@@ -151,14 +156,12 @@ def generate_html():
         <div onclick="showView('view-import')" style="position: fixed; bottom: 40px; right: 25px; width: 70px; height: 70px; background: var(--accent-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: #000; box-shadow: 0 10px 20px var(--accent-glow); z-index: 1000; cursor: pointer;">+</div>
     </div>
 
-    <!-- IMPORT VIEW -->
     <div id="view-import" class="view">
         <div class="sticky-header"><div onclick="showView('view-home')" style="color:var(--text-secondary); font-weight:800; cursor:pointer; margin-bottom:8px;">← BACK</div><h1>Import</h1></div>
         <textarea id="import-text" style="width: 100%; height: 300px; background: #111; color: #fff; border-radius: 20px; padding: 20px; border: 1px solid #333; margin: 15px 0;" placeholder="Paste protocol..."></textarea>
         <button id="import-btn" class="btn btn-main" style="width: 100%" onclick="importAction()">INITIALIZE</button>
     </div>
 
-    <!-- PLAN VIEW -->
     <div id="view-plan" class="view">
         <div class="sticky-header">
             <div onclick="showView('view-home')" style="color:var(--text-secondary); font-weight:800; cursor:pointer; margin-bottom:8px;">← DASHBOARD</div>
@@ -169,7 +172,6 @@ def generate_html():
         <div class="day-grid" id="day-list"></div>
     </div>
 
-    <!-- SESSION VIEW -->
     <div id="view-session" class="view">
         <div class="sticky-header">
             <div onclick="openWorkout(currentWorkoutIndex)" style="color:var(--text-secondary); font-weight:800; cursor:pointer; margin-bottom:8px;">← PIANO</div>
@@ -182,7 +184,6 @@ def generate_html():
         <div class="nav-dock"><button class="btn btn-main" onclick="finishSession()">CONCLUDI SESSIONE</button></div>
     </div>
 
-    <!-- EXERCISE VIEW -->
     <div id="view-exercise" class="view">
         <div class="sticky-header">
             <div onclick="startSession(currentDayIdx)" style="color:var(--text-secondary); font-weight:800; cursor:pointer; margin-bottom:8px;">← LISTA</div>
@@ -190,6 +191,9 @@ def generate_html():
             <div class="action-btn danger" onclick="resetExAction()">Reset</div>
             <p class="subtitle" id="ex-detail-meta">Serie 1 di 4</p>
         </div>
+
+        <div id="circuit-box" style="display:none"></div>
+
         <div class="metrics-grid">
             <div class="metric-box"><div class="metric-label">Serie</div><div class="metric-value" id="val-sets">4</div></div>
             <div class="metric-box"><div class="metric-label">Reps</div><div class="metric-value" id="val-reps">10-12</div></div>
@@ -252,7 +256,6 @@ def generate_html():
             const w = workouts[idx];
             document.getElementById('plan-title').innerText = sanitize(w.title);
             updateProg(w);
-
             const sel = document.getElementById('week-selector');
             sel.innerHTML = '';
             for(let i=1; i<=w.numWeeks; i++) {{
@@ -262,7 +265,6 @@ def generate_html():
                 b.onclick = () => {{ currentWeek = i; openWorkout(idx); }};
                 sel.appendChild(b);
             }}
-
             const dList = document.getElementById('day-list');
             dList.innerHTML = '';
             w.days.forEach((d, dI) => {{
@@ -282,11 +284,9 @@ def generate_html():
             const d = w.days[dI];
             document.getElementById('session-title').innerText = `GIORNO ${{dI + 1}}`;
             document.getElementById('session-subtitle').innerText = `WEEK ${{currentWeek}} • ${{sanitize(d.name)}}`;
-            
             const focus = document.getElementById('session-focus-container');
             const str = w.weeklyStructure?.find(s => s.week === 'W' + currentWeek);
             focus.innerHTML = str ? `<div style="background:rgba(207,255,4,0.08); padding:12px; border-radius:15px; border:1px solid var(--accent-color); font-size:0.8rem;"><b>FOCUS</b>: ${{str.note || str.focus}}</div>` : '';
-
             const list = document.getElementById('exercise-list');
             list.innerHTML = '';
             d.exercises.forEach((ex, eI) => {{
@@ -305,7 +305,6 @@ def generate_html():
             const ex = workouts[currentWorkoutIndex].days[currentDayIdx].exercises[eI];
             if(!ex.sessionData) ex.sessionData = {{}};
             if(!ex.sessionData[currentWeek]) ex.sessionData[currentWeek] = {{ completed: false, sets: [], notes: "" }};
-            
             const data = ex.sessionData[currentWeek];
             const nS = parseInt(ex.sets) || 1;
             while(data.sets.length < nS) data.sets.push({{ done: false, load: "" }});
@@ -316,6 +315,16 @@ def generate_html():
             document.getElementById('val-rest').innerText = ex.rest;
             document.getElementById('session-notes').value = data.notes;
 
+            // Gestione Circuiti
+            const circuitBox = document.getElementById('circuit-box');
+            if(ex.name.toLowerCase().includes('circuito') && ex.notes) {{
+                const subExs = ex.notes.split('+').map(s => s.trim());
+                if(subExs.length > 1) {{
+                    circuitBox.innerHTML = '<div class="circuit-list">' + subExs.map(s => `<div class="circuit-item"><div class="circuit-dot"></div>${{sanitize(s)}}</div>`).join('') + '</div>';
+                    circuitBox.style.display = 'block';
+                }} else circuitBox.style.display = 'none';
+            }} else circuitBox.style.display = 'none';
+
             const container = document.getElementById('sets-rows-container');
             container.innerHTML = '';
             data.sets.forEach((s, i) => {{
@@ -325,7 +334,7 @@ def generate_html():
                     <div class="set-circle ${{s.done ? 'active' : ''}}" onclick="toggleSet(${{i}})">${{i+1}}</div>
                     <div class="load-input-wrap">
                         <input type="number" class="load-input" value="${{s.load}}" placeholder="---" oninput="updateLoad(${{i}}, this.value)">
-                        <span class="load-unit">KG</span>
+                        <span style="font-size:0.7rem; color:var(--text-secondary); font-weight:800;">KG</span>
                     </div>
                 `;
                 container.appendChild(row);
@@ -343,15 +352,13 @@ def generate_html():
 
         function updateLoad(sI, val) {{
             const data = workouts[currentWorkoutIndex].days[currentDayIdx].exercises[currentExIdx].sessionData[currentWeek];
-            data.sets[sI].load = val;
-            save();
+            data.sets[sI].load = val; save();
         }}
 
         function updateSessionNotes() {{
             const val = document.getElementById('session-notes').value;
             const data = workouts[currentWorkoutIndex].days[currentDayIdx].exercises[currentExIdx].sessionData[currentWeek];
-            data.notes = val;
-            save();
+            data.notes = val; save();
         }}
 
         function updateExMeta() {{
@@ -488,4 +495,4 @@ if __name__ == "__main__":
     html_content = generate_html()
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(html_content)
-    print(f"Successo: Rimosso timer, aggiunto pulsante Reset e pulita interfaccia note.")
+    print(f"Successo: Implementata visualizzazione speciale per circuiti.")
