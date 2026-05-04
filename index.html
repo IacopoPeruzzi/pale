@@ -8,6 +8,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Pale App</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <style>
         :root {
             --bg-color: #050507;
@@ -68,28 +69,25 @@
         .day-card { 
             background: var(--card-bg); border-radius: 28px; padding: 25px; 
             border: 1px solid rgba(255,255,255,0.05); backdrop-filter: blur(10px);
-            display: flex; justify-content: space-between; align-items: center; cursor: pointer;
+            display: flex; justify-content: space-between; align-items: center; cursor: grab;
             transition: 0.2s;
         }
+        .day-card:active { cursor: grabbing; }
         .day-card.locked { opacity: 0.2; filter: grayscale(1); }
         .day-card.completed { border-left: 8px solid var(--accent-color); background: rgba(207, 255, 4, 0.03); }
+        
+        .sortable-ghost { opacity: 0.4; background: var(--accent-glow); }
 
-        .exercise-card { background: var(--card-bg); border-radius: 28px; padding: 25px; margin-bottom: 16px; border: 1px solid rgba(255,255,255,0.05); transition: 0.4s; position: relative; }
+        .exercise-card { background: var(--card-bg); border-radius: 28px; padding: 25px; margin-bottom: 16px; border: 1px solid rgba(255,255,255,0.05); transition: 0.4s; cursor: grab; }
         .exercise-card.fully-done { opacity: 0.3; filter: grayscale(1); transform: scale(0.98); }
         
-        .sets-wrap { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 15px; }
+        .sets-wrap { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 15px; cursor: default; }
         .set-btn { 
             width: 52px; height: 52px; border-radius: 16px; border: 2px solid rgba(255,255,255,0.1);
             display: flex; align-items: center; justify-content: center; font-weight: 800; cursor: pointer;
             transition: 0.2s;
         }
         .set-btn.checked { background: var(--accent-color); color: #000; border-color: transparent; transform: scale(1.1); }
-
-        .reorder-btns { display: flex; flex-direction: column; gap: 8px; margin-left: 15px; }
-        .order-btn { 
-            width: 32px; height: 32px; border-radius: 8px; background: rgba(255,255,255,0.05); 
-            display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: var(--text-secondary);
-        }
 
         .nav-dock { position: fixed; bottom: 0; left: 0; width: 100%; padding: 25px 25px 45px 25px; background: linear-gradient(to top, var(--bg-color) 80%, transparent); display: flex; gap: 12px; z-index: 1000; }
         .btn { flex: 1; border: none; padding: 22px; border-radius: 24px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 0.85rem; }
@@ -108,7 +106,7 @@
     <div id="view-home" class="view active">
         <div class="sticky-header">
             <h1>Pale<br><span style="color:var(--accent-color)">App</span></h1>
-            <p class="subtitle">Peak Performance Hub.</p>
+            <p class="subtitle">Peak Performance Protocol.</p>
         </div>
         <div id="resume-section"></div>
         <div id="workouts-list"></div>
@@ -229,34 +227,30 @@
                 const status = w.progress && w.progress[currentWeek] && w.progress[currentWeek][dI];
                 const isU = n ? (currentWeek < n.week || (currentWeek === n.week && dI <= n.day)) : true;
                 const c = document.createElement('div');
+                c.dataset.id = dI;
                 c.className = `day-card ${status === true ? 'completed' : ''} ${status === 'skipped' ? 'skipped' : ''} ${!isU ? 'locked' : ''}`;
                 c.onclick = () => { if(isU) startSession(dI); };
                 let t = isU ? 'READY' : 'LOCKED';
                 if(status === true) t = 'DONE';
                 if(status === 'skipped') t = 'SKIP';
-                
-                c.innerHTML = `
-                    <div><h4>GIORNO ${dI + 1}</h4><small>${d.name.split('-')[1] || d.name}</small></div>
-                    <div style="display:flex; align-items:center;">
-                        <div class="reorder-btns">
-                            <div class="order-btn" onclick="event.stopPropagation(); moveDay(${dI}, -1)">▲</div>
-                            <div class="order-btn" onclick="event.stopPropagation(); moveDay(${dI}, 1)">▼</div>
-                        </div>
-                        <div class="status-tag" style="margin-left:15px;">${t}</div>
-                    </div>
-                `;
+                c.innerHTML = `<div><h4>GIORNO ${dI + 1}</h4><small>${d.name.split('-')[1] || d.name}</small></div><div style="display:flex; align-items:center;"><div style="opacity:0.2; margin-right:15px; font-size:1.2rem;">☰</div><div class="status-tag">${t}</div></div>`;
                 dList.appendChild(c);
             });
+            
+            // Inizializza Sortable per i giorni
+            new Sortable(dList, {
+                animation: 250,
+                handle: '.day-card',
+                ghostClass: 'sortable-ghost',
+                onEnd: function(evt) {
+                    const w = workouts[currentWorkoutIndex];
+                    const movedItem = w.days.splice(evt.oldIndex, 1)[0];
+                    w.days.splice(evt.newIndex, 0, movedItem);
+                    save(); openWorkout(currentWorkoutIndex);
+                }
+            });
+            
             showView('view-plan');
-        }
-
-        function moveDay(idx, dir) {
-            const w = workouts[currentWorkoutIndex];
-            if((idx === 0 && dir === -1) || (idx === w.days.length - 1 && dir === 1)) return;
-            const temp = w.days[idx];
-            w.days[idx] = w.days[idx + dir];
-            w.days[idx + dir] = temp;
-            save(); openWorkout(currentWorkoutIndex);
         }
 
         function startSession(dI) {
@@ -280,39 +274,39 @@
                 const nS = parseInt(ex.sets) || 1;
                 if(!ex.setStates) ex.setStates = new Array(nS).fill(false);
                 const isD = ex.setStates.every(s => s === true);
-                
                 const card = document.createElement('div');
                 card.id = `ex-card-${eI}`;
+                card.dataset.id = eI;
                 card.className = `exercise-card ${isD ? 'fully-done' : ''}`;
-                
                 let bsHtml = '';
                 for(let i=0; i<nS; i++) {
-                    bsHtml += `<div id="set-${eI}-${i}" class="set-btn ${ex.setStates[i] ? 'checked' : ''}" onclick="toggleSetAction(${eI}, ${i})">${i+1}</div>`;
+                    bsHtml += `<div id="set-${eI}-${i}" class="set-btn ${ex.setStates[i] ? 'checked' : ''}" onclick="event.stopPropagation(); toggleSetAction(${eI}, ${i})">${i+1}</div>`;
                 }
-
                 card.innerHTML = `
                     <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                         <div><b>${ex.name}</b><br><small>${ex.sets}x${ex.reps} • ${ex.rest}</small></div>
-                        <div class="reorder-btns">
-                            <div class="order-btn" onclick="moveEx(${eI}, -1)">▲</div>
-                            <div class="order-btn" onclick="moveEx(${eI}, 1)">▼</div>
-                        </div>
+                        <div style="opacity:0.2; font-size:1.2rem;">☰</div>
                     </div>
-                    <div class="sets-wrap">${bsHtml}</div>
+                    <div class="sets-wrap" onclick="event.stopPropagation()">${bsHtml}</div>
                     <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:10px;">${ex.notes || ''}</div>
                 `;
                 content.appendChild(card);
             });
-            showView('view-session');
-        }
 
-        function moveEx(idx, dir) {
-            const d = workouts[currentWorkoutIndex].days[currentDayIdx];
-            if((idx === 0 && dir === -1) || (idx === d.exercises.length - 1 && dir === 1)) return;
-            const temp = d.exercises[idx];
-            d.exercises[idx] = d.exercises[idx + dir];
-            d.exercises[idx + dir] = temp;
-            save(); startSession(currentDayIdx);
+            // Inizializza Sortable per gli esercizi
+            new Sortable(content, {
+                animation: 250,
+                handle: '.exercise-card',
+                ghostClass: 'sortable-ghost',
+                onEnd: function(evt) {
+                    const d = workouts[currentWorkoutIndex].days[currentDayIdx];
+                    const movedItem = d.exercises.splice(evt.oldIndex, 1)[0];
+                    d.exercises.splice(evt.newIndex, 0, movedItem);
+                    save(); startSession(currentDayIdx);
+                }
+            });
+
+            showView('view-session');
         }
 
         function toggleSetAction(eI, sI) {
@@ -339,7 +333,7 @@
             const w = workouts[currentWorkoutIndex];
             if (!w.progress[currentWeek]) w.progress[currentWeek] = {};
             w.progress[currentWeek][currentDayIdx] = true;
-            save(); showToast("GREAT JOB! LOGGED."); openWorkout(currentWorkoutIndex);
+            save(); showToast("GREAT JOB!"); openWorkout(currentWorkoutIndex);
         }
         function updateProg(w) { let t = w.numWeeks * w.days.length; let d = 0; if (w.progress) Object.values(w.progress).forEach(wk => { d += Object.keys(wk).length; }); document.getElementById('total-progress-bar').style.width = `${(d / t) * 100}%`; }
         function parseRest(r) { const m = r.match(/(\d+)/); if (!m) return 90; let v = parseInt(m[1]); return (r.includes("'") || r.toLowerCase().includes("m")) ? v * 60 : v; }
@@ -360,6 +354,14 @@
                 if(tMatch) w.title = tMatch[1].trim().toUpperCase();
                 const wMatch = t.match(/(\d+)\s*settimane/i);
                 if(wMatch) w.numWeeks = parseInt(wMatch[1]);
+                let inTable = false;
+                lines.forEach(l => {
+                    if(l.includes('| Settimana |')) inTable = true;
+                    else if(inTable && l.includes('| W')) {
+                        const cols = l.split('|').map(c => c.trim());
+                        if(cols.length >= 3) w.weeklyStructure.push({ week: cols[1], focus: cols[2], note: cols[4] || "" });
+                    } else if(inTable && l.trim() === "") inTable = false;
+                });
                 let curD = null;
                 lines.forEach(l => {
                     const dMatch = l.match(/(?:Giorno|Day|Sessione)\s+([A-Z\d]+)/i);
