@@ -23,9 +23,9 @@ def generate_html():
     <style>
         :root {{
             --bg-color: #050507;
-            --card-bg: rgba(25, 25, 35, 0.8);
+            --card-bg: rgba(25, 25, 35, 0.85);
             --accent-color: #cfff04;
-            --accent-glow: rgba(207, 255, 4, 0.3);
+            --accent-glow: rgba(207, 255, 4, 0.35);
             --text-primary: #ffffff;
             --text-secondary: #8a8a93;
             --border-radius: 32px;
@@ -99,12 +99,16 @@ def generate_html():
 
         #timer-screen {{ position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); z-index: 3000; display: none; flex-direction: column; align-items: center; justify-content: center; }}
         #timer-clock {{ font-size: 10rem; font-weight: 900; color: var(--accent-color); }}
+        
+        #toast {{ position: fixed; top: 30px; left: 50%; transform: translateX(-50%); background: var(--accent-gradient); color: #000; padding: 12px 25px; border-radius: 50px; font-weight: 800; z-index: 5000; display: none; }}
     </style>
 </head>
 <body>
+    <div id="toast"></div>
+
     <div id="view-home" class="view active">
         <h1>Pale<br><span style="color:var(--accent-color)">App</span></h1>
-        <p class="subtitle">Touch to start protocol.</p>
+        <p class="subtitle">Peak Performance Protocol.</p>
         <div id="resume-section"></div>
         <div id="workouts-list"></div>
         <div onclick="showView('view-import')" style="position: fixed; bottom: 40px; right: 25px; width: 75px; height: 75px; background: var(--accent-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; color: #000; box-shadow: 0 15px 30px var(--accent-glow); z-index: 1000; cursor: pointer;">+</div>
@@ -112,9 +116,9 @@ def generate_html():
 
     <div id="view-import" class="view">
         <div onclick="showView('view-home')" style="color:var(--text-secondary); font-weight:800; cursor:pointer; margin-bottom:25px;">← BACK</div>
-        <h1>Import</h1>
-        <textarea id="import-text" style="width: 100%; height: 300px; background: #111; color: #fff; border-radius: 24px; padding: 25px; border: 1px solid #333; margin: 20px 0;" placeholder="Paste text here..."></textarea>
-        <button class="btn btn-main" style="width: 100%" onclick="importAction()">SAVE PLAN</button>
+        <h1>Import Protocol</h1>
+        <textarea id="import-text" style="width: 100%; height: 350px; background: #111; color: #fff; border-radius: 24px; padding: 25px; border: 1px solid #333; margin: 20px 0;" placeholder="Paste text here..."></textarea>
+        <button id="import-btn" class="btn btn-main" style="width: 100%" onclick="importAction()">INITIALIZE</button>
     </div>
 
     <div id="view-plan" class="view">
@@ -129,6 +133,7 @@ def generate_html():
         <div onclick="openWorkout(currentWorkoutIndex)" style="color:var(--text-secondary); font-weight:800; cursor:pointer; margin-bottom:25px;">← PIANO</div>
         <h1 id="session-title">Day X</h1>
         <p class="subtitle" id="session-subtitle">Week 1</p>
+        <div id="session-focus-container"></div>
         <div id="session-content" style="margin-top:20px;"></div>
         <div class="nav-dock">
             <button id="restart-btn" class="btn btn-alt" style="display:none; color:#ff4444;" onclick="resetAction()">RESET</button>
@@ -138,7 +143,7 @@ def generate_html():
         </div>
     </div>
 
-    <div id="timer-screen" onclick="stopTimer()"><div id="timer-clock">90</div><p>READY?</p></div>
+    <div id="timer-screen" onclick="stopTimer()"><div id="timer-clock">90</div><p>GO FIGHT!</p></div>
 
     <script>
         let workouts = JSON.parse(localStorage.getItem('pale_workouts') || '[]');
@@ -146,6 +151,12 @@ def generate_html():
         let currentWeek = 1;
         let currentDayIdx = null;
         let activeRestTime = 90;
+
+        function showToast(msg) {{
+            const t = document.getElementById('toast');
+            t.innerText = msg; t.style.display = 'block';
+            setTimeout(() => t.style.display = 'none', 3000);
+        }}
 
         function getInc(w) {{
             for(let w_i=1; w_i<=w.numWeeks; w_i++) {{
@@ -177,7 +188,7 @@ def generate_html():
                 c.className = 'day-card';
                 c.style.opacity = '1'; c.style.marginBottom = '12px';
                 c.onclick = () => openWorkout(i);
-                c.innerHTML = `<div><b>${{w.title}}</b><br><small>${{w.numWeeks}} WEEKS</small></div>`;
+                c.innerHTML = `<div><b>${{w.title}}</b><br><small>${{w.numWeeks}} WEEKS</small></div><div style="opacity:0.2" onclick="event.stopPropagation(); deleteWorkout(${{i}})">🗑️</div>`;
                 list.appendChild(c);
             }});
         }}
@@ -210,7 +221,7 @@ def generate_html():
                 const isU = n ? (currentWeek < n.week || (currentWeek === n.week && dI <= n.day)) : true;
                 const c = document.createElement('div');
                 c.className = `day-card ${{status === true ? 'completed' : ''}} ${{status === 'skipped' ? 'skipped' : ''}} ${{!isU ? 'locked' : ''}}`;
-                c.onclick = () => {{ if(isU) startSession(dI); else alert('Giorno bloccato!'); }};
+                c.onclick = () => {{ if(isU) startSession(dI); }};
                 let t = isU ? 'READY' : 'LOCKED';
                 if(status === true) t = 'DONE';
                 if(status === 'skipped') t = 'SKIP';
@@ -231,6 +242,11 @@ def generate_html():
             document.getElementById('finish-btn').style.display = status ? 'none' : 'block';
             document.getElementById('skip-btn').style.display = status ? 'none' : 'block';
 
+            // Focus card
+            const focus = document.getElementById('session-focus-container');
+            const str = w.weeklyStructure?.find(s => s.week.includes(currentWeek.toString())) || (w.weeklyStructure ? w.weeklyStructure[currentWeek-1] : null);
+            focus.innerHTML = str ? `<div style="background:rgba(207,255,4,0.1); padding:15px; border-radius:20px; border:1px solid var(--accent-color); font-size:0.9rem;"><b>${{str.focus}}</b><br><small>${{str.note}}</small></div>` : '';
+
             const content = document.getElementById('session-content');
             content.innerHTML = '';
             d.exercises.forEach((ex, eI) => {{
@@ -241,7 +257,7 @@ def generate_html():
                 card.className = `exercise-card ${{isD ? 'fully-done' : ''}}`;
                 let bs = '';
                 for(let i=0; i<nS; i++) bs += `<div class="set-btn ${{ex.setStates[i] ? 'checked' : ''}}" onclick="toggleSetAction(${{eI}}, ${{i}})">${{i+1}}</div>`;
-                card.innerHTML = `<b>${{ex.name}}</b><br><small>${{ex.sets}}x${{ex.reps}} • ${{ex.rest}}</small><div class="sets-wrap">${{bs}}</div>`;
+                card.innerHTML = `<b>${{ex.name}}</b><br><small>${{ex.sets}}x${{ex.reps}} • ${{ex.rest}}</small><div class="sets-wrap">${{bs}}</div><div style="font-size:0.75rem; color:var(--text-secondary); margin-top:10px;">${{ex.notes || ''}}</div>`;
                 content.appendChild(card);
             }});
             showView('view-session');
@@ -256,7 +272,7 @@ def generate_html():
         }}
 
         function resetAction() {{ if(confirm('RESET?')) {{ const w = workouts[currentWorkoutIndex]; delete w.progress[currentWeek][currentDayIdx]; w.days[currentDayIdx].exercises.forEach(ex => delete ex.setStates); save(); startSession(currentDayIdx); }} }}
-        function finishAction() {{ const w = workouts[currentWorkoutIndex]; if (!w.progress[currentWeek]) w.progress[currentWeek] = {{}}; w.progress[currentWeek][currentDayIdx] = true; save(); openWorkout(currentWorkoutIndex); }}
+        function finishAction() {{ const w = workouts[currentWorkoutIndex]; if (!w.progress[currentWeek]) w.progress[currentWeek] = {{}}; w.progress[currentWeek][currentDayIdx] = true; save(); showToast("GREAT JOB!"); openWorkout(currentWorkoutIndex); }}
         function quickSkipAction() {{ if(confirm('SKIP?')) {{ const w = workouts[currentWorkoutIndex]; if (!w.progress[currentWeek]) w.progress[currentWeek] = {{}}; w.progress[currentWeek][currentDayIdx] = 'skipped'; save(); openWorkout(currentWorkoutIndex); }} }}
         function updateProg(w) {{ let t = w.numWeeks * w.days.length; let d = 0; if (w.progress) Object.values(w.progress).forEach(wk => {{ d += Object.keys(wk).length; }}); document.getElementById('total-progress-bar').style.width = `${{(d / t) * 100}}%`; }}
         function parseRest(r) {{ const m = r.match(/(\\d+)/); if (!m) return 90; let v = parseInt(m[1]); return (r.includes("'") || r.toLowerCase().includes("m")) ? v * 60 : v; }}
@@ -264,18 +280,89 @@ def generate_html():
         let tInt;
         function startTimer() {{ stopTimer(); const s = document.getElementById('timer-screen'); const c = document.getElementById('timer-clock'); s.style.display = 'flex'; let l = activeRestTime; c.innerText = l; tInt = setInterval(() => {{ l--; c.innerText = l; if (l <= 0) {{ stopTimer(); if(navigator.vibrate) navigator.vibrate([400, 100, 400]); }} }}, 1000); }}
         function stopTimer() {{ clearInterval(tInt); document.getElementById('timer-screen').style.display = 'none'; }}
+        
         function importAction() {{
             const t = document.getElementById('import-text').value;
             if(!t.trim()) return;
-            const w = {{ id: "p-" + Date.now(), title: t.split('\\n')[0].substring(0,15).toUpperCase(), numWeeks: 4, days: [], progress: {{}} }};
-            const lines = t.split('\\n'); let curD = null;
-            lines.forEach(l => {{
-                if(l.match(/Giorno|Day|Sessione/i)) {{ if(curD) w.days.push(curD); curD = {{ name: l.trim(), exercises: [] }}; }}
-                else {{ const m = l.match(/(\\d+)\\s*[xX]\\s*(\\d+)/); if(m && curD) curD.exercises.push({{ name: l.split(m[0])[0].replace(/[-•*]/g, '').trim(), sets: m[1], reps: m[2], rest: "90s", notes: "" }}); }}
-            }});
-            if(curD) w.days.push(curD);
-            if(w.days.length > 0) {{ workouts.unshift(w); save(); showView('view-home'); }}
+            const btn = document.getElementById('import-btn');
+            btn.innerText = "ANALYZING..."; btn.disabled = true;
+
+            setTimeout(() => {{
+                const w = {{ 
+                    id: "p-" + Date.now(), 
+                    title: "NEW PROTOCOL", 
+                    numWeeks: 4, 
+                    weeklyStructure: [], 
+                    days: [], 
+                    progress: {{}} 
+                }};
+
+                // Robust Parser
+                const lines = t.split('\\n');
+                
+                // Estrai Titolo
+                const tMatch = t.match(/(?:#|\\*\\*|Perfetto:)\\s*\\*?\\*?([A-Z0-9 ]+)\\b/i);
+                if(tMatch) w.title = tMatch[1].trim().toUpperCase();
+
+                // Estrai Settimane
+                const wMatch = t.match(/(\\d+)\\s*settimane/i);
+                if(wMatch) w.numWeeks = parseInt(wMatch[1]);
+
+                // Estrai Struttura Settimanale (Tabelle)
+                let inTable = false;
+                lines.forEach(l => {{
+                    if(l.includes('| Settimana |')) inTable = true;
+                    else if(inTable && l.includes('| W')) {{
+                        const cols = l.split('|').map(c => c.trim());
+                        if(cols.length >= 3) {{
+                            w.weeklyStructure.push({{ week: cols[1], focus: cols[2], note: cols[4] || "" }});
+                        }}
+                    }} else if(inTable && l.trim() === "") inTable = false;
+                }});
+
+                // Estrai Giorni ed Esercizi
+                let curD = null;
+                lines.forEach(l => {{
+                    const dMatch = l.match(/(?:Giorno|Day|Sessione)\\s+([A-Z\\d]+)/i);
+                    if(dMatch) {{
+                        if(curD) w.days.push(curD);
+                        curD = {{ name: l.trim(), exercises: [] }};
+                    }} else if(curD) {{
+                        // Tabella esercizi o lista
+                        const exMatch = l.match(/(\\d+)\\s*[xX]\\s*(\\d+(?:-\\d+)?)/);
+                        if(exMatch || l.includes('|')) {{
+                            const cols = l.split('|').map(c => c.trim());
+                            if(cols.length >= 4 && !cols[1].includes('Esercizio')) {{
+                                curD.exercises.push({{
+                                    name: cols[1],
+                                    sets: cols[2],
+                                    reps: cols[3],
+                                    rest: cols[4] || "90s",
+                                    notes: cols[5] || ""
+                                }});
+                            }} else if(exMatch) {{
+                                curD.exercises.push({{
+                                    name: l.split(exMatch[0])[0].replace(/[-•*]/g, '').trim(),
+                                    sets: exMatch[1],
+                                    reps: exMatch[2],
+                                    rest: "90s",
+                                    notes: ""
+                                }});
+                            }}
+                        }}
+                    }}
+                }});
+                if(curD) w.days.push(curD);
+
+                if(w.days.length > 0) {{
+                    workouts.unshift(w); save(); showToast("PROTOCOL INJECTED"); showView('view-home');
+                }} else {{
+                    alert("PARSING FAILED. Check text format.");
+                }}
+                btn.innerText = "INITIALIZE"; btn.disabled = false;
+            }}, 800);
         }}
+
         function deleteWorkout(i) {{ if(confirm('DELETE?')) {{ workouts.splice(i, 1); save(); renderHome(); }} }}
         renderHome();
     </script>
@@ -289,4 +376,4 @@ if __name__ == "__main__":
     html_content = generate_html()
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(html_content)
-    print(f"Successo: Pale App ripristinata e cliccabile.")
+    print(f"Successo: Parser JS potenziato e sincronizzato.")
