@@ -159,6 +159,7 @@ def generate_html():
         }}
 
         function getInc(w) {{
+            if(!w.days) return null;
             for(let w_i=1; w_i<=w.numWeeks; w_i++) {{
                 for(let d_i=0; d_i<w.days.length; d_i++) {{
                     if(!w.progress || !w.progress[w_i] || !w.progress[w_i][d_i]) return {{ week: w_i, day: d_i }};
@@ -189,7 +190,7 @@ def generate_html():
                 c.style.opacity = '1'; c.style.marginBottom = '12px';
                 c.onclick = () => openWorkout(i);
                 c.innerHTML = `<div><b>${{w.title}}</b><br><small>${{w.numWeeks}} WEEKS</small></div><div style="opacity:0.2" onclick="event.stopPropagation(); deleteWorkout(${{i}})">🗑️</div>`;
-                list.appendChild(card);
+                list.appendChild(c);
             }});
         }}
 
@@ -316,15 +317,16 @@ def generate_html():
 
                 let curD = null;
                 lines.forEach(l => {{
-                    const dMatch = l.match(/(?:Giorno|Day|Sessione)\\s+([A-Z\\d]+)/i);
+                    // Match più rigoroso per evitare righe di testo generico
+                    const dMatch = l.match(/^(?:Giorno|Day|Sessione)\\s+([A-Z\\d]+)/i);
                     if(dMatch) {{
-                        if(curD) w.days.push(curD);
+                        // Aggiungiamo il giorno precedente solo se aveva esercizi
+                        if(curD && curD.exercises.length > 0) w.days.push(curD);
                         curD = {{ name: l.trim(), exercises: [] }};
                     }} else if(curD) {{
                         const exMatch = l.match(/(\\d+)\\s*[xX]\\s*(\\d+(?:-\\d+)?)/);
                         if(exMatch || l.includes('|')) {{
                             const cols = l.split('|').map(c => c.trim());
-                            // Condizione migliorata: deve esserci un nome e non deve essere solo trattini
                             if(cols.length >= 4) {{
                                 const name = cols[1];
                                 if(name && !name.includes('---') && !name.includes('Esercizio')) {{
@@ -338,7 +340,7 @@ def generate_html():
                                 }};
                             }} else if(exMatch) {{
                                 const name = l.split(exMatch[0])[0].replace(/[-•*]/g, '').trim();
-                                if(name) {{
+                                if(name && name.length > 2) {{
                                     curD.exercises.push({{
                                         name: name,
                                         sets: exMatch[1],
@@ -351,7 +353,8 @@ def generate_html():
                         }}
                     }}
                 }});
-                if(curD) w.days.push(curD);
+                // Push finale solo se ci sono esercizi
+                if(curD && curD.exercises.length > 0) w.days.push(curD);
 
                 if(w.days.length > 0) {{
                     workouts.unshift(w); save(); showToast("PROTOCOL INJECTED"); showView('view-home');
@@ -375,4 +378,4 @@ if __name__ == "__main__":
     html_content = generate_html()
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(html_content)
-    print(f"Successo: Fix esercizio vuoto e sincronizzazione.")
+    print(f"Successo: Filtro giorni vuoti e sincronizzazione.")
