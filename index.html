@@ -47,14 +47,14 @@
         h2 { font-size: 1.8rem; font-weight: 800; margin: 0; letter-spacing: -1px; line-height: 1.2; }
         .subtitle { color: var(--text-secondary); font-size: 0.9rem; margin-top: 6px; }
 
-        .setup-toggle {
+        .action-btn {
             position: absolute; top: calc(35px + var(--safe-area-top)); right: 20px;
             padding: 8px 16px; border-radius: 15px; background: rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.1); font-weight: 800; font-size: 0.65rem;
             text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); cursor: pointer;
             transition: 0.3s; z-index: 1100;
         }
-        .setup-toggle.active { background: var(--accent-color); color: #000; box-shadow: 0 0 20px var(--accent-glow); border-color: transparent; }
+        .action-btn.danger { color: #ff4444; border-color: rgba(255, 68, 68, 0.2); }
 
         .progress-container { width: 100%; height: 4px; background: rgba(255,255,255,0.03); border-radius: 10px; margin: 15px 0; overflow: hidden; }
         .progress-bar { height: 100%; background: var(--accent-color); transition: width 0.8s ease; }
@@ -125,14 +125,13 @@
         .btn-main { background: var(--accent-color); color: #000; box-shadow: 0 8px 20px var(--accent-glow); }
         .btn-alt { background: rgba(255,255,255,0.08); color: #fff; }
 
-        #timer-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); z-index: 3000; display: none; flex-direction: column; align-items: center; justify-content: center; }
-        #timer-clock { font-size: 10rem; font-weight: 900; color: var(--accent-color); }
         #toast { position: fixed; top: 30px; left: 50%; transform: translateX(-50%); background: var(--accent-color); color: #000; padding: 10px 20px; border-radius: 50px; font-weight: 800; z-index: 5000; display: none; font-size: 0.8rem; }
     </style>
 </head>
 <body>
     <div id="toast"></div>
 
+    <!-- HOME VIEW -->
     <div id="view-home" class="view active">
         <div class="sticky-header"><h1>Pale<br><span style="color:var(--accent-color)">App</span></h1><p class="subtitle">Peak Performance Hub.</p></div>
         <div id="resume-section"></div>
@@ -140,12 +139,14 @@
         <div onclick="showView('view-import')" style="position: fixed; bottom: 40px; right: 25px; width: 70px; height: 70px; background: var(--accent-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: #000; box-shadow: 0 10px 20px var(--accent-glow); z-index: 1000; cursor: pointer;">+</div>
     </div>
 
+    <!-- IMPORT VIEW -->
     <div id="view-import" class="view">
         <div class="sticky-header"><div onclick="showView('view-home')" style="color:var(--text-secondary); font-weight:800; cursor:pointer; margin-bottom:8px;">← BACK</div><h1>Import</h1></div>
         <textarea id="import-text" style="width: 100%; height: 300px; background: #111; color: #fff; border-radius: 20px; padding: 20px; border: 1px solid #333; margin: 15px 0;" placeholder="Paste protocol..."></textarea>
         <button id="import-btn" class="btn btn-main" style="width: 100%" onclick="importAction()">INITIALIZE</button>
     </div>
 
+    <!-- PLAN VIEW -->
     <div id="view-plan" class="view">
         <div class="sticky-header">
             <div onclick="showView('view-home')" style="color:var(--text-secondary); font-weight:800; cursor:pointer; margin-bottom:8px;">← DASHBOARD</div>
@@ -156,10 +157,12 @@
         <div class="day-grid" id="day-list"></div>
     </div>
 
+    <!-- SESSION VIEW -->
     <div id="view-session" class="view">
         <div class="sticky-header">
             <div onclick="openWorkout(currentWorkoutIndex)" style="color:var(--text-secondary); font-weight:800; cursor:pointer; margin-bottom:8px;">← PIANO</div>
             <h1 id="session-title">Day X</h1>
+            <div class="action-btn danger" onclick="resetDayAction()">Reset</div>
             <p class="subtitle" id="session-subtitle">Week 1</p>
             <div id="session-focus-container" style="margin-top:12px;"></div>
         </div>
@@ -167,10 +170,12 @@
         <div class="nav-dock"><button class="btn btn-main" onclick="finishSession()">CONCLUDI SESSIONE</button></div>
     </div>
 
+    <!-- EXERCISE VIEW -->
     <div id="view-exercise" class="view">
         <div class="sticky-header">
             <div onclick="startSession(currentDayIdx)" style="color:var(--text-secondary); font-weight:800; cursor:pointer; margin-bottom:8px;">← LISTA</div>
             <h2 id="ex-detail-name">Exercise Name</h2>
+            <div class="action-btn danger" onclick="resetExAction()">Reset</div>
             <p class="subtitle" id="ex-detail-meta">Serie 1 di 4</p>
         </div>
         <div class="metrics-grid">
@@ -186,15 +191,10 @@
             <textarea class="session-notes-textarea" id="session-notes" placeholder="Com'è andata oggi?" oninput="updateSessionNotes()"></textarea>
         </div>
 
-        ${parsed_workout and parsed_workout.get('notes') ? f'<div class="note-box" style="margin-top:20px">{parsed_workout["notes"]}</div>' : ''}
-
         <div class="nav-dock">
-            <button class="btn btn-alt" onclick="startTimer()" style="flex: 0.4">TIMER</button>
             <button class="btn btn-main" onclick="nextExercise()">PROSSIMO</button>
         </div>
     </div>
-
-    <div id="timer-screen" onclick="stopTimer()"><div id="timer-clock">90</div><p>READY?</p></div>
 
     <script>
         let workouts = JSON.parse(localStorage.getItem('pale_workouts') || '[]');
@@ -202,7 +202,6 @@
         let currentWeek = 1;
         let currentDayIdx = null;
         let currentExIdx = null;
-        let activeRestTime = 90;
 
         function showToast(msg) {
             const t = document.getElementById('toast');
@@ -214,7 +213,6 @@
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             window.scrollTo(0,0);
-            if(id === 'view-home') renderHome();
         }
 
         function renderHome() {
@@ -322,14 +320,12 @@
             });
 
             updateExMeta();
-            activeRestTime = parseRest(ex.rest);
             showView('view-exercise');
         }
 
         function toggleSet(sI) {
             const data = workouts[currentWorkoutIndex].days[currentDayIdx].exercises[currentExIdx].sessionData[currentWeek];
             data.sets[sI].done = !data.sets[sI].done;
-            if(data.sets[sI].done) startTimer();
             save(); openExercise(currentExIdx);
         }
 
@@ -360,6 +356,23 @@
             else startSession(currentDayIdx);
         }
 
+        function resetDayAction() {
+            if(confirm('Resettare tutti i dati del giorno corrente?')) {
+                const d = workouts[currentWorkoutIndex].days[currentDayIdx];
+                d.exercises.forEach(ex => { if(ex.sessionData) delete ex.sessionData[currentWeek]; });
+                if(workouts[currentWorkoutIndex].progress[currentWeek]) delete workouts[currentWorkoutIndex].progress[currentWeek][currentDayIdx];
+                save(); startSession(currentDayIdx);
+            }
+        }
+
+        function resetExAction() {
+            if(confirm('Resettare i dati di questo esercizio?')) {
+                const ex = workouts[currentWorkoutIndex].days[currentDayIdx].exercises[currentExIdx];
+                if(ex.sessionData) delete ex.sessionData[currentWeek];
+                save(); openExercise(currentExIdx);
+            }
+        }
+
         function finishSession() {
             const w = workouts[currentWorkoutIndex];
             if (!w.progress) w.progress = {};
@@ -373,35 +386,25 @@
             const d = w.days[currentDayIdx];
             let csv = "Data,Piano,Settimana,Giorno,Esercizio,Serie,Carico,Note\n";
             const date = new Date().toLocaleDateString();
-            
             d.exercises.forEach(ex => {
                 const data = ex.sessionData && ex.sessionData[currentWeek];
                 if(data) {
                     data.sets.forEach((s, i) => {
-                        csv += `"${date}","${w.title}","W${currentWeek}","${d.name}","${ex.name}",${i+1},"${s.load}","${data.notes.replace(/"/g, '""')}"\n`;
+                        csv += `"${date}","${w.title}","W${currentWeek}","${sanitize(d.name)}","${sanitize(ex.name)}",${i+1},"${s.load}","${data.notes.replace(/"/g, '""')}"\n`;
                     });
                 }
             });
-            
             const blob = new Blob([csv], { type: 'text/csv' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.setAttribute('hidden', '');
-            a.setAttribute('href', url);
+            a.setAttribute('hidden', ''); a.setAttribute('href', url);
             a.setAttribute('download', `workout_log_${new Date().getTime()}.csv`);
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
         }
 
-        function deleteWorkout(i) { if(confirm('DELETE?')) { workouts.splice(i, 1); save(); renderHome(); } }
-        function parseRest(r) { const m = r.match(/(\d+)/); if (!m) return 90; let v = parseInt(m[1]); return (r.includes("'") || r.toLowerCase().includes("m")) ? v * 60 : v; }
         function save() { localStorage.setItem('pale_workouts', JSON.stringify(workouts)); }
-        
-        let tInt;
-        function startTimer() { stopTimer(); const s = document.getElementById('timer-screen'); const c = document.getElementById('timer-clock'); s.style.display = 'flex'; let l = activeRestTime; c.innerText = l; tInt = setInterval(() => { l--; c.innerText = l; if (l <= 0) { stopTimer(); if(navigator.vibrate) navigator.vibrate([400, 100, 400]); } }, 1000); }
-        function stopTimer() { clearInterval(tInt); document.getElementById('timer-screen').style.display = 'none'; }
-        
+        function deleteWorkout(i) { if(confirm('DELETE?')) { workouts.splice(i, 1); save(); renderHome(); } }
+
         function importAction() {
             const t = document.getElementById('import-text').value;
             if(!t.trim()) return;
@@ -414,9 +417,7 @@
                 if(tMatch) w.title = sanitize(tMatch[1]);
                 const wMatch = t.match(/(\d+)\s*settimane/i);
                 if(wMatch) w.numWeeks = parseInt(wMatch[1]);
-                
-                let structureTable = [];
-                let inStructureTable = false;
+                let structureTable = []; let inStructureTable = false;
                 lines.forEach(l => {
                     if(l.includes('| Settimana |')) inStructureTable = true;
                     else if(inStructureTable && l.includes('| W')) structureTable.push(l);
@@ -427,7 +428,6 @@
                     if(cols.length >= 3 && cols[1].startsWith('W')) 
                         w.weeklyStructure.push({ week: cols[1], focus: cols[2], note: cols[4] || "" });
                 });
-
                 let inRules = false;
                 lines.forEach(l => {
                     const cleanL = l.trim();
@@ -444,7 +444,6 @@
                         }
                     }
                 });
-
                 let curD = null;
                 lines.forEach(l => {
                     if(l.startsWith('## ') && (l.toLowerCase().includes('giorno') || l.toLowerCase().includes('sessione') || l.toLowerCase().includes('giorno extra'))) {
