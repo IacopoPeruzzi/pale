@@ -47,6 +47,20 @@
         h2 { font-size: 1.8rem; font-weight: 800; margin: 0; letter-spacing: -1px; line-height: 1.2; }
         .subtitle { color: var(--text-secondary); font-size: 0.9rem; margin-top: 6px; }
 
+        .resume-card {
+            background: linear-gradient(135deg, var(--accent-color) 0%, #b8e600 100%);
+            border-radius: 28px; padding: 24px; margin: 20px 0;
+            border: none;
+            box-shadow: 0 15px 35px var(--accent-glow);
+            cursor: pointer; color: #000;
+            position: relative; overflow: hidden;
+            transition: transform 0.2s;
+        }
+        .resume-card:active { transform: scale(0.97); }
+        .resume-card h2 { color: #000; font-size: 1.5rem; margin-bottom: 4px; }
+        .resume-card small { font-weight: 800; opacity: 0.7; text-transform: uppercase; letter-spacing: 1px; font-size: 0.75rem; }
+        .resume-card .play-icon { position: absolute; right: 24px; bottom: 20px; font-size: 2.5rem; opacity: 0.2; }
+
         .action-btn {
             position: absolute; top: calc(35px + var(--safe-area-top)); right: 20px;
             padding: 8px 16px; border-radius: 15px; background: rgba(255,255,255,0.05);
@@ -112,7 +126,6 @@
             width: 100%; background: transparent; border: none; border-bottom: 2px solid rgba(255,255,255,0.1); 
             color: var(--accent-color); font-size: 1rem; font-weight: 800; padding: 2px 0; text-align: center;
         }
-        .load-unit { font-size: 0.6rem; color: var(--text-secondary); font-weight: 800; }
 
         .session-notes-box { 
             background: rgba(255,255,255,0.02); border-radius: 20px; padding: 20px; margin-top: 30px;
@@ -135,6 +148,7 @@
 <body>
     <div id="toast"></div>
 
+    <!-- HOME VIEW -->
     <div id="view-home" class="view active">
         <div class="sticky-header"><h1>Pale<br><span style="color:var(--accent-color)">App</span></h1><p class="subtitle">Peak Performance Hub.</p></div>
         <div id="resume-section"></div>
@@ -142,12 +156,14 @@
         <div onclick="showView('view-import')" style="position: fixed; bottom: 40px; right: 25px; width: 70px; height: 70px; background: var(--accent-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: #000; box-shadow: 0 10px 20px var(--accent-glow); z-index: 1000; cursor: pointer;">+</div>
     </div>
 
+    <!-- IMPORT VIEW -->
     <div id="view-import" class="view">
         <div class="sticky-header"><div onclick="showView('view-home')" style="color:var(--text-secondary); font-weight:800; cursor:pointer; margin-bottom:8px;">← BACK</div><h1>Import</h1></div>
         <textarea id="import-text" style="width: 100%; height: 300px; background: #111; color: #fff; border-radius: 20px; padding: 20px; border: 1px solid #333; margin: 15px 0;" placeholder="Paste protocol..."></textarea>
         <button id="import-btn" class="btn btn-main" style="width: 100%" onclick="importAction()">INITIALIZE</button>
     </div>
 
+    <!-- PLAN VIEW -->
     <div id="view-plan" class="view">
         <div class="sticky-header">
             <div onclick="showView('view-home')" style="color:var(--text-secondary); font-weight:800; cursor:pointer; margin-bottom:8px;">← DASHBOARD</div>
@@ -158,6 +174,7 @@
         <div class="day-grid" id="day-list"></div>
     </div>
 
+    <!-- SESSION VIEW -->
     <div id="view-session" class="view">
         <div class="sticky-header">
             <div onclick="openWorkout(currentWorkoutIndex)" style="color:var(--text-secondary); font-weight:800; cursor:pointer; margin-bottom:8px;">← PIANO</div>
@@ -170,6 +187,7 @@
         <div class="nav-dock"><button class="btn btn-main" onclick="finishSession()">CONCLUDI SESSIONE</button></div>
     </div>
 
+    <!-- EXERCISE VIEW -->
     <div id="view-exercise" class="view">
         <div class="sticky-header">
             <div onclick="startSession(currentDayIdx)" style="color:var(--text-secondary); font-weight:800; cursor:pointer; margin-bottom:8px;">← LISTA</div>
@@ -209,6 +227,16 @@
             setTimeout(() => t.style.display = 'none', 3000);
         }
 
+        function getInc(w) {
+            if(!w.days) return null;
+            for(let w_i=1; w_i<=w.numWeeks; w_i++) {
+                for(let d_i=0; d_i<w.days.length; d_i++) {
+                    if(!w.progress || !w.progress[w_i] || !w.progress[w_i][d_i]) return { week: w_i, day: d_i };
+                }
+            }
+            return null;
+        }
+
         function showView(id) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.getElementById(id).classList.add('active');
@@ -220,7 +248,16 @@
             res.innerHTML = '';
             if (workouts.length > 0) {
                 const w = workouts[0];
-                res.innerHTML = `<div class="resume-card" onclick="openWorkout(0)"><h2>CONTINUA: ${w.title}</h2><small>Allenati ora</small></div>`;
+                const n = getInc(w);
+                if (n) {
+                    let obj = w.title.toLowerCase().includes('m7') ? 'Massa & Forza' : 'Performance';
+                    res.innerHTML = `
+                        <div class="resume-card" onclick="resumeWorkout(0)">
+                            <h2>Continua: ${sanitize(w.title)} - ${obj}</h2>
+                            <small>W${n.week} • GIORNO ${n.day+1} • PRONTI?</small>
+                            <div class="play-icon">▶</div>
+                        </div>`;
+                }
             }
             const list = document.getElementById('workouts-list');
             list.innerHTML = workouts.length === 0 ? '<p>Nessun piano.</p>' : '<h3>I tuoi Piani</h3>';
@@ -233,11 +270,23 @@
             });
         }
 
+        function resumeWorkout(idx) {
+            const w = workouts[idx];
+            const n = getInc(w);
+            currentWorkoutIndex = idx;
+            if(n) {
+                currentWeek = n.week;
+                startSession(n.day);
+            } else openWorkout(idx);
+        }
+
         function sanitize(str) { return str ? str.replace(/^[#\*\s\-\–\—]+/g, '').replace(/[#\*\-\–\—\s]+$/g, '').trim() : ""; }
 
         function openWorkout(idx) {
             currentWorkoutIndex = idx;
             const w = workouts[idx];
+            const n = getInc(w);
+            if(!currentWeek) currentWeek = n ? n.week : 1;
             document.getElementById('plan-title').innerText = sanitize(w.title);
             updateProg(w);
             const sel = document.getElementById('week-selector');
@@ -291,8 +340,6 @@
                 if(!ex.sessionData) ex.sessionData = {};
                 if(!ex.sessionData[currentWeek]) ex.sessionData[currentWeek] = { completed: false, rounds: [], notes: "" };
                 const data = ex.sessionData[currentWeek];
-                
-                // Migrazione dati se necessario
                 if(!data.rounds) data.rounds = [];
 
                 let subExs = [];
@@ -307,22 +354,11 @@
                         return { name: m?m[1].trim():clean, reps: m?m[2].trim():"" };
                     }).filter(x => x !== null);
                 } 
-                
-                if(subExs.length === 0) {
-                    subExs = [{ name: sanitize(ex.name), reps: ex.reps }];
-                }
+                if(subExs.length === 0) { subExs = [{ name: sanitize(ex.name), reps: ex.reps }]; }
 
                 const nR = parseInt(ex.sets) || 1;
-                while(data.rounds.length < nR) {
-                    data.rounds.push({ done: false, subLoads: new Array(subExs.length).fill("") });
-                }
-                
-                // Fix per cambiamenti numero sotto-esercizi
-                data.rounds.forEach(r => {
-                    if(r.subLoads.length < subExs.length) {
-                        while(r.subLoads.length < subExs.length) r.subLoads.push("");
-                    }
-                });
+                while(data.rounds.length < nR) { data.rounds.push({ done: false, subLoads: new Array(subExs.length).fill("") }); }
+                data.rounds.forEach(r => { if(r.subLoads.length < subExs.length) { while(r.subLoads.length < subExs.length) r.subLoads.push(""); } });
 
                 document.getElementById('ex-detail-name').innerText = sanitize(ex.name);
                 document.getElementById('val-sets').innerText = ex.sets;
@@ -339,176 +375,29 @@
                     subExs.forEach((sx, sI) => {
                         subHtml += `
                             <div class="sub-ex-row">
-                                <div class="sub-ex-info">
-                                    <div class="sub-ex-name">${sx.name}</div>
-                                    <div class="sub-ex-reps">${sx.reps}</div>
-                                </div>
-                                <div class="load-input-wrap">
-                                    <input type="number" class="load-input" value="${round.subLoads[sI] || ""}" placeholder="---" oninput="updateSubLoad(${rI}, ${sI}, this.value)">
-                                    <span class="load-unit">KG</span>
-                                </div>
-                            </div>
-                        `;
+                                <div class="sub-ex-info"><div class="sub-ex-name">${sx.name}</div><div class="sub-ex-reps">${sx.reps}</div></div>
+                                <div class="load-input-wrap"><input type="number" class="load-input" value="${round.subLoads[sI] || ""}" placeholder="---" oninput="updateSubLoad(${rI}, ${sI}, this.value)"><span class="load-unit">KG</span></div>
+                            </div>`;
                     });
-                    
-                    block.innerHTML = `
-                        <div class="set-header">
-                            <div class="set-circle ${round.done ? 'active' : ''}" onclick="toggleRound(${rI})">${rI+1}</div>
-                            <div style="font-weight:800; font-size:0.8rem; color:var(--text-secondary)">${subExs.length > 1 ? 'GIRO COMPLETO' : 'SERIE'}</div>
-                        </div>
-                        <div class="sub-ex-list">${subHtml}</div>
-                    `;
+                    block.innerHTML = `<div class="set-header"><div class="set-circle ${round.done ? 'active' : ''}" onclick="toggleRound(${rI})">${rI+1}</div><div style="font-weight:800; font-size:0.8rem; color:var(--text-secondary)">${subExs.length > 1 ? 'GIRO COMPLETO' : 'SERIE'}</div></div><div class="sub-ex-list">${subHtml}</div>`;
                     container.appendChild(block);
                 });
-
                 updateExMeta();
                 showView('view-exercise');
-            } catch(e) {
-                console.error("Errore apertura esercizio:", e);
-                showToast("Errore dati. Prova il Reset del giorno.");
-            }
+            } catch(e) { console.error(e); showToast("Errore apertura esercizio."); }
         }
 
-        function toggleRound(rI) {
-            const data = workouts[currentWorkoutIndex].days[currentDayIdx].exercises[currentExIdx].sessionData[currentWeek];
-            data.rounds[rI].done = !data.rounds[rI].done;
-            save(); openExercise(currentExIdx);
-        }
-
-        function updateSubLoad(rI, sI, val) {
-            const data = workouts[currentWorkoutIndex].days[currentDayIdx].exercises[currentExIdx].sessionData[currentWeek];
-            data.rounds[rI].subLoads[sI] = val; save();
-        }
-
-        function updateSessionNotes() {
-            const val = document.getElementById('session-notes').value;
-            const data = workouts[currentWorkoutIndex].days[currentDayIdx].exercises[currentExIdx].sessionData[currentWeek];
-            data.notes = val; save();
-        }
-
-        function updateExMeta() {
-            const data = workouts[currentWorkoutIndex].days[currentDayIdx].exercises[currentExIdx].sessionData[currentWeek];
-            const done = data.rounds.filter(r => r.done).length;
-            document.getElementById('ex-detail-meta').innerText = `${done} di ${data.rounds.length} completati`;
-            data.completed = (done === data.rounds.length);
-            save();
-        }
-
-        function nextExercise() {
-            const d = workouts[currentWorkoutIndex].days[currentDayIdx];
-            if(currentExIdx < d.exercises.length - 1) openExercise(currentExIdx + 1);
-            else startSession(currentDayIdx);
-        }
-
-        function resetDayAction() {
-            if(confirm('Resettare tutti i dati del giorno corrente?')) {
-                const d = workouts[currentWorkoutIndex].days[currentDayIdx];
-                d.exercises.forEach(ex => { if(ex.sessionData) delete ex.sessionData[currentWeek]; });
-                if(workouts[currentWorkoutIndex].progress && workouts[currentWorkoutIndex].progress[currentWeek]) delete workouts[currentWorkoutIndex].progress[currentWeek][currentDayIdx];
-                save(); startSession(currentDayIdx);
-            }
-        }
-
-        function resetExAction() {
-            if(confirm('Resettare i dati di questo esercizio?')) {
-                const ex = workouts[currentWorkoutIndex].days[currentDayIdx].exercises[currentExIdx];
-                if(ex.sessionData) delete ex.sessionData[currentWeek];
-                save(); openExercise(currentExIdx);
-            }
-        }
-
-        function finishSession() {
-            const w = workouts[currentWorkoutIndex];
-            if (!w.progress) w.progress = {};
-            if (!w.progress[currentWeek]) w.progress[currentWeek] = {};
-            w.progress[currentWeek][currentDayIdx] = true;
-            save(); exportToCSV(); showToast("SESSIONE SALVATA!"); openWorkout(currentWorkoutIndex);
-        }
-
-        function exportToCSV() {
-            const w = workouts[currentWorkoutIndex];
-            const d = w.days[currentDayIdx];
-            let csv = "Data,Piano,Settimana,Giorno,Esercizio,SottoEsercizio,Giro,Carico,Note\n";
-            const date = new Date().toLocaleDateString();
-            d.exercises.forEach(ex => {
-                const data = ex.sessionData && ex.sessionData[currentWeek];
-                if(data) {
-                    data.rounds.forEach((round, rI) => {
-                        round.subLoads.forEach((load, sI) => {
-                            csv += `"${date}","${w.title}","W${currentWeek}","${sanitize(d.name)}","${sanitize(ex.name)}","Set ${sI+1}",${rI+1},"${load}","${(data.notes||'').replace(/"/g, '""')}"\n`;
-                        });
-                    });
-                }
-            });
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.setAttribute('hidden', ''); a.setAttribute('href', url);
-            a.setAttribute('download', `workout_log_${new Date().getTime()}.csv`);
-            document.body.appendChild(a); a.click(); document.body.removeChild(a);
-        }
-
+        function toggleRound(rI) { const data = workouts[currentWorkoutIndex].days[currentDayIdx].exercises[currentExIdx].sessionData[currentWeek]; data.rounds[rI].done = !data.rounds[rI].done; save(); openExercise(currentExIdx); }
+        function updateSubLoad(rI, sI, val) { const data = workouts[currentWorkoutIndex].days[currentDayIdx].exercises[currentExIdx].sessionData[currentWeek]; data.rounds[rI].subLoads[sI] = val; save(); }
+        function updateSessionNotes() { const val = document.getElementById('session-notes').value; const data = workouts[currentWorkoutIndex].days[currentDayIdx].exercises[currentExIdx].sessionData[currentWeek]; data.notes = val; save(); }
+        function updateExMeta() { const data = workouts[currentWorkoutIndex].days[currentDayIdx].exercises[currentExIdx].sessionData[currentWeek]; const done = data.rounds.filter(r => r.done).length; document.getElementById('ex-detail-meta').innerText = `${done} di ${data.rounds.length} completati`; data.completed = (done === data.rounds.length); save(); }
+        function nextExercise() { const d = workouts[currentWorkoutIndex].days[currentDayIdx]; if(currentExIdx < d.exercises.length - 1) openExercise(currentExIdx + 1); else startSession(currentDayIdx); }
+        function resetDayAction() { if(confirm('Resettare il giorno?')) { const d = workouts[currentWorkoutIndex].days[currentDayIdx]; d.exercises.forEach(ex => { if(ex.sessionData) delete ex.sessionData[currentWeek]; }); if(workouts[currentWorkoutIndex].progress && workouts[currentWorkoutIndex].progress[currentWeek]) delete workouts[currentWorkoutIndex].progress[currentWeek][currentDayIdx]; save(); startSession(currentDayIdx); } }
+        function resetExAction() { if(confirm('Resettare esercizio?')) { const ex = workouts[currentWorkoutIndex].days[currentDayIdx].exercises[currentExIdx]; if(ex.sessionData) delete ex.sessionData[currentWeek]; save(); openExercise(currentExIdx); } }
+        function finishSession() { const w = workouts[currentWorkoutIndex]; if (!w.progress) w.progress = {}; if (!w.progress[currentWeek]) w.progress[currentWeek] = {}; w.progress[currentWeek][currentDayIdx] = true; save(); exportToCSV(); showToast("SALVATA!"); openWorkout(currentWorkoutIndex); }
+        function exportToCSV() { const w = workouts[currentWorkoutIndex]; const d = w.days[currentDayIdx]; let csv = "Data,Piano,Settimana,Giorno,Esercizio,SottoEsercizio,Giro,Carico,Note\n"; const date = new Date().toLocaleDateString(); d.exercises.forEach(ex => { const data = ex.sessionData && ex.sessionData[currentWeek]; if(data) { data.rounds.forEach((round, rI) => { round.subLoads.forEach((load, sI) => { csv += `"${date}","${w.title}","W${currentWeek}","${sanitize(d.name)}","${sanitize(ex.name)}","Set ${sI+1}",${rI+1},"${load}","${(data.notes||'').replace(/"/g, '""')}"\n`; }); }); } }); const blob = new Blob([csv], { type: 'text/csv' }); const url = window.URL.createObjectURL(blob); const a = document.createElement('a'); a.setAttribute('hidden', ''); a.setAttribute('href', url); a.setAttribute('download', `workout_log_${new Date().getTime()}.csv`); document.body.appendChild(a); a.click(); document.body.removeChild(a); }
         function save() { localStorage.setItem('pale_workouts', JSON.stringify(workouts)); }
         function deleteWorkout(i) { if(confirm('DELETE?')) { workouts.splice(i, 1); save(); renderHome(); } }
-
-        function importAction() {
-            const t = document.getElementById('import-text').value;
-            if(!t.trim()) return;
-            const btn = document.getElementById('import-btn');
-            btn.innerText = "IMPORTING..."; btn.disabled = true;
-            setTimeout(() => {
-                const w = { id: "p-" + Date.now(), title: "NEW PROTOCOL", numWeeks: 4, weeklyStructure: [], days: [], progress: {} };
-                const lines = t.split('\n');
-                const tMatch = t.match(/(?:#|\*\*|Perfetto:)\s*\*?\*?([A-Z0-9 ]+)\b/i);
-                if(tMatch) w.title = sanitize(tMatch[1]);
-                const wMatch = t.match(/(\d+)\s*settimane/i);
-                if(wMatch) w.numWeeks = parseInt(wMatch[1]);
-                let structureTable = []; let inStructureTable = false;
-                lines.forEach(l => {
-                    if(l.includes('| Settimana |')) inStructureTable = true;
-                    else if(inStructureTable && l.includes('| W')) structureTable.push(l);
-                    else if(inStructureTable && l.trim() === "") inStructureTable = false;
-                });
-                structureTable.forEach(l => {
-                    const cols = l.split('|').map(c => c.trim());
-                    if(cols.length >= 3 && cols[1].startsWith('W')) 
-                        w.weeklyStructure.push({ week: cols[1], focus: cols[2], note: cols[4] || "" });
-                });
-                let inRules = false;
-                lines.forEach(l => {
-                    const cleanL = l.trim();
-                    if(cleanL.toLowerCase().includes('## regole')) { inRules = true; return; }
-                    if(inRules && cleanL.startsWith('##')) { inRules = false; return; }
-                    if(inRules) {
-                        const ruleMatch = cleanL.match(/(?:-|\*)\s*\**W(\d+)\**\s*:?\s*(.*)/i);
-                        if(ruleMatch) {
-                            const wkNum = 'W' + ruleMatch[1];
-                            const content = ruleMatch[2].trim();
-                            let existing = w.weeklyStructure.find(s => s.week === wkNum);
-                            if(existing) existing.note = content;
-                            else w.weeklyStructure.push({ week: wkNum, focus: "Regola", note: content });
-                        }
-                    }
-                });
-                let curD = null;
-                lines.forEach(l => {
-                    if(l.startsWith('## ') && (l.toLowerCase().includes('giorno') || l.toLowerCase().includes('sessione') || l.toLowerCase().includes('giorno extra'))) {
-                        if(curD && curD.exercises.length > 0) w.days.push(curD);
-                        curD = { name: sanitize(l), exercises: [] };
-                    } else if(curD) {
-                        if(l.includes('|') && !l.includes('Esercizio') && !l.includes('---')) {
-                            const cols = l.split('|').map(c => c.trim());
-                            if(cols.length >= 4 && cols[1] !== "") {
-                                curD.exercises.push({ name: sanitize(cols[1]), sets: cols[2], reps: cols[3], rest: cols[4] || "90s", notes: cols[5] || "" });
-                            }
-                        }
-                    }
-                });
-                if(curD && curD.exercises.length > 0) w.days.push(curD);
-                if(w.days.length > 0) { workouts.unshift(w); save(); showToast("IMPORTED"); showView('view-home'); }
-                btn.innerText = "INITIALIZE"; btn.disabled = false;
-            }, 800);
-        }
         function updateProg(w) { let t = w.numWeeks * (w.days?w.days.length:0); let d = 0; if (w.progress) Object.values(w.progress).forEach(wk => { d += Object.keys(wk).length; }); document.getElementById('total-progress-bar').style.width = `${t?(d / t) * 100:0}%`; }
         renderHome();
     </script>
