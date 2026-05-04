@@ -429,14 +429,13 @@ def generate_html():
                         
                         if(line.toLowerCase().includes('obiettivo:')) {{
                             let fullGoal = line.replace(/^[-•\\*\\s]+/, '').replace(/obiettivo:/i, '').replace(/[\\*\\s]+$/, '').trim();
-                            // Controlla righe successive se non sono elenchi puntati
                             let next = i + 1;
                             while(next < lines.length && !lines[next].trim().startsWith('-') && !lines[next].trim().startsWith('•') && !lines[next].trim().startsWith('##')) {{
                                 let nextLine = lines[next].trim();
                                 if(nextLine !== "") fullGoal += " " + nextLine;
                                 next++;
                             }}
-                            w.goal = cleanSources(fullGoal);
+                            w.goal = cleanMD(cleanSources(fullGoal)); // PULIZIA FINALE MD
                             i = next - 1;
                         }}
                     }}
@@ -514,4 +513,4 @@ if __name__ == "__main__":
     html_content = generate_html()
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(html_content)
-    print(f"Successo: Raffinato parsing multi-linea obiettivo e pulizia referenze.")
+    print(f"Successo: Risolto bug degli asterischi residui nell'obiettivo.")

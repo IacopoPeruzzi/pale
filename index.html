@@ -417,14 +417,13 @@
                         
                         if(line.toLowerCase().includes('obiettivo:')) {
                             let fullGoal = line.replace(/^[-•\*\s]+/, '').replace(/obiettivo:/i, '').replace(/[\*\s]+$/, '').trim();
-                            // Controlla righe successive se non sono elenchi puntati
                             let next = i + 1;
                             while(next < lines.length && !lines[next].trim().startsWith('-') && !lines[next].trim().startsWith('•') && !lines[next].trim().startsWith('##')) {
                                 let nextLine = lines[next].trim();
                                 if(nextLine !== "") fullGoal += " " + nextLine;
                                 next++;
                             }
-                            w.goal = cleanSources(fullGoal);
+                            w.goal = cleanMD(cleanSources(fullGoal)); // PULIZIA FINALE MD
                             i = next - 1;
                         }
                     }
