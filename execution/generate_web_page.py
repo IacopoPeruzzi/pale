@@ -1,6 +1,5 @@
 import json
 import os
-from datetime import datetime
 
 def generate_html():
     parsed_workout = None
@@ -87,7 +86,7 @@ def generate_html():
         .day-card.locked {{ opacity: 0.2; filter: grayscale(1); }}
         .day-card.completed {{ border-left: 8px solid var(--accent-color); background: rgba(207, 255, 4, 0.03); }}
 
-        .exercise-card {{ background: var(--card-bg); border-radius: 28px; padding: 25px; margin-bottom: 16px; border: 1px solid rgba(255,255,255,0.05); transition: 0.4s; }}
+        .exercise-card {{ background: var(--card-bg); border-radius: 28px; padding: 25px; margin-bottom: 16px; border: 1px solid rgba(255,255,255,0.05); transition: 0.4s; position: relative; }}
         .exercise-card.fully-done {{ opacity: 0.3; filter: grayscale(1); transform: scale(0.98); }}
         
         .sets-wrap {{ display: flex; gap: 8px; flex-wrap: wrap; margin-top: 15px; }}
@@ -97,6 +96,12 @@ def generate_html():
             transition: 0.2s;
         }}
         .set-btn.checked {{ background: var(--accent-color); color: #000; border-color: transparent; transform: scale(1.1); }}
+
+        .reorder-btns {{ display: flex; flex-direction: column; gap: 8px; margin-left: 15px; }}
+        .order-btn {{ 
+            width: 32px; height: 32px; border-radius: 8px; background: rgba(255,255,255,0.05); 
+            display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: var(--text-secondary);
+        }}
 
         .nav-dock {{ position: fixed; bottom: 0; left: 0; width: 100%; padding: 25px 25px 45px 25px; background: linear-gradient(to top, var(--bg-color) 80%, transparent); display: flex; gap: 12px; z-index: 1000; }}
         .btn {{ flex: 1; border: none; padding: 22px; border-radius: 24px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 0.85rem; }}
@@ -115,7 +120,7 @@ def generate_html():
     <div id="view-home" class="view active">
         <div class="sticky-header">
             <h1>Pale<br><span style="color:var(--accent-color)">App</span></h1>
-            <p class="subtitle">Log your journey. CSV ready.</p>
+            <p class="subtitle">Peak Performance Hub.</p>
         </div>
         <div id="resume-section"></div>
         <div id="workouts-list"></div>
@@ -157,7 +162,7 @@ def generate_html():
         </div>
     </div>
 
-    <div id="timer-screen" onclick="stopTimer()"><div id="timer-clock">90</div><p>READY?</p></div>
+    <div id="timer-screen" onclick="stopTimer()"><div id="timer-clock">90</div><p>GO FIGHT!</p></div>
 
     <script>
         let workouts = JSON.parse(localStorage.getItem('pale_workouts') || '[]');
@@ -241,10 +246,29 @@ def generate_html():
                 let t = isU ? 'READY' : 'LOCKED';
                 if(status === true) t = 'DONE';
                 if(status === 'skipped') t = 'SKIP';
-                c.innerHTML = `<div><h4>GIORNO ${{dI + 1}}</h4><small>${{d.name.split('-')[1] || d.name}}</small></div><div class="status-tag">${{t}}</div>`;
+                
+                c.innerHTML = `
+                    <div><h4>GIORNO ${{dI + 1}}</h4><small>${{d.name.split('-')[1] || d.name}}</small></div>
+                    <div style="display:flex; align-items:center;">
+                        <div class="reorder-btns">
+                            <div class="order-btn" onclick="event.stopPropagation(); moveDay(${{dI}}, -1)">▲</div>
+                            <div class="order-btn" onclick="event.stopPropagation(); moveDay(${{dI}}, 1)">▼</div>
+                        </div>
+                        <div class="status-tag" style="margin-left:15px;">${{t}}</div>
+                    </div>
+                `;
                 dList.appendChild(c);
             }});
             showView('view-plan');
+        }}
+
+        function moveDay(idx, dir) {{
+            const w = workouts[currentWorkoutIndex];
+            if((idx === 0 && dir === -1) || (idx === w.days.length - 1 && dir === 1)) return;
+            const temp = w.days[idx];
+            w.days[idx] = w.days[idx + dir];
+            w.days[idx + dir] = temp;
+            save(); openWorkout(currentWorkoutIndex);
         }}
 
         function startSession(dI) {{
@@ -279,7 +303,13 @@ def generate_html():
                 }}
 
                 card.innerHTML = `
-                    <b>${{ex.name}}</b><br><small>${{ex.sets}}x${{ex.reps}} • ${{ex.rest}}</small>
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                        <div><b>${{ex.name}}</b><br><small>${{ex.sets}}x${{ex.reps}} • ${{ex.rest}}</small></div>
+                        <div class="reorder-btns">
+                            <div class="order-btn" onclick="moveEx(${{eI}}, -1)">▲</div>
+                            <div class="order-btn" onclick="moveEx(${{eI}}, 1)">▼</div>
+                        </div>
+                    </div>
                     <div class="sets-wrap">${{bsHtml}}</div>
                     <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:10px;">${{ex.notes || ''}}</div>
                 `;
@@ -288,77 +318,41 @@ def generate_html():
             showView('view-session');
         }}
 
+        function moveEx(idx, dir) {{
+            const d = workouts[currentWorkoutIndex].days[currentDayIdx];
+            if((idx === 0 && dir === -1) || (idx === d.exercises.length - 1 && dir === 1)) return;
+            const temp = d.exercises[idx];
+            d.exercises[idx] = d.exercises[idx + dir];
+            d.exercises[idx + dir] = temp;
+            save(); startSession(currentDayIdx);
+        }}
+
         function toggleSetAction(eI, sI) {{
             const w = workouts[currentWorkoutIndex];
             const ex = w.days[currentDayIdx].exercises[eI];
-            
-            // Inverti stato
             ex.setStates[sI] = !ex.setStates[sI];
-            
-            // Update DOM chirurgico del bollino
             const setBtn = document.getElementById(`set-${{eI}}-${{sI}}`);
-            if(ex.setStates[sI]) setBtn.classList.add('checked');
-            else setBtn.classList.remove('checked');
-
-            // Update DOM chirurgico della card (opacità)
+            if(ex.setStates[sI]) setBtn.classList.add('checked'); else setBtn.classList.remove('checked');
             const card = document.getElementById(`ex-card-${{eI}}`);
             const isAllDone = ex.setStates.every(s => s === true);
             if(isAllDone) {{
                 card.classList.add('fully-done');
-                // Auto-scroll
                 setTimeout(() => {{
                     const nextCard = document.getElementById(`ex-card-${{eI + 1}}`);
                     if(nextCard) nextCard.scrollIntoView({{ behavior: 'smooth', block: 'center' }});
                 }}, 400);
-            }} else {{
-                card.classList.remove('fully-done');
-            }}
-
-            if(ex.setStates[sI]) {{
-                activeRestTime = parseRest(ex.rest);
-                document.getElementById('timerBtn').innerText = `REC: ${{ex.rest}}`;
-            }}
-            
+            }} else card.classList.remove('fully-done');
+            if(ex.setStates[sI]) activeRestTime = parseRest(ex.rest);
             save();
         }}
 
         function resetAction() {{ if(confirm('RESET?')) {{ const w = workouts[currentWorkoutIndex]; delete w.progress[currentWeek][currentDayIdx]; w.days[currentDayIdx].exercises.forEach(ex => delete ex.setStates); save(); startSession(currentDayIdx); }} }}
-        
         async function finishAction() {{
             const w = workouts[currentWorkoutIndex];
             if (!w.progress[currentWeek]) w.progress[currentWeek] = {{}};
             w.progress[currentWeek][currentDayIdx] = true;
-            
-            // Logging locale (localStorage) + Messaggio
-            saveLogCSV(w);
-            
-            save(); 
-            showToast("GREAT JOB! LOGGED."); 
-            openWorkout(currentWorkoutIndex);
+            save(); showToast("GREAT JOB! LOGGED."); openWorkout(currentWorkoutIndex);
         }}
-
-        function saveLogCSV(w) {{
-            const day = w.days[currentDayIdx];
-            const date = new Date().toISOString().split('T')[0];
-            let logs = JSON.parse(localStorage.getItem('pale_logs') || '[]');
-            
-            day.exercises.forEach(ex => {{
-                const setsDone = ex.setStates.filter(s => s).length;
-                logs.push({{
-                    date: date,
-                    plan: w.title,
-                    week: currentWeek,
-                    day: currentDayIdx + 1,
-                    exercise: ex.name,
-                    sets: setsDone,
-                    reps: ex.reps
-                }});
-            }});
-            localStorage.setItem('pale_logs', JSON.stringify(logs));
-            console.log("Workout logged to storage.");
-        }}
-
-        function quickSkipAction() {{ if(confirm('SKIP?')) {{ const w = workouts[currentWorkoutIndex]; if (!w.progress[currentWeek]) w.progress[currentWeek] = {{}}; w.progress[currentWeek][currentDayIdx] = 'skipped'; save(); openWorkout(currentWorkoutIndex); }} }}
         function updateProg(w) {{ let t = w.numWeeks * w.days.length; let d = 0; if (w.progress) Object.values(w.progress).forEach(wk => {{ d += Object.keys(wk).length; }}); document.getElementById('total-progress-bar').style.width = `${{(d / t) * 100}}%`; }}
         function parseRest(r) {{ const m = r.match(/(\\d+)/); if (!m) return 90; let v = parseInt(m[1]); return (r.includes("'") || r.toLowerCase().includes("m")) ? v * 60 : v; }}
         function save() {{ localStorage.setItem('pale_workouts', JSON.stringify(workouts)); }}
@@ -378,14 +372,6 @@ def generate_html():
                 if(tMatch) w.title = tMatch[1].trim().toUpperCase();
                 const wMatch = t.match(/(\\d+)\\s*settimane/i);
                 if(wMatch) w.numWeeks = parseInt(wMatch[1]);
-                let inTable = false;
-                lines.forEach(l => {{
-                    if(l.includes('| Settimana |')) inTable = true;
-                    else if(inTable && l.includes('| W')) {{
-                        const cols = l.split('|').map(c => c.trim());
-                        if(cols.length >= 3) w.weeklyStructure.push({{ week: cols[1], focus: cols[2], note: cols[4] || "" }});
-                    }} else if(inTable && l.trim() === "") inTable = false;
-                }});
                 let curD = null;
                 lines.forEach(l => {{
                     const dMatch = l.match(/(?:Giorno|Day|Sessione)\\s+([A-Z\\d]+)/i);
@@ -428,13 +414,4 @@ if __name__ == "__main__":
     html_content = generate_html()
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(html_content)
-    
-    # Inizializza file CSV se non esiste
-    csv_path = "logs/workout_log.csv"
-    if not os.path.exists("logs"):
-        os.makedirs("logs")
-    if not os.path.exists(csv_path):
-        with open(csv_path, "w", encoding="utf-8") as f:
-            f.write("Date,Plan,Week,Day,Exercise,Sets,Reps\\n")
-    
-    print(f"Successo: Fix scroll fluido e sistema di logging CSV pronto.")
+    print(f"Successo: Funzione di riordino implementata.")
