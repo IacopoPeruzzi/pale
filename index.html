@@ -444,9 +444,9 @@
                     }
                 }
 
-                workouts.push(w);
-                currentWorkoutIndex = workouts.length - 1;
-                await save();
+                workouts.unshift(w);
+                currentWorkoutIndex = 0; // Imposta come corrente il nuovo piano
+                await save(w);
                 document.getElementById('import-text').value = '';
                 document.getElementById('legacy-toggle').checked = false;
                 btn.innerText = "IMPORTA ALLENAMENTO"; btn.disabled = false;
@@ -672,9 +672,9 @@
             const a = document.createElement('a'); a.setAttribute('hidden', ''); a.setAttribute('href', url); a.setAttribute('download', `workout_log_${new Date().getTime()}.csv`); document.body.appendChild(a); a.click(); document.body.removeChild(a); 
         }
 
-        async function save() { 
-            if (currentWorkoutIndex === null) return;
-            const w = workouts[currentWorkoutIndex];
+        async function save(specificWorkout = null) { 
+            const w = specificWorkout || workouts[currentWorkoutIndex];
+            if (!w) return;
             try {
                 await fetch('/api/workouts', {
                     method: 'POST',
