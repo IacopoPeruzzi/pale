@@ -367,7 +367,10 @@
                 const c = document.createElement('div'); 
                 c.className = `list-card ${status ? 'completed' : ''}`; 
                 c.onclick = () => startSession(dI); 
-                c.innerHTML = `<div style="flex:1"><small style="color:#000; font-weight:800; background:var(--highlight-yellow); padding:2px 6px; border:1px solid #000; border-radius:5px; font-size:0.6rem;">GIORNO ${dI+1}</small><br><b style="font-size:1.1rem;">${sanitize(d.name)}</b></div>`; 
+                
+                const timeInfo = status ? `<div style="font-size:0.65rem; font-weight:800; opacity:0.5; margin-top:8px; text-transform:uppercase;">✓ ${status.date} @ ${status.time}</div>` : '';
+                
+                c.innerHTML = `<div style="flex:1"><small style="color:#000; font-weight:800; background:var(--highlight-yellow); padding:2px 6px; border:1px solid #000; border-radius:5px; font-size:0.6rem;">GIORNO ${dI+1}</small><br><b style="font-size:1.1rem;">${sanitize(d.name)}</b>${timeInfo}</div>`; 
                 dList.appendChild(c); 
             }); 
             showView('view-plan'); 
