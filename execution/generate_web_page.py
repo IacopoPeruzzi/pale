@@ -281,8 +281,133 @@ def generate_html():
         function cleanMD(str) {{ return str ? str.replace(/\\*\\*/g, '').trim() : ""; }}
         function cleanSources(str) {{ return str ? str.replace(/\\[[\\d,\\s]+\\]/g, '').trim() : ""; }}
         function openWorkout(idx) {{ currentWorkoutIndex = idx; const w = workouts[idx]; const n = getInc(w); if(!currentWeek) currentWeek = n ? n.week : 1; document.getElementById('plan-title').innerText = sanitize(w.title); updateProg(w); const sel = document.getElementById('week-selector'); sel.innerHTML = ''; for(let i=1; i<=w.numWeeks; i++) {{ const b = document.createElement('div'); b.className = `week-btn ${{currentWeek === i ? 'active' : ''}}`; b.innerHTML = `W${{i}}`; b.onclick = () => {{ currentWeek = i; openWorkout(idx); }}; sel.appendChild(b); }} const dList = document.getElementById('day-list'); dList.innerHTML = ''; w.days.forEach((d, dI) => {{ const status = w.progress && w.progress[currentWeek] && w.progress[currentWeek][dI]; const c = document.createElement('div'); c.className = `list-card ${{status ? 'completed' : ''}}`; c.onclick = () => startSession(dI); c.innerHTML = `<div style="flex:1"><small style="color:var(--accent-color)">GIORNO ${{dI+1}}</small><br><b>${{sanitize(d.name)}}</b></div>`; dList.appendChild(c); }}); showView('view-plan'); }}
-        function startSession(dI) {{ currentDayIdx = dI; const w = workouts[currentWorkoutIndex]; const d = w.days[dI]; document.getElementById('session-title').innerText = `GIORNO ${{dI + 1}}`; document.getElementById('session-subtitle').innerText = `WEEK ${{currentWeek}} • ${{sanitize(d.name)}}`; const focus = document.getElementById('session-focus-container'); const str = w.weeklyStructure?.find(s => s.week === 'W' + currentWeek); focus.innerHTML = str ? `<div style="background:rgba(207,255,4,0.08); padding:12px; border-radius:15px; border:1px solid var(--accent-color); font-size:0.8rem;"><b>FOCUS</b>: ${{str.note || str.focus}}</div>` : ''; const list = document.getElementById('exercise-list'); list.innerHTML = ''; d.exercises.forEach((ex, eI) => {{ const isD = ex.sessionData && ex.sessionData[currentWeek] && ex.sessionData[currentWeek].completed; const item = document.createElement('div'); item.className = `ex-item ${{isD ? 'done' : ''}}`; item.onclick = () => openExercise(eI); item.innerHTML = `<div class="ex-item-name">${{sanitize(ex.name)}}</div><div style="font-size:0.8rem; opacity:0.5">${{ex.sets}} SETS</div>`; list.appendChild(item); }}); showView('view-session'); }}
-        function openExercise(eI) {{ try {{ currentExIdx = eI; const ex = workouts[currentWorkoutIndex].days[currentDayIdx].exercises[eI]; if(!ex.sessionData) ex.sessionData = {{}}; if(!ex.sessionData[currentWeek]) ex.sessionData[currentWeek] = {{ completed: false, rounds: [], notes: "" }}; const data = ex.sessionData[currentWeek]; if(!data.rounds) data.rounds = []; let subExs = []; const hasPlus = ex.notes && ex.notes.includes('+'); const isCircuit = ex.name.toLowerCase().includes('circuito') || ex.name.toLowerCase().includes('superserie'); if(ex.notes && (hasPlus || isCircuit)) {{ subExs = ex.notes.split('+').map(s => {{ const clean = s.trim(); if(!clean) return null; const m = clean.match(/(.*?)\\s*(\\d+.*)/); return {{ name: m?m[1].trim():clean, reps: m?m[2].trim():"" }}; }}).filter(x => x !== null); }} if(subExs.length === 0) {{ subExs = [{{ name: sanitize(ex.name), reps: ex.reps }}]; }} const nR = parseInt(ex.sets) || 1; while(data.rounds.length < nR) {{ data.rounds.push({{ done: false, subLoads: new Array(subExs.length).fill("") }}); }} data.rounds.forEach(r => {{ if(r.subLoads.length < subExs.length) {{ while(r.subLoads.length < subExs.length) r.subLoads.push(""); }} }}); document.getElementById('ex-detail-name').innerText = sanitize(ex.name); document.getElementById('val-sets').innerText = ex.sets; document.getElementById('val-reps').innerText = subExs.length > 1 ? "Circuito" : ex.reps; document.getElementById('val-rest').innerText = ex.rest; document.getElementById('session-notes').value = data.notes || ""; const container = document.getElementById('sets-blocks-container'); container.innerHTML = ''; data.rounds.forEach((round, rI) => {{ const block = document.createElement('div'); block.className = 'set-block'; let subHtml = ''; subExs.forEach((sx, sI) => {{ subHtml += `<div class="sub-ex-row"><div class="sub-ex-info"><div class="sub-ex-name">${{sx.name}}</div><div class="sub-ex-reps">${{sx.reps}}</div></div><div class="load-input-wrap"><input type="number" class="load-input" value="${{round.subLoads[sI] || ""}}" placeholder="---" oninput="updateSubLoad(${{rI}}, ${{sI}}, this.value)"><span class="load-unit">KG</span></div></div>`; }}); block.innerHTML = `<div class="set-header"><div class="set-circle ${{round.done ? 'active' : ''}}" onclick="toggleRound(${{rI}})">${{rI+1}}</div><div style="font-weight:800; font-size:0.8rem; color:var(--text-secondary)">${{subExs.length > 1 ? 'GIRO COMPLETO' : 'SERIE'}}</div></div><div class="sub-ex-list">${{subHtml}}</div>`; container.appendChild(block); }}); updateExMeta(); showView('view-exercise'); }} catch(e) {{ console.error(e); showToast("Errore apertura esercizio."); }} }}
+        function startSession(dI) {{
+            currentDayIdx = dI;
+            const w = workouts[currentWorkoutIndex];
+            const d = w.days[dI];
+            document.getElementById('session-title').innerText = `GIORNO ${{dI + 1}}`;
+            document.getElementById('session-subtitle').innerText = `WEEK ${{currentWeek}} • ${{sanitize(d.name)}}`;
+            const focus = document.getElementById('session-focus-container');
+            const str = w.weeklyStructure?.find(s => s.week === 'W' + currentWeek);
+            focus.innerHTML = str ? `<div style="background:rgba(207,255,4,0.08); padding:12px; border-radius:15px; border:1px solid var(--accent-color); font-size:0.8rem;"><b>FOCUS</b>: ${{str.note || str.focus}}</div>` : '';
+            const list = document.getElementById('exercise-list');
+            list.innerHTML = '';
+            d.exercises.forEach((ex, eI) => {{
+                const isD = ex.sessionData && ex.sessionData[currentWeek] && ex.sessionData[currentWeek].completed;
+                const item = document.createElement('div');
+                item.className = `ex-item ${{isD ? 'done' : ''}}`;
+                item.onclick = () => openExercise(eI);
+                item.innerHTML = `<div class="ex-item-name">${{sanitize(ex.name)}}</div><div style="font-size:0.8rem; opacity:0.5">${{ex.sets}} SETS</div>`;
+                list.appendChild(item);
+            }});
+            showView('view-session');
+        }}
+
+        function openExercise(eI) {{
+            try {{
+                currentExIdx = eI;
+                const w = workouts[currentWorkoutIndex];
+                const ex = w.days[currentDayIdx].exercises[eI];
+                if (!ex.sessionData) ex.sessionData = {{}};
+                if (!ex.sessionData[currentWeek]) ex.sessionData[currentWeek] = {{ completed: false, rounds: [], notes: "" }};
+                
+                const data = ex.sessionData[currentWeek];
+                if (!data.rounds) data.rounds = [];
+                
+                let subExs = [];
+                const hasPlus = ex.notes && ex.notes.includes('+');
+                const isCircuit = ex.name.toLowerCase().includes('circuito') || ex.name.toLowerCase().includes('superserie');
+                
+                if (ex.notes && (hasPlus || isCircuit)) {{
+                    subExs = ex.notes.split('+').map(s => {{
+                        const clean = s.trim();
+                        if (!clean) return null;
+                        const m = clean.match(/(.*?)\s*(\d+.*)/);
+                        return {{ name: m ? m[1].trim() : clean, reps: m ? m[2].trim() : "" }};
+                    }}).filter(x => x !== null);
+                }}
+                if (subExs.length === 0) {{
+                    subExs = [{{ name: sanitize(ex.name), reps: ex.reps }}];
+                }}
+                
+                const nR = parseInt(ex.sets) || 1;
+                while (data.rounds.length < nR) {{
+                    data.rounds.push({{ done: false, subLoads: new Array(subExs.length).fill("") }});
+                }}
+                
+                data.rounds.forEach(r => {{
+                    if (r.subLoads.length < subExs.length) {{
+                        while (r.subLoads.length < subExs.length) r.subLoads.push("");
+                    }}
+                }});
+
+                // Weight Suggestion Logic
+                const numWeeks = w.numWeeks;
+                const isLastWeek = (currentWeek === numWeeks && numWeeks > 1);
+                
+                data.rounds.forEach((round, rIdx) => {{
+                    round.subLoads.forEach((load, sI) => {{
+                        if (load === "") {{
+                            let suggested = "";
+                            if (currentWeek > 1) {{
+                                const prevData = ex.sessionData[currentWeek - 1];
+                                if (prevData && prevData.rounds && prevData.rounds[rIdx] && prevData.rounds[rIdx].subLoads[sI]) {{
+                                    suggested = prevData.rounds[rIdx].subLoads[sI];
+                                }}
+                            }}
+                            if (suggested !== "") {{
+                                if (isLastWeek) {{
+                                    let val = parseFloat(suggested);
+                                    if (!isNaN(val)) {{
+                                        suggested = (val * 0.8).toFixed(1).replace(/\.0$/, "");
+                                    }}
+                                }}
+                                round.subLoads[sI] = suggested;
+                            }}
+                        }}
+                    }});
+                }});
+
+                document.getElementById('ex-detail-name').innerText = sanitize(ex.name);
+                document.getElementById('val-sets').innerText = ex.sets;
+                document.getElementById('val-reps').innerText = subExs.length > 1 ? "Circuito" : ex.reps;
+                document.getElementById('val-rest').innerText = ex.rest;
+                document.getElementById('session-notes').value = data.notes || "";
+                
+                const container = document.getElementById('sets-blocks-container');
+                container.innerHTML = '';
+                
+                data.rounds.forEach((round, rI) => {{
+                    const block = document.createElement('div');
+                    block.className = 'set-block';
+                    let subHtml = '';
+                    subExs.forEach((sx, sI) => {{
+                        subHtml += `<div class="sub-ex-row">
+                            <div class="sub-ex-info">
+                                <div class="sub-ex-name">${{sx.name}}</div>
+                                <div class="sub-ex-reps">${{sx.reps}}</div>
+                            </div>
+                            <div class="load-input-wrap">
+                                <input type="number" class="load-input" value="${{round.subLoads[sI] || ""}}" placeholder="---" oninput="updateSubLoad(${{rI}}, ${{sI}}, this.value)">
+                                <span class="load-unit">KG</span>
+                            </div>
+                        </div>`;
+                    }});
+                    block.innerHTML = `<div class="set-header">
+                        <div class="set-circle ${{round.done ? 'active' : ''}}" onclick="toggleRound(${{rI}})">${{rI + 1}}</div>
+                        <div style="font-weight:800; font-size:0.8rem; color:var(--text-secondary)">${{subExs.length > 1 ? 'GIRO COMPLETO' : 'SERIE'}}</div>
+                    </div>
+                    <div class="sub-ex-list">${{subHtml}}</div>`;
+                    container.appendChild(block);
+                }});
+                
+                updateExMeta();
+                showView('view-exercise');
+            }} catch (e) {{
+                console.error(e);
+                showToast("Errore apertura esercizio.");
+            }}
+        }}
         function toggleRound(rI) {{ const data = workouts[currentWorkoutIndex].days[currentDayIdx].exercises[currentExIdx].sessionData[currentWeek]; data.rounds[rI].done = !data.rounds[rI].done; save(); openExercise(currentExIdx); }}
         function updateSubLoad(rI, sI, val) {{ const data = workouts[currentWorkoutIndex].days[currentDayIdx].exercises[currentExIdx].sessionData[currentWeek]; data.rounds[rI].subLoads[sI] = val; save(); }}
         function updateSessionNotes() {{ const val = document.getElementById('session-notes').value; const data = workouts[currentWorkoutIndex].days[currentDayIdx].exercises[currentExIdx].sessionData[currentWeek]; data.notes = val; save(); }}
