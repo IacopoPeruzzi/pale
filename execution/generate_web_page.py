@@ -408,6 +408,22 @@ def generate_html():
             if (subExs.length === 0) subExs = [{{ name: sanitize(ex.name), reps: ex.reps }}];
             const nR = parseInt(ex.sets) || 1;
             while (data.rounds.length < nR) data.rounds.push({{ done: false, subLoads: new Array(subExs.length).fill("") }});
+
+            // Suggerimento carichi dalla settimana precedente
+            if (currentWeek > 1) {{
+                const prev = ex.sessionData[currentWeek - 1];
+                if (prev && prev.rounds) {{
+                    data.rounds.forEach((round, rI) => {{
+                        if (prev.rounds[rI] && prev.rounds[rI].subLoads) {{
+                            prev.rounds[rI].subLoads.forEach((sLoad, sI) => {{
+                                if (round.subLoads[sI] === "" || round.subLoads[sI] === undefined) {{
+                                    round.subLoads[sI] = sLoad;
+                                }}
+                            }});
+                        }}
+                    }});
+                }}
+            }}
             
             document.getElementById('ex-header').innerHTML = `
                 <div class="neo-panel" style="padding:12px 15px;">
