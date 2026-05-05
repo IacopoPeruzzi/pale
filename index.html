@@ -398,10 +398,22 @@
             showView('view-session'); 
         }
 
-        // Utility per il calcolo del carico basato su 1RM (Formula di Epley)
+        // Utility avanzata per il calcolo del carico basato su 1RM e Volume
         function parseReps(str) {
             if (!str) return 10;
-            const m = str.match(/\d+/); // Prendi il primo numero trovato
+            const s = str.toLowerCase().trim();
+            // Gestione formato "3x10" -> prende 10
+            if (s.includes('x')) {
+                const parts = s.split('x');
+                const last = parts[parts.length - 1].match(/\d+/);
+                return last ? parseInt(last[0]) : 10;
+            }
+            // Gestione formato "10-12" -> prende la media 11
+            if (s.includes('-')) {
+                const nums = s.match(/\d+/g);
+                if (nums && nums.length >= 2) return (parseInt(nums[0]) + parseInt(nums[1])) / 2;
+            }
+            const m = s.match(/\d+/);
             return m ? parseInt(m[0]) : 10;
         }
 
@@ -409,18 +421,23 @@
             let weight = parseFloat(String(pastWeight).replace(',', '.'));
             if (isNaN(weight)) return pastWeight;
             
-            // 1. Calcola 1RM teorico: Peso * (1 + Reps/30)
-            const oneRM = weight * (1 + pastReps / 30);
+            // 1. Calcola 1RM teorico (Formula di Brzycki, più precisa per alte reps)
+            // 1RM = Weight / (1.0278 - 0.0278 * Reps)
+            const oneRM = weight / (1.0278 - (0.0278 * Math.min(pastReps, 30)));
             
-            // 2. Calcola peso target per le nuove reps: 1RM / (1 + TargetReps/30)
-            let suggested = oneRM / (1 + targetReps / 30);
+            // 2. Calcola peso target per le nuove reps
+            let suggested = oneRM * (1.0278 - (0.0278 * Math.min(targetReps, 30)));
             
-            // 3. Fattore Fatica per le Serie (se targetSets > pastSets e targetSets > 3)
-            if (targetSets > pastSets && targetSets > 3) {
-                const diff = targetSets - Math.max(pastSets, 3);
-                suggested = suggested * (1 - (diff * 0.02)); // -2% per ogni serie extra
+            // 3. Fattore Volume/Fatica: se devi fare tante serie, il peso deve calare esponenzialmente
+            // Oltre le 3 serie, togliamo il 3% per ogni serie extra
+            if (targetSets > 3) {
+                const extraSets = targetSets - 3;
+                suggested = suggested * (1 - (extraSets * 0.03));
             }
             
+            // 4. Se le serie sono pochissime (1 o 2), possiamo stare più vicini al massimale (+2%)
+            if (targetSets <= 2) suggested *= 1.02;
+
             return Math.round(suggested * 2) / 2; // Arrotonda ai 0.5kg
         }
 
