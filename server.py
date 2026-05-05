@@ -37,85 +37,90 @@ LOGIN_HTML = """
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Pale App - Login</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-dark: #000000;
-            --glass-bg: rgba(255, 255, 255, 0.08);
-            --glass-border: rgba(255, 255, 255, 0.12);
-            --accent-yellow: #DFFF00;
-            --accent-red: #FF3D00;
-            --accent-blue: #00D1FF;
-            --text-main: #ffffff;
+            --bg-color: #f0f4f8;
+            --shadow-light: rgba(255, 255, 255, 0.9);
+            --shadow-dark: rgba(163, 177, 198, 0.4);
+            --accent-blue: #007aff;
+            --text-main: #4a5568;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         body {
-            background-color: var(--bg-dark);
+            background-color: var(--bg-color);
             color: var(--text-main);
             font-family: 'Outfit', sans-serif;
             margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh;
-            overflow: hidden;
-            position: relative;
+            position: relative; overflow: hidden;
         }
 
-        /* Blurred Background Blobs */
-        body::before, body::after {
-            content: ''; position: fixed; width: 400px; height: 400px; border-radius: 50%; z-index: -1; filter: blur(120px); opacity: 0.5; pointer-events: none;
+        .bg-blob {
+            position: fixed; width: 500px; height: 500px; border-radius: 50%; z-index: -1;
+            background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, transparent 70%);
+            filter: blur(80px); opacity: 0.6; pointer-events: none;
+            animation: float 15s infinite alternate ease-in-out;
         }
-        body::before { top: -100px; left: -100px; background: var(--accent-red); }
-        body::after { bottom: -100px; right: -100px; background: var(--accent-blue); }
+        @keyframes float {
+            0% { transform: translate(-20%, -20%); }
+            100% { transform: translate(20%, 20%); }
+        }
 
         .login-box { 
-            text-align: center; width: 100%; max-width: 340px; padding: 50px 30px; 
-            background: var(--glass-bg); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
-            border: 1px solid var(--glass-border); border-radius: 40px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            text-align: center; width: 100%; max-width: 340px; padding: 60px 30px; 
+            background: var(--bg-color); border-radius: 45px;
+            box-shadow: 20px 20px 40px var(--shadow-dark), -20px -20px 40px var(--shadow-light);
             position: relative;
         }
         
         .tag {
             font-size: 0.7rem; font-weight: 900; text-transform: uppercase; 
-            letter-spacing: 2px; color: var(--accent-yellow); margin-bottom: 20px; display: block;
+            letter-spacing: 2px; color: var(--accent-blue); margin-bottom: 30px; display: block;
         }
 
         .brand-title { 
             font-size: 3.5rem; font-weight: 900; margin: 0 0 40px 0; letter-spacing: -2px; 
-            text-transform: uppercase; line-height: 0.85;
-            background: linear-gradient(to bottom, #fff, #888); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-transform: uppercase; line-height: 0.85; color: var(--text-main);
         }
         
+        .input-wrap {
+            background: var(--bg-color); border-radius: 20px; padding: 8px;
+            box-shadow: inset 8px 8px 16px var(--shadow-dark), inset -8px -8px 16px var(--shadow-light);
+            margin-bottom: 35px;
+        }
+
         input { 
-            width: 100%; padding: 20px; 
-            border: 1px solid rgba(255,255,255,0.1); 
-            background: rgba(0,0,0,0.3); border-radius: 20px; 
-            color: #fff; font-family: inherit; font-size: 1.2rem; text-align: center; font-weight: 600; 
-            margin-bottom: 25px;
+            width: 100%; padding: 15px; border: none; background: transparent; 
+            color: var(--text-main); font-family: inherit; font-size: 1.25rem; text-align: center; font-weight: 600; 
         }
         
         button { 
-            width: 100%; padding: 20px; 
-            background: var(--accent-yellow); color: #000; 
-            border: none; border-radius: 40px;
+            width: 100%; padding: 22px; 
+            background: var(--bg-color); color: var(--accent-blue); 
+            border: none; border-radius: 25px;
             font-weight: 900; font-size: 1.1rem; 
-            text-transform: uppercase; cursor: pointer; transition: 0.2s; 
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            text-transform: uppercase; cursor: pointer; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            box-shadow: 10px 10px 20px var(--shadow-dark), -10px -10px 20px var(--shadow-light);
         }
-        button:active { transform: scale(0.96); opacity: 0.9; }
+        button:active { box-shadow: inset 6px 6px 12px var(--shadow-dark), inset -6px -6px 12px var(--shadow-light); transform: scale(0.96); }
         
         .error { 
-            color: var(--accent-red); font-size: 0.8rem; font-weight: 900; 
+            color: #ff3b30; font-size: 0.75rem; font-weight: 900; 
             margin-top: 25px; text-transform: uppercase; display: block;
         }
     </style>
 </head>
 <body>
+    <div class="bg-blob"></div>
     <div class="login-box">
-        <span class="tag">Next Gen Assistant</span>
-        <h1 class="brand-title">PALE<br><span style="-webkit-text-fill-color: var(--accent-yellow);">APP</span></h1>
+        <span class="tag">M7 Core Node</span>
+        <h1 class="brand-title">PALE<br><span style="font-weight:200; opacity:0.4;">APP</span></h1>
         <form method="post">
-            <input type="password" name="password" placeholder="PASSWORD" required autofocus>
-            <button type="submit">Unlock System</button>
+            <div class="input-wrap">
+                <input type="password" name="password" placeholder="PASSWORD" required autofocus>
+            </div>
+            <button type="submit">Access Node</button>
         </form>
         {% if error %}<div class="error">{{ error }}</div>{% endif %}
     </div>
