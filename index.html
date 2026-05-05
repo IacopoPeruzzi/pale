@@ -398,29 +398,11 @@
         function openExercise(eI) { 
             try { 
                 currentExIdx = eI; 
-                const ex = workouts[currentWorkoutIndex].days[currentDayIdx].exercises[eI]; 
+                const w = workouts[currentWorkoutIndex];
+                const ex = w.days[currentDayIdx].exercises[eI]; 
                 if(!ex.sessionData) ex.sessionData = {}; 
                 if(!ex.sessionData[currentWeek]) ex.sessionData[currentWeek] = { completed: false, rounds: [], notes: "", timestamp: "" }; 
                 const data = ex.sessionData[currentWeek]; 
-
-                // Logica propagazione pesi: se la serie è vuota, cerca l'ultimo carico inserito
-                let lastLoadFound = "";
-                if (currentWeek > 1) {
-                    const prevWeekData = ex.sessionData[currentWeek - 1];
-                    if (prevWeekData && prevWeekData.rounds && prevWeekData.rounds[0]) {
-                        lastLoadFound = prevWeekData.rounds[0].subLoads[0] || "";
-                        
-                        // Logica Deload: Se è l'ultima settimana del piano, suggerisci l'80%
-                        const w = workouts[currentWorkoutIndex];
-                        if (Number(currentWeek) === Number(w.numWeeks) && lastLoadFound) {
-                            let val = parseFloat(String(lastLoadFound).replace(',', '.'));
-                            if (!isNaN(val)) {
-                                // Calcola l'80% e arrotonda al mezzo chilo più vicino o al primo decimale
-                                lastLoadFound = Math.round(val * 0.8 * 10) / 10;
-                            }
-                        }
-                    }
-                }
 
                 let subExs = []; 
                 const hasPlus = ex.notes && ex.notes.includes('+'); 
@@ -433,9 +415,27 @@
                     }).filter(x => x !== null); 
                 } 
                 if(subExs.length === 0) { subExs = [{ name: sanitize(ex.name), reps: ex.reps }]; } 
+                
                 const nR = parseInt(ex.sets) || 1; 
+                const isLastWeek = (Number(currentWeek) === Number(w.numWeeks));
+
                 while(data.rounds.length < nR) { 
-                    data.rounds.push({ done: false, subLoads: new Array(subExs.length).fill(lastLoadFound), timestamp: "" }); 
+                    const newSubLoads = subExs.map((sx, sI) => {
+                        let load = "";
+                        // Cerca il carico nella settimana precedente per questo specifico sub-esercizio
+                        if (currentWeek > 1) {
+                            const prevData = ex.sessionData[currentWeek - 1];
+                            if (prevData && prevData.rounds && prevData.rounds[0] && prevData.rounds[0].subLoads[sI]) {
+                                load = prevData.rounds[0].subLoads[sI];
+                                if (isLastWeek && load) {
+                                    let val = parseFloat(String(load).replace(',', '.'));
+                                    if (!isNaN(val)) load = Math.round(val * 0.8 * 10) / 10;
+                                }
+                            }
+                        }
+                        return load;
+                    });
+                    data.rounds.push({ done: false, subLoads: newSubLoads, timestamp: "" }); 
                 } 
                 
                 document.getElementById('ex-detail-name').innerText = sanitize(ex.name); 
