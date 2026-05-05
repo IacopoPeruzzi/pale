@@ -61,10 +61,8 @@ def generate_html():
 
         .subtitle {{ color: var(--text-secondary); font-size: 0.9rem; margin-top: 6px; }}
 
-        .stats-bar {{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 10px 0 20px 0; }}
-        .stat-item {{ background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 18px; padding: 12px 8px; text-align: center; }}
-        .stat-val {{ font-size: 1.1rem; font-weight: 900; color: var(--accent-color); display: block; }}
-        .stat-lab {{ font-size: 0.55rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }}
+        /* PROGRESS MONITOR */
+        .progress-monitor {{ font-size: 0.65rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent-color); margin: 15px 0 8px 0; opacity: 0.8; }}
 
         .resume-card {{
             background: linear-gradient(135deg, var(--accent-color) 0%, #b8e600 100%);
@@ -82,25 +80,14 @@ def generate_html():
         .manage-toggle {{ font-size: 0.65rem; padding: 6px 12px; border-radius: 10px; background: rgba(255,255,255,0.05); color: var(--text-secondary); border: 1px solid rgba(255,255,255,0.1); cursor: pointer; transition: 0.3s; }}
         .manage-toggle.active {{ background: #ff4444; color: #fff; border-color: transparent; }}
 
-        .list-card {{ 
-            background: var(--card-bg); border-radius: 20px; padding: 16px; 
-            border: 1px solid rgba(255,255,255,0.05); backdrop-filter: blur(10px);
-            display: flex; align-items: center; cursor: pointer;
-            transition: 0.3s; margin-bottom: 10px; position: relative;
-        }}
+        .list-card {{ background: var(--card-bg); border-radius: 20px; padding: 16px; border: 1px solid rgba(255,255,255,0.05); backdrop-filter: blur(10px); display: flex; align-items: center; cursor: pointer; transition: 0.3s; margin-bottom: 10px; position: relative; }}
         .list-card.completed {{ border-left: 6px solid var(--accent-color); background: rgba(207, 255, 4, 0.03); }}
         .list-card.manage-mode {{ animation: wobble 0.3s infinite; }}
         @keyframes wobble {{ 0% {{ transform: rotate(0.5deg); }} 50% {{ transform: rotate(-0.5deg); }} 100% {{ transform: rotate(0.5deg); }} }}
-
-        .delete-btn {{ 
-            position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
-            width: 35px; height: 35px; border-radius: 50%; background: #ff4444;
-            display: none; align-items: center; justify-content: center; color: white; font-size: 0.8rem;
-        }}
+        .delete-btn {{ position: absolute; right: 10px; top: 50%; transform: translateY(-50%); width: 35px; height: 35px; border-radius: 50%; background: #ff4444; display: none; align-items: center; justify-content: center; color: white; font-size: 0.8rem; }}
         .manage-mode .delete-btn {{ display: flex; }}
 
-        .view {{ display: none; padding: 0 20px 140px 20px; min-height: 100vh; position: relative; z-index: 10; }}
-        .view.active {{ display: block; animation: fadeIn 0.3s ease; }}
+        /* Resto degli stili per le altre view... */
         .sticky-header {{ position: sticky; top: 0; padding: calc(30px + var(--safe-area-top)) 20px 15px 20px; margin: 0 -20px 15px -20px; background: linear-gradient(to bottom, var(--bg-color) 80%, transparent); backdrop-filter: blur(25px); z-index: 1000; }}
         .action-btn {{ position: absolute; top: calc(35px + var(--safe-area-top)); right: 20px; padding: 8px 16px; border-radius: 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); font-weight: 800; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); cursor: pointer; transition: 0.3s; z-index: 1100; }}
         .action-btn.danger {{ color: #ff4444; border-color: rgba(255, 68, 68, 0.2); }}
@@ -141,14 +128,17 @@ def generate_html():
 
     <div id="view-home" class="view active">
         <div class="sticky-header"><h1>Pale<br><span style="color:var(--accent-color)">App</span></h1><p class="subtitle">Peak Performance Hub.</p></div>
-        <div id="dashboard-stats" class="stats-bar"></div>
+        
+        <div id="progress-info" class="progress-monitor"></div>
         <div id="resume-section"></div>
+        
         <h3>I tuoi Piani <div id="manage-btn" class="manage-toggle" onclick="toggleManageMode()">GESTISCI</div></h3>
         <div id="workouts-list"></div>
+        
         <div onclick="showView('view-import')" style="position: fixed; bottom: 40px; right: 25px; width: 70px; height: 70px; background: var(--accent-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: #000; box-shadow: 0 10px 20px var(--accent-glow); z-index: 1000; cursor: pointer;">+</div>
     </div>
 
-    <!-- View: Import, Plan, Session, Exercise identiche... -->
+    <!-- Resto delle View invariate... -->
     <div id="view-import" class="view">
         <div class="sticky-header"><div onclick="showView('view-home')" style="color:var(--text-secondary); font-weight:800; cursor:pointer; margin-bottom:8px;">← BACK</div><h1>Import</h1></div>
         <textarea id="import-text" style="width: 100%; height: 300px; background: #111; color: #fff; border-radius: 20px; padding: 20px; border: 1px solid #333; margin: 15px 0;" placeholder="Paste protocol..."></textarea>
@@ -235,35 +225,26 @@ def generate_html():
             renderHome();
         }}
 
-        function calculateStats() {{
-            let totalSessions = 0;
-            let currentPlanProg = 0;
-            let streak = 0;
-            workouts.forEach(w => {{ if(w.progress) {{ Object.values(w.progress).forEach(wk => totalSessions += Object.keys(wk).length); }} }});
-            if(workouts.length > 0) {{
-                const w = workouts[0];
-                let t = w.numWeeks * (w.days?w.days.length:0);
-                let d = 0;
-                if (w.progress) Object.values(w.progress).forEach(wk => d += Object.keys(wk).length);
-                currentPlanProg = t ? Math.round((d/t)*100) : 0;
-            }}
-            streak = totalSessions % 7 || totalSessions; 
-            return {{ total: totalSessions, prog: currentPlanProg, streak: streak }};
-        }}
-
         function renderHome() {{
-            const statsDiv = document.getElementById('dashboard-stats');
-            const stats = calculateStats();
-            statsDiv.innerHTML = `
-                <div class="stat-item"><span class="stat-val">${{stats.total}}</span><span class="stat-lab">Sessioni</span></div>
-                <div class="stat-item"><span class="stat-val">${{stats.prog}}%</span><span class="stat-lab">Piano Attuale</span></div>
-                <div class="stat-item"><span class="stat-val">${{stats.streak}}</span><span class="stat-lab">Workout/7d</span></div>
-            `;
+            const progInfo = document.getElementById('progress-info');
+            progInfo.innerHTML = '';
+            
             const res = document.getElementById('resume-section');
             res.innerHTML = '';
+
             if (workouts.length > 0) {{
                 const w = workouts[0];
                 const n = getInc(w);
+                
+                // Calcolo progressi semplici
+                let t = w.numWeeks * (w.days?w.days.length:0);
+                let d = 0;
+                if (w.progress) Object.values(w.progress).forEach(wk => d += Object.keys(wk).length);
+                let perc = t ? Math.round((d/t)*100) : 0;
+                let left = t - d;
+
+                progInfo.innerHTML = `COMPLETATO: ${{perc}}% • MANCANO ${{left}} SESSIONI`;
+
                 if (n) {{
                     let titleStr = sanitize(w.title);
                     if(w.subtitle) titleStr += " - " + sanitize(w.subtitle);
@@ -277,6 +258,7 @@ def generate_html():
                         </div>`;
                 }}
             }}
+
             const list = document.getElementById('workouts-list');
             list.innerHTML = workouts.length === 0 ? '<p style="opacity:0.3; text-align:center; padding:20px;">Nessun piano caricato.</p>' : '';
             workouts.forEach((w, i) => {{
@@ -377,4 +359,4 @@ if __name__ == "__main__":
     html_content = generate_html()
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(html_content)
-    print(f"Successo: Rimosso codice ID e rifinita Dashboard.")
+    print(f"Successo: Semplificata Dashboard con monitor progressi minimale.")
