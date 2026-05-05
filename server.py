@@ -37,90 +37,74 @@ LOGIN_HTML = """
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Pale App - Login</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #f0f4f8;
-            --shadow-light: rgba(255, 255, 255, 0.9);
-            --shadow-dark: rgba(163, 177, 198, 0.4);
-            --accent-blue: #007aff;
-            --text-main: #4a5568;
+            --bg-black: #000000;
+            --accent-yellow: #FFEA00;
+            --accent-lime: #B8FF00;
+            --accent-white: #FFFFFF;
+            --border-thick: 3px;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
+            background-color: var(--bg-black);
+            color: var(--accent-white);
             font-family: 'Outfit', sans-serif;
             margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh;
-            position: relative; overflow: hidden;
+            overflow: hidden;
         }
 
-        .bg-blob {
-            position: fixed; width: 500px; height: 500px; border-radius: 50%; z-index: -1;
-            background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, transparent 70%);
-            filter: blur(80px); opacity: 0.6; pointer-events: none;
-            animation: float 15s infinite alternate ease-in-out;
-        }
-        @keyframes float {
-            0% { transform: translate(-20%, -20%); }
-            100% { transform: translate(20%, 20%); }
-        }
-
-        .login-box { 
-            text-align: center; width: 100%; max-width: 340px; padding: 60px 30px; 
-            background: var(--bg-color); border-radius: 45px;
-            box-shadow: 20px 20px 40px var(--shadow-dark), -20px -20px 40px var(--shadow-light);
+        .login-card { 
+            text-align: center; width: 100%; max-width: 340px; padding: 50px 30px; 
+            background: var(--accent-yellow); border: var(--border-thick) solid var(--bg-black);
+            box-shadow: 12px 12px 0px var(--accent-lime);
             position: relative;
         }
         
-        .tag {
-            font-size: 0.7rem; font-weight: 900; text-transform: uppercase; 
-            letter-spacing: 2px; color: var(--accent-blue); margin-bottom: 30px; display: block;
+        .meta-strip {
+            background: var(--bg-black); color: var(--accent-white);
+            padding: 5px 12px; font-weight: 900; text-transform: uppercase; 
+            font-size: 0.7rem; margin-bottom: 25px; display: inline-block;
         }
 
         .brand-title { 
-            font-size: 3.5rem; font-weight: 900; margin: 0 0 40px 0; letter-spacing: -2px; 
-            text-transform: uppercase; line-height: 0.85; color: var(--text-main);
+            font-size: 4rem; font-weight: 900; margin: 0 0 40px 0; letter-spacing: -2px; 
+            text-transform: uppercase; line-height: 0.85; color: var(--bg-black);
         }
         
-        .input-wrap {
-            background: var(--bg-color); border-radius: 20px; padding: 8px;
-            box-shadow: inset 8px 8px 16px var(--shadow-dark), inset -8px -8px 16px var(--shadow-light);
-            margin-bottom: 35px;
-        }
-
         input { 
-            width: 100%; padding: 15px; border: none; background: transparent; 
-            color: var(--text-main); font-family: inherit; font-size: 1.25rem; text-align: center; font-weight: 600; 
+            width: 100%; padding: 20px; 
+            border: var(--border-thick) solid var(--bg-black); 
+            background: var(--accent-white); border-radius: 0;
+            color: var(--bg-black); font-family: inherit; font-size: 1.2rem; text-align: center; font-weight: 900; 
+            margin-bottom: 25px;
         }
         
         button { 
             width: 100%; padding: 22px; 
-            background: var(--bg-color); color: var(--accent-blue); 
-            border: none; border-radius: 25px;
-            font-weight: 900; font-size: 1.1rem; 
-            text-transform: uppercase; cursor: pointer; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            box-shadow: 10px 10px 20px var(--shadow-dark), -10px -10px 20px var(--shadow-light);
+            background: var(--bg-black); color: var(--accent-lime); 
+            border: none; font-weight: 900; font-size: 1.1rem; 
+            text-transform: uppercase; cursor: pointer; transition: 0.1s; 
+            box-shadow: 8px 8px 0px var(--accent-white);
         }
-        button:active { box-shadow: inset 6px 6px 12px var(--shadow-dark), inset -6px -6px 12px var(--shadow-light); transform: scale(0.96); }
+        button:active { transform: translate(4px, 4px); box-shadow: 4px 4px 0px var(--accent-white); }
         
         .error { 
-            color: #ff3b30; font-size: 0.75rem; font-weight: 900; 
-            margin-top: 25px; text-transform: uppercase; display: block;
+            background: #ff3b30; color: #fff; font-size: 0.75rem; font-weight: 900; 
+            margin-top: 25px; padding: 10px; border: var(--border-thick) solid var(--bg-black);
+            text-transform: uppercase; display: block;
         }
     </style>
 </head>
 <body>
-    <div class="bg-blob"></div>
-    <div class="login-box">
-        <span class="tag">M7 Core Node</span>
-        <h1 class="brand-title">PALE<br><span style="font-weight:200; opacity:0.4;">APP</span></h1>
+    <div class="login-card">
+        <div class="meta-strip">Secure Gateway</div>
+        <h1 class="brand-title">PALE<br><span style="color:var(--accent-white)">APP</span></h1>
         <form method="post">
-            <div class="input-wrap">
-                <input type="password" name="password" placeholder="PASSWORD" required autofocus>
-            </div>
-            <button type="submit">Access Node</button>
+            <input type="password" name="password" placeholder="PASSWORD" required autofocus>
+            <button type="submit">ACCESS NODE</button>
         </form>
         {% if error %}<div class="error">{{ error }}</div>{% endif %}
     </div>

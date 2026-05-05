@@ -5,233 +5,207 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>Pale App</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;400;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #f2f5f9;
-            --shadow-light: rgba(255, 255, 255, 0.95);
-            --shadow-dark: rgba(163, 177, 198, 0.35);
-            --accent-blue: #007aff;
-            --accent-red: #ff3b30;
-            --text-main: #4a5568;
-            --text-dim: #94a3b8;
-            --safe-area-top: env(safe-area-inset-top);
+            --bg-canvas: #F8F8F8;
+            --text-dark: #111111;
+            --accent-lime: #BFFF00;
+            --accent-pink: #FF0077;
+            --accent-blue: #0055FF;
+            --border-heavy: 2.5px;
+            --border-light: 1px;
+            --safe-top: env(safe-area-inset-top);
         }
+
+        @keyframes prop-pulse { 0% { background: transparent; } 50% { background: var(--accent-lime); opacity: 0.3; } 100% { background: transparent; } }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         
         body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
+            background-color: var(--bg-canvas);
+            background-image: 
+                linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+            background-size: 25px 25px;
+            color: var(--text-dark);
             font-family: 'Outfit', sans-serif;
             margin: 0; padding: 0; overflow-x: hidden;
-            min-height: 100vh;
         }
 
-        .bg-blob {
-            position: fixed; width: 500px; height: 500px; border-radius: 50%; z-index: -1;
-            background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, transparent 70%);
-            filter: blur(80px); opacity: 0.5; pointer-events: none;
-            animation: float 20s infinite alternate ease-in-out;
-        }
-        @keyframes float { 0% { transform: translate(-10%, -10%); } 100% { transform: translate(10%, 10%); } }
-
-        .view { display: none; padding: 12px; padding-top: 85px; min-height: 100vh; position: relative; z-index: 10; }
-        .view.active { display: block; }
-
-        /* Slim Sticky Header */
-        .glass-header {
-            position: fixed; top: 0; left: 0; right: 0;
-            background: var(--bg-color);
-            padding: calc(10px + var(--safe-area-top)) 15px 10px 15px;
-            z-index: 2000;
-            display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 4px 15px var(--shadow-dark);
+        .ui-anchor {
+            position: fixed; top: calc(12px + var(--safe-top)); left: 12px; right: 12px;
+            z-index: 5000; pointer-events: none;
+            display: flex; justify-content: space-between; align-items: flex-start;
         }
 
-        .brand-logo { font-size: 1rem; font-weight: 900; letter-spacing: 1px; color: var(--text-main); }
-        .brand-logo::after { content: ''; width: 6px; height: 6px; background: var(--accent-blue); border-radius: 50%; margin-left: 5px; display: inline-block; }
-
-        /* Optimized Neo Panels */
-        .neo-panel {
-            background: var(--bg-color);
-            border-radius: 20px;
-            padding: 15px;
-            margin-bottom: 15px;
-            box-shadow: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light);
+        .badge-core {
+            pointer-events: auto; background: #000; color: #fff;
+            padding: 10px 18px; border: var(--border-heavy) solid #000;
+            box-shadow: 5px 5px 0px var(--accent-lime);
+            display: flex; flex-direction: column; cursor: pointer;
         }
+        .badge-core .t1 { font-size: 1.2rem; font-weight: 900; letter-spacing: -1.5px; line-height: 0.9; }
+        .badge-core .t2 { font-size: 0.45rem; font-family: 'JetBrains Mono', monospace; opacity: 0.6; margin-top: 4px; }
 
-        .neo-inset {
-            background: var(--bg-color);
-            box-shadow: inset 5px 5px 10px var(--shadow-dark), inset -5px -5px 10px var(--shadow-light);
-            border-radius: 15px;
+        .ctrl-box {
+            pointer-events: auto; width: 48px; height: 48px; background: #fff;
+            border: var(--border-heavy) solid #000; box-shadow: 5px 5px 0px #000;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 0.6rem; cursor: pointer;
         }
+        .ctrl-box:active { transform: translate(3px, 3px); box-shadow: 0px 0px 0px #000; }
 
-        h2 { font-size: 1.3rem; font-weight: 900; margin: 0; letter-spacing: -0.5px; color: var(--text-main); }
-        h3 { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-dim); margin: 25px 0 10px 0; }
+        .view { display: none; padding: 12px; padding-top: 95px; min-height: 100vh; position: relative; z-index: 10; }
+        .view.active { display: block; animation: fade-in 0.25s ease-out; }
+        @keyframes fade-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
-        .tag {
-            display: inline-block; font-size: 0.55rem; font-weight: 900; text-transform: uppercase; 
-            letter-spacing: 1.2px; color: var(--accent-blue); margin-bottom: 5px;
+        .tech-card {
+            background: #fff; border: var(--border-heavy) solid #000;
+            padding: 16px; margin-bottom: 25px; position: relative;
+            box-shadow: 8px 8px 0px rgba(0,0,0,0.03);
         }
+        .tech-card::before { content: 'RE_SYS.04'; position: absolute; top: -11px; right: 12px; font-size: 0.5rem; font-family: 'JetBrains Mono', monospace; background: #000; color: #fff; padding: 2px 8px; }
+        .tech-card .label { font-size: 0.55rem; font-weight: 900; background: var(--accent-lime); color: #000; padding: 2px 8px; border: 1.5px solid #000; margin-bottom: 10px; display: inline-block; text-transform: uppercase; }
 
-        .resume-card {
-            background: var(--bg-color);
-            border-radius: 24px; padding: 18px; margin-bottom: 25px; cursor: pointer;
-            box-shadow: 10px 10px 20px var(--shadow-dark), -10px -10px 20px var(--shadow-light);
-            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        .heading-xl {
+            font-size: 1.7rem; font-weight: 900; line-height: 0.85; text-transform: uppercase;
+            letter-spacing: -1.5px; margin: 0;
         }
-        .resume-card:active { box-shadow: inset 6px 6px 12px var(--shadow-dark), inset -6px -6px 12px var(--shadow-light); transform: scale(0.97); }
+        .heading-xl span { color: var(--accent-blue); }
 
-        .list-card { 
-            background: var(--bg-color); 
-            border-radius: 18px; padding: 14px 18px; 
-            margin-bottom: 12px; display: flex; align-items: center; cursor: pointer;
-            box-shadow: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);
-            transition: 0.3s ease;
-        }
-        .list-card:active { box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light); }
-        .list-card.completed { color: var(--accent-blue); }
-
-        .nav-btn {
-            background: var(--bg-color); color: var(--text-main);
-            border: none; border-radius: 10px; padding: 8px 14px;
-            font-weight: 900; font-size: 0.65rem; text-transform: uppercase; cursor: pointer;
-            box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
-        }
-        .nav-btn:active { box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light); }
-
-        .week-grid { display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; padding: 10px 2px; }
-        .week-btn { 
-            flex: 0 0 50px; padding: 12px; background: var(--bg-color); 
-            border-radius: 15px; color: var(--text-dim); font-weight: 800; text-align: center; cursor: pointer; font-size: 0.7rem;
-            box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
-        }
-        .week-btn.active { box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light); color: var(--accent-blue); }
-
-        .ex-item { 
-            background: var(--bg-color); border-radius: 18px; padding: 14px 18px; margin-bottom: 10px; 
+        .shard-node { 
+            background: #fff; color: #000; border: var(--border-light) solid #000; 
+            padding: 14px 18px; margin-bottom: 10px; 
             display: flex; align-items: center; cursor: pointer;
-            box-shadow: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);
+            font-weight: 700; text-transform: uppercase; font-size: 0.9rem;
+            transition: 0.1s;
         }
-        .ex-item.done { opacity: 0.4; box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light); }
+        .shard-node:active { border-width: var(--border-heavy); background: var(--bg-canvas); }
+        .shard-node.done { border-left: 12px solid var(--accent-lime); background: #fff; font-weight: 900; }
 
-        .metric-box { 
-            background: var(--bg-color); border-radius: 15px; padding: 10px; text-align: center; flex: 1;
-            box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+        .btn-tech {
+            background: #000; color: #fff;
+            border: none; padding: 18px; font-weight: 900; 
+            text-transform: uppercase; font-size: 1rem; cursor: pointer;
+            width: 100%; box-shadow: 6px 6px 0px var(--accent-lime);
+            transition: 0.1s;
         }
-        .metric-label { font-size: 0.5rem; font-weight: 600; color: var(--text-dim); text-transform: uppercase; }
-        .metric-value { font-size: 0.9rem; font-weight: 900; margin-top: 2px; color: var(--text-main); }
+        .btn-tech:active { transform: translate(3px, 3px); box-shadow: 0px 0px 0px #000; background: #222; }
+        .btn-tech.warning { background: var(--accent-pink); box-shadow: 6px 6px 0px #000; }
 
-        .set-block { 
-            background: var(--bg-color); border-radius: 20px; padding: 15px; margin-bottom: 15px; 
-            box-shadow: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light);
+        .selector-row { display: flex; gap: 8px; margin-bottom: 30px; overflow-x: auto; padding: 10px 5px; }
+        .selector-node { 
+            flex: 0 0 55px; height: 55px; border: var(--border-light) solid #000;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 900; cursor: pointer; font-size: 0.85rem; background: #fff;
         }
-        .set-circle { 
-            width: 44px; height: 44px; border-radius: 50%; 
-            display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 0.9rem; cursor: pointer;
-            box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
-            background: var(--bg-color); transition: 0.2s;
-        }
-        .set-circle.active { box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light); color: var(--accent-blue); transform: scale(0.94); }
+        .selector-node.active { background: #000; color: #fff; border-width: var(--border-heavy); transform: translateY(-5px); box-shadow: 6px 6px 0px var(--accent-lime); }
 
-        .load-input { 
-            border: none; border-bottom: 1.5px solid var(--accent-blue); font-weight: 900; font-size: 1.3rem; 
-            width: 70px; text-align: center; background: transparent; color: var(--text-main); 
+        .data-strip { display: flex; gap: 10px; margin-top: 15px; }
+        .data-box { 
+            background: #fff; border: var(--border-light) solid #000; padding: 10px; text-align: center; flex: 1;
+        }
+        .data-box .v { font-size: 1.2rem; font-weight: 900; font-family: 'JetBrains Mono', monospace; display: block; }
+        .data-box .l { font-size: 0.45rem; opacity: 0.5; text-transform: uppercase; font-weight: 700; margin-top: 4px; display: block; }
+
+        .set-container { 
+            background: #fff; border: var(--border-heavy) solid #000; 
+            padding: 18px; margin-bottom: 25px; position: relative;
+            scroll-margin-top: 110px;
         }
         
-        .progress-monitor { 
-            height: 10px; background: var(--bg-color); border-radius: 20px; margin-bottom: 25px; 
-            box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
-            padding: 3px;
+        .badge-id { 
+            width: 36px; height: 36px; border: var(--border-heavy) solid #000; 
+            font-weight: 900; font-family: 'JetBrains Mono', monospace; font-size: 1rem;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            background: #fff; transition: 0.15s;
         }
-        .progress-fill { height: 100%; background: var(--accent-blue); border-radius: 20px; transition: 0.6s ease; }
+        .badge-id.active { background: var(--accent-lime); transform: scale(1.1); box-shadow: 4px 4px 0px #000; }
 
-        .action-btn { 
-            padding: 6px 12px; border-radius: 12px; background: var(--bg-color); border: none; 
-            color: var(--text-dim); font-weight: 800; font-size: 0.55rem; text-transform: uppercase; cursor: pointer;
-            box-shadow: 3px 3px 6px var(--shadow-dark), -3px -3px 6px var(--shadow-light);
+        .input-tech { 
+            border: none; border-bottom: 4px solid #000; 
+            font-weight: 900; font-family: 'JetBrains Mono', monospace; font-size: 2.2rem; 
+            width: 100px; text-align: center; background: transparent; color: #000; 
+            transition: background 0.3s;
         }
-        .action-btn.danger { color: var(--accent-red); }
-
-        .btn-floating { 
-            background: var(--bg-color); color: var(--accent-blue); border: none; border-radius: 18px; 
-            padding: 16px 25px; font-weight: 900; text-transform: uppercase; font-size: 0.75rem; cursor: pointer; 
-            box-shadow: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light);
-            transition: 0.2s;
-        }
-        .btn-floating:active { box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light); }
+        .input-tech.pulse { animation: prop-pulse 0.6s ease-out; }
+        
+        .prog-grid { height: 10px; display: flex; gap: 3px; margin-bottom: 35px; }
+        .prog-cell { flex: 1; background: #fff; border: 1px solid rgba(0,0,0,0.1); transition: 0.3s; }
+        .prog-cell.on { background: #000; border-color: #000; box-shadow: 0 0 5px rgba(0,0,0,0.2); }
 
         #toast { 
-            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); 
-            background: var(--bg-color); color: var(--accent-blue); padding: 12px 25px; 
-            font-weight: 900; border-radius: 15px; z-index: 9999; display: none; 
-            box-shadow: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light);
-            font-size: 0.65rem;
+            position: fixed; bottom: 25px; left: 15px; right: 15px;
+            background: #000; color: #fff; padding: 15px; 
+            font-weight: 900; font-family: 'JetBrains Mono', monospace; 
+            border: var(--border-heavy) solid var(--accent-lime); z-index: 10000;
+            display: none; text-align: center; text-transform: uppercase; font-size: 0.8rem;
         }
         
         ::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body>
-    <div class="bg-blob"></div>
     <div id="toast"></div>
 
-    <div class="glass-header">
-        <div class="brand-logo" onclick="showView('view-home')" style="cursor:pointer">PALE APP</div>
-        <div id="header-actions">
-            <button class="nav-btn" onclick="showView('view-import')">Nuovo</button>
+    <div class="ui-anchor">
+        <div class="badge-core" onclick="showView('view-home')">
+            <div class="t1">PALE.SYSTEM</div>
+            <div class="t2">ENGINE_V4.6_TRACK</div>
+        </div>
+        <div class="ctrl-box" onclick="showView('view-import')">
+            SYNC
         </div>
     </div>
 
     <div id="view-home" class="view active">
-        <div class="progress-monitor"><div id="progress-bar" class="progress-fill" style="width:0%"></div></div>
+        <div id="progress-grid" class="prog-grid"></div>
         <div id="resume-section"></div>
-        <h3>I tuoi Piani <button id="manage-btn" class="action-btn" style="float:right" onclick="toggleManageMode()">Edit</button></h3>
+        <div style="font-weight:900; color:#000; font-size:0.5rem; margin:20px 0 10px 0; letter-spacing:1px; display:flex; align-items:center; gap:8px;">
+            <div style="width:12px; height:2px; background:#000;"></div> DATA_CORE_ARCHIVE
+        </div>
         <div id="workouts-list"></div>
     </div>
 
     <div id="view-import" class="view">
-        <div class="neo-panel">
-            <div class="tag">M7 Core</div>
-            <h2 style="margin-bottom:15px;">IMPORTA <span>DATI</span></h2>
-            <div class="neo-inset" style="padding:15px; margin:15px 0;">
-                <textarea id="import-text" style="width:100%; height:280px; border:none; background:transparent; color:var(--text-main); font-family:monospace; font-size:0.85rem;"></textarea>
-            </div>
-            <button id="import-btn" class="btn-floating" style="width:100%;" onclick="importAction()">Sincronizza</button>
-            <button class="action-btn" style="width:100%; margin-top:15px; box-shadow:none; opacity:0.5;" onclick="showView('view-home')">Torna Indietro</button>
+        <div class="tech-card" style="background:var(--accent-lime)">
+            <span class="label">Kernel.Inbound</span>
+            <h2 class="heading-xl">INJECT<span>SOURCE</span></h2>
+            <textarea id="import-text" style="width:100%; height:260px; border:var(--border-heavy) solid #000; background:#fff; padding:18px; font-family:'JetBrains Mono', monospace; font-weight:700; font-size:0.8rem; margin:15px 0;"></textarea>
+            <button id="import-btn" class="btn-tech" onclick="importAction()">EXECUTE_SYNC</button>
+            <button class="btn-tech" style="margin-top:12px; background:transparent; border:none; box-shadow:none; color:#000; font-size:0.8rem;" onclick="showView('view-home')">CANCEL_SYSTEM</button>
         </div>
     </div>
 
     <div id="view-workout" class="view">
         <div id="workout-content"></div>
-        <div style="margin-top:25px;"><button class="btn-floating" style="width:100%; color:var(--text-dim); background:transparent; box-shadow:none;" onclick="showView('view-home')">Chiudi</button></div>
+        <div style="margin-top:35px;"><button class="btn-tech" onclick="showView('view-home')">TERMINATE_SESSION</button></div>
     </div>
 
     <div id="view-session" class="view">
         <div id="session-header"></div>
         <div id="session-content"></div>
-        <div style="margin-top:25px; display:flex; gap:12px;">
-            <button class="btn-floating" style="flex:1; color:var(--text-dim); padding:16px 10px; background:transparent; box-shadow:none;" onclick="openWorkout(currentWorkoutIndex)">Esci</button>
-            <button class="btn-floating" style="flex:2;" onclick="finishSession()">Salva</button>
+        <div style="margin-top:35px; display:flex; gap:12px;">
+            <button class="btn-tech" style="flex:1; background:#fff; color:#000; border:var(--border-heavy) solid #000; box-shadow:none;" onclick="openWorkout(currentWorkoutIndex)">BACK</button>
+            <button class="btn-tech" style="flex:2;" onclick="finishSession()">COMMIT_LOG_DATA</button>
         </div>
     </div>
 
     <div id="view-exercise" class="view">
         <div id="ex-header"></div>
         <div id="ex-content"></div>
-        <div style="margin-top:25px; display:flex; gap:10px;">
-            <button class="btn-floating" style="padding:16px 12px; color:var(--text-dim); background:transparent; box-shadow:none;" onclick="startSession(currentDayIdx)">List</button>
-            <button class="btn-floating" style="flex:1; color:var(--accent-red); background:transparent; box-shadow:none;" onclick="nextExercise()">Salta</button>
-            <button class="btn-floating" style="flex:2;" onclick="nextExercise()">Avanti</button>
+        <div style="margin-top:35px; display:flex; gap:12px;" id="exercise-actions">
+            <button class="btn-tech" style="padding:12px; flex:0.4; background:#fff; color:#000; border:var(--border-heavy) solid #000; box-shadow:none;" onclick="startSession(currentDayIdx)">LST</button>
+            <button class="btn-tech warning" style="flex:1;" onclick="nextExercise()">SKIP</button>
+            <button class="btn-tech" style="flex:2; background:var(--accent-lime); color:#000;" onclick="nextExercise()">NEXT_FORWARD</button>
         </div>
     </div>
 
     <script>
         let workouts = JSON.parse(localStorage.getItem('pale_workouts') || '[]');
-        let manageMode = false;
         let currentWorkoutIndex = null;
         let currentWeek = 1;
         let currentDayIdx = null;
@@ -255,7 +229,7 @@
         function showToast(msg) {
             const t = document.getElementById('toast');
             t.innerText = msg; t.style.display = 'block';
-            setTimeout(() => t.style.display = 'none', 3000);
+            setTimeout(() => t.style.display = 'none', 1500);
         }
 
         function getInc(w) {
@@ -274,45 +248,40 @@
             window.scrollTo(0,0);
         }
 
-        function toggleManageMode() {
-            manageMode = !manageMode;
-            document.getElementById('manage-btn').innerText = manageMode ? 'Fine' : 'Edit';
-            renderHome();
-        }
-
         function renderHome() {
             const res = document.getElementById('resume-section');
-            const progBar = document.getElementById('progress-bar');
-            res.innerHTML = '';
+            const grid = document.getElementById('progress-grid');
+            res.innerHTML = ''; grid.innerHTML = '';
+            
             if (workouts.length > 0) {
                 const w = workouts[0];
                 const n = getInc(w);
-                let t = w.numWeeks * (w.days?w.days.length:0);
-                let d = 0;
-                if (w.progress) Object.values(w.progress).forEach(wk => d += Object.keys(wk).length);
-                progBar.style.width = (t ? Math.round((d/t)*100) : 0) + '%';
+                let total = w.numWeeks * (w.days?w.days.length:0);
+                let done = 0;
+                if (w.progress) Object.values(w.progress).forEach(wk => done += Object.keys(wk).length);
+                
+                for(let i=0; i<20; i++) {
+                    const c = document.createElement('div');
+                    c.className = `prog-cell ${i < (done/total)*20 ? 'on' : ''}`;
+                    grid.appendChild(c);
+                }
+
                 if (n) {
                     res.innerHTML = `
-                        <div class="resume-card" onclick="resumeWorkout(0)">
-                            <div class="tag">In Corso</div>
-                            <h2 style="color:var(--accent-blue); font-size:1.1rem;">${sanitize(w.title)}</h2>
-                            <p style="font-weight:600; opacity:0.4; margin-top:5px; font-size:0.8rem;">W${n.week} • Giorno ${n.day+1}</p>
+                        <div class="tech-card" onclick="resumeWorkout(0)">
+                            <span class="label">Session.Active</span>
+                            <h2 class="heading-xl">${sanitize(w.title)}<span>_ONLINE</span></h2>
+                            <p style="font-family:'JetBrains Mono', monospace; font-weight:700; margin-top:10px; font-size:0.85rem;">[ PHASE_0${n.week} // NODE_0${n.day+1} ]</p>
                         </div>`;
                 }
             }
             const list = document.getElementById('workouts-list');
-            list.innerHTML = workouts.length === 0 ? '<div class="neo-panel" style="font-size:0.75rem; text-align:center;">Vuoto.</div>' : '';
+            list.innerHTML = '';
             workouts.forEach((w, i) => {
                 const card = document.createElement('div');
-                card.className = `list-card`;
-                card.onclick = () => { if(!manageMode) openWorkout(i); };
-                card.innerHTML = `
-                    <div style="flex:1">
-                        <b style="font-size:0.95rem;">${w.title}</b><br>
-                        <small style="opacity:0.3; text-transform:uppercase; font-weight:900; font-size:0.55rem;">${w.subtitle || "Standard"}</small>
-                    </div>
-                    ${manageMode ? `<div class="action-btn danger" onclick="event.stopPropagation(); deleteWorkout(${i})">Elimina</div>` : ''}
-                `;
+                card.className = `shard-node`;
+                card.onclick = () => openWorkout(i);
+                card.innerHTML = `<div style="flex:1">${w.title}</div><div style="font-size:0.45rem; border:1px solid #000; padding:2px 6px; font-family:'JetBrains Mono'">OPEN_ARCHIVE</div>`;
                 list.appendChild(card);
             });
         }
@@ -328,22 +297,19 @@
             const weekInfo = w.weeklyStructure?.find(s => s.week === 'W' + currentWeek);
             const content = document.getElementById('workout-content');
             content.innerHTML = `
-                <div class="neo-panel" style="padding:12px 15px;">
-                    <div class="tag">Dettaglio</div>
-                    <h2 style="font-size:1.1rem;">${sanitize(w.title)}</h2>
-                    ${weekInfo ? `<div class="neo-inset" style="padding:10px; margin-top:8px;">
-                        <small style="font-weight:900; color:var(--accent-blue); font-size:0.5rem; text-transform:uppercase;">Focus W${currentWeek}</small>
-                        <p style="margin:2px 0 0 0; font-size:0.75rem; font-weight:600; opacity:0.8;">${weekInfo.note || weekInfo.focus}</p>
-                    </div>` : ''}
+                <div class="tech-card">
+                    <span class="label">Protocol.Info</span>
+                    <h2 class="heading-xl">${sanitize(w.title)}<span>_V4</span></h2>
+                    ${weekInfo ? `<div style="background:var(--bg-canvas); border-left:6px solid var(--accent-blue); padding:15px; margin-top:12px; font-family:'JetBrains Mono'; font-size:0.75rem;">// LOG: ${weekInfo.note || weekInfo.focus}</div>` : ''}
                 </div>
-                <div class="week-grid" id="week-selector"></div>
+                <div class="selector-row" id="week-selector"></div>
                 <div id="day-list"></div>
             `;
             const sel = document.getElementById('week-selector');
             for(let i=1; i<=w.numWeeks; i++) {
                 const b = document.createElement('div');
-                b.className = `week-btn ${currentWeek === i ? 'active' : ''}`;
-                b.innerHTML = `W${i}`;
+                b.className = `selector-node ${currentWeek === i ? 'active' : ''}`;
+                b.innerHTML = `W0${i}`;
                 b.onclick = () => { currentWeek = i; openWorkout(idx); };
                 sel.appendChild(b);
             }
@@ -351,9 +317,9 @@
             w.days.forEach((d, dI) => {
                 const status = w.progress && w.progress[currentWeek] && w.progress[currentWeek][dI];
                 const c = document.createElement('div');
-                c.className = `list-card ${status ? 'completed' : ''}`;
+                c.className = `shard-node ${status ? 'done' : ''}`;
                 c.onclick = () => startSession(dI);
-                c.innerHTML = `<div style="flex:1"><small style="opacity:0.3; font-weight:900; font-size:0.55rem;">GIORNO ${dI+1}</small><br><b style="font-size:0.95rem;">${sanitize(d.name)}</b></div>`;
+                c.innerHTML = `<div style="flex:1"><small style="opacity:0.4; font-size:0.45rem; font-family:'JetBrains Mono'">SYS_DATA.0${dI+1}</small><br>${sanitize(d.name)}</div>`;
                 dList.appendChild(c);
             });
             showView('view-workout');
@@ -364,22 +330,27 @@
             const w = workouts[currentWorkoutIndex];
             const d = w.days[dI];
             document.getElementById('session-header').innerHTML = `
-                <div class="neo-panel" style="padding:12px 15px;">
-                    <div class="tag">Sessione</div>
-                    <h2 style="font-size:1.1rem;">${sanitize(d.name)}</h2>
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
-                        <small style="opacity:0.4; font-weight:900; font-size:0.55rem;">W${currentWeek}</small>
-                        <button class="action-btn danger" onclick="resetDayAction()">Reset</button>
+                <div class="tech-card" style="background:var(--accent-lime)">
+                    <span class="label" style="background:#000; color:#fff;">Channel.Active</span>
+                    <h2 class="heading-xl">${sanitize(d.name)}<span>_LOG</span></h2>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:15px;">
+                        <span style="font-weight:900; background:#000; color:#fff; padding:4px 12px; font-size:0.7rem; font-family:'JetBrains Mono'">PHASE_0${currentWeek}</span>
+                        <button class="btn-tech" style="font-size:0.5rem; padding:8px 12px; width:auto; box-shadow:none; background:#fff; color:#000; border:2px solid #000;" onclick="resetDayAction()">RESET_CORE</button>
                     </div>
                 </div>`;
             const content = document.getElementById('session-content');
             content.innerHTML = '';
             d.exercises.forEach((ex, eI) => {
-                const isD = ex.sessionData && ex.sessionData[currentWeek] && ex.sessionData[currentWeek].completed;
+                // L'esercizio è completato se TUTTE le serie sono smarcate
+                const isD = ex.sessionData && ex.sessionData[currentWeek] && 
+                           ex.sessionData[currentWeek].rounds && 
+                           ex.sessionData[currentWeek].rounds.length > 0 &&
+                           ex.sessionData[currentWeek].rounds.every(r => r.done);
+                
                 const item = document.createElement('div');
-                item.className = `ex-item ${isD ? 'done' : ''}`;
+                item.className = `shard-node ${isD ? 'done' : ''}`;
                 item.onclick = () => openExercise(eI);
-                item.innerHTML = `<div style="flex:1; font-size:0.95rem;"><b>${sanitize(ex.name)}</b></div><div style="font-weight:900; font-size:0.65rem; color:var(--accent-blue)">${ex.sets}S</div>`;
+                item.innerHTML = `<div style="flex:1">${sanitize(ex.name)}</div><div style="font-size:0.65rem; opacity:0.6; font-family:'JetBrains Mono'">${ex.sets}S</div>`;
                 content.appendChild(item);
             });
             showView('view-session');
@@ -402,8 +373,7 @@
             if (subExs.length === 0) subExs = [{ name: sanitize(ex.name), reps: ex.reps }];
             const nR = parseInt(ex.sets) || 1;
             while (data.rounds.length < nR) data.rounds.push({ done: false, subLoads: new Array(subExs.length).fill("") });
-
-            // Suggerimento carichi dalla settimana precedente
+            
             if (currentWeek > 1) {
                 const prev = ex.sessionData[currentWeek - 1];
                 if (prev && prev.rounds) {
@@ -418,67 +388,105 @@
                     });
                 }
             }
-            
+
             document.getElementById('ex-header').innerHTML = `
-                <div class="neo-panel" style="padding:12px 15px;">
-                    <div class="tag">Dettaglio</div>
-                    <h2 style="font-size:1.1rem;">${sanitize(ex.name)}</h2>
-                    <div style="display:flex; gap:10px; margin-top:12px;">
-                        <div class="metric-box"><div class="metric-label">SETS</div><div class="metric-value">${ex.sets}</div></div>
-                        <div class="metric-box"><div class="metric-label">REPS</div><div class="metric-value">${subExs.length > 1 ? 'CIRC' : ex.reps}</div></div>
-                        <div class="metric-box"><div class="metric-label">REST</div><div class="metric-value">${ex.rest}</div></div>
+                <div class="tech-card" style="transform:none;">
+                    <span class="label">Target.Dynamics</span>
+                    <h2 class="heading-xl">${sanitize(ex.name)}<span>_DATA</span></h2>
+                    <div class="data-strip">
+                        <div class="data-box"><span class="v">${ex.sets}</span><span class="l">SETS</span></div>
+                        <div class="data-box"><span class="v">${subExs.length > 1 ? 'CIRC' : ex.reps}</span><span class="l">REPS</span></div>
+                        <div class="data-box" style="background:var(--accent-lime)"><span class="v">${ex.rest}</span><span class="l">REST</span></div>
                     </div>
                 </div>`;
             const content = document.getElementById('ex-content');
             content.innerHTML = '';
             data.rounds.forEach((round, rI) => {
                 const block = document.createElement('div');
-                block.className = 'set-block';
+                block.className = 'set-container';
+                block.id = 'set-block-' + rI;
                 let subHtml = '';
                 subExs.forEach((sx, sI) => {
-                    subHtml += `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                        <div><b style="font-size:0.85rem">${sx.name}</b><br><small style="opacity:0.4; font-size:0.7rem;">${sx.reps}</small></div>
+                    subHtml += `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+                        <div><b style="font-size:1.1rem; line-height:0.85;">${sx.name}</b><br><small style="font-family:'JetBrains Mono'; font-weight:700; font-size:0.5rem; color:#888;">// TGT: ${sx.reps}</small></div>
                         <div style="display:flex; align-items:center;">
-                            <input type="number" class="load-input" value="${round.subLoads[sI] || ""}" oninput="updateSubLoad(${rI}, ${sI}, this.value)">
-                            <small style="font-weight:900; margin-left:8px; color:var(--accent-blue); font-size:0.75rem;">KG</small>
+                            <input type="number" class="input-tech subload-input" data-round="${rI}" data-sub="${sI}" value="${round.subLoads[sI] || ""}" oninput="updateSubLoad(${rI}, ${sI}, this.value)">
+                            <small style="font-weight:900; font-family:'JetBrains Mono'; margin-left:8px; font-size:0.75rem;">KG</small>
                         </div>
                     </div>`;
                 });
                 block.innerHTML = `
-                    <div style="display:flex; align-items:center; gap:15px; margin-bottom:15px;">
-                        <div class="set-circle ${round.done ? 'active' : ''}" onclick="toggleRound(${rI})">${rI+1}</div>
-                        <div style="font-weight:900; font-size:0.6rem; opacity:0.35;">${subExs.length > 1 ? 'GIRO' : 'SERIE'}</div>
+                    <div style="display:flex; align-items:center; gap:20px; margin-bottom:20px;">
+                        <div class="badge-id ${round.done ? 'active' : ''}" data-round-badge="${rI}" onclick="toggleRound(${rI})">${rI+1}</div>
+                        <div style="font-family:'JetBrains Mono'; font-weight:900; text-transform:uppercase; font-size:0.5rem; letter-spacing:1px; background:#000; color:#fff; padding:3px 10px;">CORE_NODE_0${rI+1}</div>
                     </div>
                     ${subHtml}`;
                 content.appendChild(block);
             });
             const notes = document.createElement('div');
-            notes.className = 'neo-panel';
-            notes.innerHTML = `<small style="font-weight:900; opacity:0.35; font-size:0.55rem;">NOTE</small><div class="neo-inset" style="padding:10px; margin-top:8px;"><textarea id="session-notes" oninput="updateSessionNotes()" style="width:100%; border:none; background:transparent; color:var(--text-main); font-family:inherit; min-height:60px; font-size:0.8rem;">${data.notes || ""}</textarea></div>`;
+            notes.className = 'tech-card';
+            notes.style.background = 'var(--accent-pink)';
+            notes.innerHTML = `<span class="label" style="background:#fff;">Log.Notes</span><textarea id="session-notes" oninput="updateSessionNotes()" style="width:100%; border:var(--border-heavy) solid #000; margin-top:12px; background:#fff; padding:15px; font-family:'JetBrains Mono'; font-weight:700; min-height:100px; font-size:0.85rem;">${data.notes || ""}</textarea>`;
             content.appendChild(notes);
             showView('view-exercise');
         }
 
-        function toggleRound(rI) { const data = workouts[currentWorkoutIndex].days[currentDayIdx].exercises[currentExIdx].sessionData[currentWeek]; data.rounds[rI].done = !data.rounds[rI].done; save(); openExercise(currentExIdx); }
-        function updateSubLoad(rI, sI, val) { const data = workouts[currentWorkoutIndex].days[currentDayIdx].exercises[currentExIdx].sessionData[currentWeek]; data.rounds[rI].subLoads[sI] = val; save(); }
+        function toggleRound(rI) { 
+            const data = workouts[currentWorkoutIndex].days[currentDayIdx].exercises[currentExIdx].sessionData[currentWeek]; 
+            data.rounds[rI].done = !data.rounds[rI].done; 
+            save(); 
+            
+            const badge = document.querySelector(`[data-round-badge="${rI}"]`);
+            if (badge) badge.classList.toggle('active');
+            
+            if (data.rounds[rI].done) {
+                const nextBlock = document.getElementById('set-block-' + (rI + 1));
+                if (nextBlock) {
+                    nextBlock.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                } else {
+                    document.getElementById('exercise-actions').scrollIntoView({ behavior: 'smooth', block: 'end' });
+                }
+            }
+        }
+        
+        function updateSubLoad(rI, sI, val) { 
+            const data = workouts[currentWorkoutIndex].days[currentDayIdx].exercises[currentExIdx].sessionData[currentWeek]; 
+            const oldVal = data.rounds[rI].subLoads[sI];
+            data.rounds[rI].subLoads[sI] = val; 
+            
+            if (rI === 0) {
+                document.querySelectorAll(`.subload-input[data-sub="${sI}"]`).forEach(input => {
+                    const roundIdx = parseInt(input.dataset.round);
+                    if (roundIdx > 0) {
+                        if (data.rounds[roundIdx].subLoads[sI] === "" || data.rounds[roundIdx].subLoads[sI] === undefined || data.rounds[roundIdx].subLoads[sI] === oldVal) {
+                            input.value = val;
+                            input.classList.add('pulse');
+                            setTimeout(() => input.classList.remove('pulse'), 600);
+                            data.rounds[roundIdx].subLoads[sI] = val;
+                        }
+                    }
+                });
+            }
+            save(); 
+        }
+        
         function updateSessionNotes() { const val = document.getElementById('session-notes').value; const data = workouts[currentWorkoutIndex].days[currentDayIdx].exercises[currentExIdx].sessionData[currentWeek]; data.notes = val; save(); }
         function nextExercise() { const d = workouts[currentWorkoutIndex].days[currentDayIdx]; if(currentExIdx < d.exercises.length - 1) openExercise(currentExIdx + 1); else startSession(currentDayIdx); }
         function resetDayAction() { if(confirm('RESET?')) { const d = workouts[currentWorkoutIndex].days[currentDayIdx]; d.exercises.forEach(ex => { if(ex.sessionData) delete ex.sessionData[currentWeek]; }); if(workouts[currentWorkoutIndex].progress && workouts[currentWorkoutIndex].progress[currentWeek]) delete workouts[currentWorkoutIndex].progress[currentWeek][currentDayIdx]; save(); startSession(currentDayIdx); } }
-        function finishSession() { const w = workouts[currentWorkoutIndex]; if (!w.progress) w.progress = {}; if (!w.progress[currentWeek]) w.progress[currentWeek] = {}; w.progress[currentWeek][currentDayIdx] = true; save(); showToast("SESSIONE SALVATA"); openWorkout(currentWorkoutIndex); }
+        function finishSession() { const w = workouts[currentWorkoutIndex]; if (!w.progress) w.progress = {}; if (!w.progress[currentWeek]) w.progress[currentWeek] = {}; w.progress[currentWeek][currentDayIdx] = true; save(); showToast("DATA_RECORD_COMMITTED"); openWorkout(currentWorkoutIndex); }
         function save() {
             localStorage.setItem('pale_workouts', JSON.stringify(workouts));
             if (currentWorkoutIndex !== null) {
                 fetch('/api/workouts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(workouts[currentWorkoutIndex]) }).catch(e => console.error(e));
             }
         }
-        function deleteWorkout(i) { if(confirm('ELIMINA?')) { const id = workouts[i].id; workouts.splice(i, 1); localStorage.setItem('pale_workouts', JSON.stringify(workouts)); renderHome(); fetch(`/api/workouts/${id}`, { method: 'DELETE' }).catch(e => console.error(e)); } }
         function importAction() {
             const raw = document.getElementById('import-text').value;
             if(!raw.trim()) return;
             const btn = document.getElementById('import-btn');
-            btn.innerText = "Sincronizzazione..."; btn.disabled = true;
+            btn.innerText = "INITIALIZING..."; btn.disabled = true;
             setTimeout(() => {
-                const w = { id: "p-" + Date.now(), title: "NUOVO PIANO", subtitle: "", days: [], numWeeks: 4, progress: {} };
+                const w = { id: "p-" + Date.now(), title: "CORE_PROTOCOL", subtitle: "", days: [], numWeeks: 4, progress: {} };
                 const lines = raw.split('\n');
                 let curD = null;
                 lines.forEach(l => {
@@ -492,7 +500,7 @@
                 });
                 if(curD) w.days.push(curD);
                 if(w.days.length > 0) { workouts.unshift(w); save(); showView('view-home'); renderHome(); }
-                btn.innerText = "Sincronizza"; btn.disabled = false;
+                btn.innerText = "EXECUTE_SYNC"; btn.disabled = false;
             }, 800);
         }
         renderHome();
