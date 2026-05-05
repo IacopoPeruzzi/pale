@@ -398,7 +398,33 @@
             showView('view-session'); 
         }
 
-        function openExercise(eI) { 
+        // Utility per il calcolo del carico basato su 1RM (Formula di Epley)
+        function parseReps(str) {
+            if (!str) return 10;
+            const m = str.match(/\d+/); // Prendi il primo numero trovato
+            return m ? parseInt(m[0]) : 10;
+        }
+
+        function estimateLoad(pastWeight, pastReps, targetReps, pastSets, targetSets) {
+            let weight = parseFloat(String(pastWeight).replace(',', '.'));
+            if (isNaN(weight)) return pastWeight;
+            
+            // 1. Calcola 1RM teorico: Peso * (1 + Reps/30)
+            const oneRM = weight * (1 + pastReps / 30);
+            
+            // 2. Calcola peso target per le nuove reps: 1RM / (1 + TargetReps/30)
+            let suggested = oneRM / (1 + targetReps / 30);
+            
+            // 3. Fattore Fatica per le Serie (se targetSets > pastSets e targetSets > 3)
+            if (targetSets > pastSets && targetSets > 3) {
+                const diff = targetSets - Math.max(pastSets, 3);
+                suggested = suggested * (1 - (diff * 0.02)); // -2% per ogni serie extra
+            }
+            
+            return Math.round(suggested * 2) / 2; // Arrotonda ai 0.5kg
+        }
+
+        async function openExercise(eI) { 
             try { 
                 currentExIdx = eI; 
                 const w = workouts[currentWorkoutIndex];
@@ -425,6 +451,9 @@
                 while(data.rounds.length < nR) { 
                     const newSubLoads = subExs.map((sx, sI) => {
                         let load = "";
+                        let pastReps = 0;
+                        let pastSets = 0;
+
                         // 1. Cerca nella settimana precedente dello STESSO piano
                         if (currentWeek > 1) {
                             const prevData = ex.sessionData[currentWeek - 1];
@@ -437,19 +466,25 @@
                             }
                         }
                         
-                        // 2. Se ancora vuoto (Settimana 1 o nuovo esercizio), cerca nella MEMORIA GLOBALE
+                        // 2. Se ancora vuoto, cerca nella MEMORIA GLOBALE con conversione 1RM
                         if (!load) {
                             const targetName = sanitize(sx.name).toLowerCase();
+                            const targetReps = parseReps(sx.reps);
+                            
                             for (let otherW of workouts) {
                                 for (let otherD of (otherW.days || [])) {
                                     for (let otherEx of (otherD.exercises || [])) {
                                         if (sanitize(otherEx.name).toLowerCase() === targetName && otherEx.sessionData) {
-                                            // Trova l'ultima settimana registrata per questo esercizio in questo piano
                                             const weeks = Object.keys(otherEx.sessionData).map(Number).sort((a,b) => b-a);
                                             for (let wKey of weeks) {
                                                 const sData = otherEx.sessionData[wKey];
                                                 if (sData && sData.rounds && sData.rounds[0] && sData.rounds[0].subLoads[sI]) {
-                                                    load = sData.rounds[0].subLoads[sI];
+                                                    const rawLoad = sData.rounds[0].subLoads[sI];
+                                                    const oldReps = parseReps(otherEx.reps);
+                                                    const oldSets = parseInt(otherEx.sets) || 1;
+                                                    
+                                                    // Applica la formula di conversione intensità/volume
+                                                    load = estimateLoad(rawLoad, oldReps, targetReps, oldSets, nR);
                                                     break;
                                                 }
                                             }
