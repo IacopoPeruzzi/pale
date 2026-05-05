@@ -409,6 +409,16 @@
                     const prevWeekData = ex.sessionData[currentWeek - 1];
                     if (prevWeekData && prevWeekData.rounds && prevWeekData.rounds[0]) {
                         lastLoadFound = prevWeekData.rounds[0].subLoads[0] || "";
+                        
+                        // Logica Deload: Se è l'ultima settimana del piano, suggerisci l'80%
+                        const w = workouts[currentWorkoutIndex];
+                        if (Number(currentWeek) === Number(w.numWeeks) && lastLoadFound) {
+                            let val = parseFloat(String(lastLoadFound).replace(',', '.'));
+                            if (!isNaN(val)) {
+                                // Calcola l'80% e arrotonda al mezzo chilo più vicino o al primo decimale
+                                lastLoadFound = Math.round(val * 0.8 * 10) / 10;
+                            }
+                        }
                     }
                 }
 
