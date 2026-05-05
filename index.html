@@ -95,17 +95,17 @@
 
         .list-card { background: var(--card-bg); padding: 20px; border: var(--border-thickness) solid var(--accent-color); border-radius: 20px; display: flex; align-items: center; cursor: pointer; transition: 0.15s; position: relative; box-shadow: 4px 4px 0px #000; margin-bottom: 15px; }
         .list-card:active { transform: translate(4px,4px); box-shadow: 0px 0px 0px #000; }
-        .list-card.fully-completed { background: #f2f2f2; border-color: #bbbbbb; box-shadow: 2px 2px 0px #bbbbbb; opacity: 0.7; }
-        .list-card.fully-completed b { text-decoration: line-through; color: #777; }
-        .list-card.fully-completed .badge-done { background: #000; color: #fff; font-size: 0.5rem; padding: 2px 6px; border-radius: 4px; margin-left: 10px; vertical-align: middle; }
+        .list-card.completed { background: var(--highlight-yellow); }
+        .list-card.manage-mode { animation: wobble 0.3s infinite; }
+        @keyframes wobble { 0% { transform: rotate(1deg); } 50% { transform: rotate(-1deg); } 100% { transform: rotate(1deg); } }
+        
         .delete-btn { position: absolute; right: -5px; top: -5px; width: 30px; height: 30px; border-radius: 50%; background: var(--highlight-pink); border: 2px solid #000; display: none; align-items: center; justify-content: center; color: #000; font-weight: 900; font-size: 0.8rem; z-index: 10; box-shadow: 2px 2px 0px #000; }
-        .manage-mode .delete-btn { display: flex !important; }
+        .manage-mode .delete-btn { display: flex; }
 
-        .import-options { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; background: var(--highlight-yellow); padding: 20px; border: 3px solid #000; border-radius: 20px; box-shadow: 5px 5px 0px #000; cursor: pointer; }
-        .import-options:hover { transform: translate(-2px, -2px); box-shadow: 7px 7px 0px #000; }
-        .import-options input[type="checkbox"] { width: 25px; height: 25px; accent-color: #000; cursor: pointer; }
-        .import-options label { font-size: 0.8rem; font-weight: 900; text-transform: uppercase; cursor: pointer; flex: 1; }
-
+        .action-btn { position: absolute; top: calc(30px + var(--safe-area-top)); right: 20px; padding: 8px 16px; border-radius: var(--btn-radius); background: #fff; border: 2px solid var(--accent-color); font-weight: 800; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-primary); cursor: pointer; z-index: 1100; transition: 0.15s; box-shadow: 3px 3px 0px #000; }
+        .action-btn:active { transform: translate(3px,3px); box-shadow: 0px 0px 0px #000; }
+        .action-btn.danger { background: var(--highlight-pink); }
+        
         .progress-container { width: 100%; height: 16px; background: #fff; border: 2px solid #000; border-radius: 20px; margin: 5px 0 25px 0; position: relative; overflow: hidden; box-shadow: inset 2px 2px 0px rgba(0,0,0,0.1); }
         .progress-bar { height: 100%; background: var(--highlight-purple); border-right: 2px solid #000; transition: width 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         
@@ -182,18 +182,9 @@
 
     <!-- Resto delle View invariate... -->
     <div id="view-import" class="view">
-        <div class="sticky-header">
-            <div onclick="showView('view-home')" style="color:var(--text-secondary); font-weight:800; cursor:pointer; margin-bottom:8px;">← BACK</div>
-            <h1>Nuovo Piano</h1>
-        </div>
-        <div class="content">
-            <div class="import-options" onclick="document.getElementById('legacy-toggle').checked = !document.getElementById('legacy-toggle').checked">
-                <input type="checkbox" id="legacy-toggle" onclick="event.stopPropagation()">
-                <label for="legacy-toggle">CARICA COME PIANO GIÀ CONCLUSO (STORICO)</label>
-            </div>
-            <textarea id="import-text" style="width: 100%; height: 300px; background: #fff; color: #000; border-radius: 20px; padding: 20px; border: 3px solid #000; margin-bottom: 20px;" placeholder="Incolla qui il testo del tuo allenamento..."></textarea>
-            <button id="import-btn" class="btn btn-main" style="width: 100%" onclick="importAction()">IMPORTA E INIZIALIZZA</button>
-        </div>
+        <div class="sticky-header"><div onclick="showView('view-home')" style="color:var(--text-secondary); font-weight:800; cursor:pointer; margin-bottom:8px;">← BACK</div><h1>Import</h1></div>
+        <textarea id="import-text" style="width: 100%; height: 300px; background: #111; color: #fff; border-radius: 20px; padding: 20px; border: 1px solid #333; margin: 15px 0;" placeholder="Paste protocol..."></textarea>
+        <button id="import-btn" class="btn btn-main" style="width: 100%" onclick="importAction()">INITIALIZE</button>
     </div>
 
     <div id="view-plan" class="view">
@@ -334,20 +325,13 @@
             list.innerHTML = workouts.length === 0 ? '<p style="opacity:0.3; text-align:center; padding:40px; font-weight:800; border:2px dashed #000; border-radius:20px;">NESSUN PIANO CARICATO</p>' : '';
             workouts.forEach((w, i) => {
                 const card = document.createElement('div');
-                const isFullyDone = isPlanCompleted(w);
-                card.className = `list-card ${manageMode ? 'manage-mode' : ''} ${isFullyDone ? 'fully-completed' : ''}`;
-                if (w.progress && Object.keys(w.progress).length > 0 && !isFullyDone) card.classList.add('completed');
+                card.className = `list-card ${manageMode ? 'manage-mode' : ''}`;
+                if (w.progress && Object.keys(w.progress).length > 0) card.classList.add('completed');
                 card.onclick = () => { if(!manageMode) openWorkout(i); };
-                
-                const completionDate = isFullyDone ? getPlanCompletionInfo(w) : null;
-                
                 card.innerHTML = `
                     <div style="flex:1">
-                        <b>${sanitize(w.title)} ${isFullyDone ? '<span class="badge-done">CONCLUSO</span>' : ''}</b><br>
-                        <small style="opacity:0.6; font-weight:800; display:block; margin:2px 0;">${sanitize(w.subtitle) || "STANDARD"} • ${w.numWeeks} SETTIMANE</small>
-                        <div style="font-size:0.55rem; opacity:0.4; font-weight:800; text-transform:uppercase;">
-                            ${completionDate ? `CONCLUSO IL ${completionDate}` : (w.createdAt ? `CARICATO IL ${w.createdAt}` : '')}
-                        </div>
+                        <b>${sanitize(w.title)}</b><br>
+                        <small style="opacity:0.6; font-weight:800;">${sanitize(w.subtitle) || "STANDARD"}</small>
                     </div>
                     <div class="delete-btn" onclick="event.stopPropagation(); deleteWorkoutAction(${i})">X</div>
                 `;
@@ -355,109 +339,10 @@
             });
         }
 
-        function isPlanCompleted(w) {
-            if (!w.days || !w.numWeeks || !w.progress) return false;
-            let totalSessions = w.numWeeks * w.days.length;
-            let done = 0;
-            for (let week in w.progress) {
-                done += Object.keys(w.progress[week]).length;
-            }
-            return done >= totalSessions;
-        }
-
-        function getPlanCompletionInfo(w) {
-            if (!w.progress) return null;
-            let lastDate = "";
-            for (let week in w.progress) {
-                for (let day in w.progress[week]) {
-                    if (w.progress[week][day].date) lastDate = w.progress[week][day].date;
-                }
-            }
-            return lastDate;
-        }
-
-        async function importAction() {
-            const raw = document.getElementById('import-text').value;
-            if(!raw.trim()) return;
-            const isLegacy = document.getElementById('legacy-toggle').checked;
-            const btn = document.getElementById('import-btn');
-            btn.innerText = "IMPORTANDO..."; btn.disabled = true;
-            
-            setTimeout(async () => {
-                const w = { 
-                    id: "p-" + Date.now(), 
-                    title: "", 
-                    subtitle: "", 
-                    goal: "", 
-                    numWeeks: 4, 
-                    weeklyStructure: [], 
-                    days: [], 
-                    progress: {},
-                    createdAt: new Date().toLocaleDateString()
-                };
-
-                let cleanText = raw;
-                const fontiIdx = raw.toLowerCase().lastIndexOf('fonti');
-                if(fontiIdx !== -1) cleanText = raw.substring(0, fontiIdx);
-
-                const lines = cleanText.split('\n').map(l => l.trim()).filter(l => l);
-                let currentDay = null;
-
-                lines.forEach(line => {
-                    if(line.startsWith('# ')) w.title = cleanMD(line);
-                    else if(line.startsWith('## ')) w.subtitle = cleanMD(line);
-                    else if(line.includes('Obiettivo:')) w.goal = line.split(':')[1].trim();
-                    else if(line.includes('Durata:')) {
-                        const m = line.match(/(\d+)/);
-                        if(m) w.numWeeks = parseInt(m[1]);
-                    }
-                    else if(line.startsWith('### Settimana')) {
-                        const m = line.match(/Settimana (\d+): (.*)/);
-                        if(m) w.weeklyStructure.push({ week: 'W'+m[1], focus: m[2] });
-                    }
-                    else if(line.startsWith('#### Giorno')) {
-                        const m = line.match(/Giorno (\d+): (.*)/);
-                        if(m) {
-                            currentDay = { name: m[2], exercises: [] };
-                            w.days.push(currentDay);
-                        }
-                    }
-                    else if(line.match(/^\d+\./) && currentDay) {
-                        const parts = line.split('|').map(p => p.trim());
-                        const namePart = parts[0].replace(/^\d+\.\s*/, '');
-                        currentDay.exercises.push({
-                            name: namePart,
-                            sets: parts[1] || "3",
-                            reps: parts[2] || "10",
-                            rest: parts[3] || "60s",
-                            notes: parts[4] || ""
-                        });
-                    }
-                });
-
-                if (isLegacy) {
-                    for (let wk = 1; wk <= w.numWeeks; wk++) {
-                        w.progress[wk] = {};
-                        w.days.forEach((d, dI) => {
-                            w.progress[wk][dI] = { done: true, date: new Date().toLocaleDateString(), time: "STORICO" };
-                        });
-                    }
-                }
-
-                workouts.unshift(w);
-                currentWorkoutIndex = 0; // Imposta come corrente il nuovo piano
-                await save(w);
-                document.getElementById('import-text').value = '';
-                document.getElementById('legacy-toggle').checked = false;
-                btn.innerText = "IMPORTA ALLENAMENTO"; btn.disabled = false;
-                renderHome();
-                showView('view-home');
-            }, 500);
-        }
-
         function resumeWorkout(idx) { const w = workouts[idx]; const n = getInc(w); currentWorkoutIndex = idx; if(n) { currentWeek = n.week; startSession(n.day); } else openWorkout(idx); }
         function sanitize(str) { return str ? str.replace(/^[#\* \s\-\–\—]+/g, '').replace(/[#\* \-\–\—\s]+$/g, '').trim() : ""; }
         function cleanMD(str) { return str ? str.replace(/\*\*/g, '').trim() : ""; }
+        function cleanSources(str) { return str ? str.replace(/\[[\d,\s]+\]/g, '').trim() : ""; }
         
         function openWorkout(idx) { 
             currentWorkoutIndex = idx; 
@@ -540,7 +425,7 @@
                 while(data.rounds.length < nR) { 
                     const newSubLoads = subExs.map((sx, sI) => {
                         let load = "";
-                        // Cerca il carico nella settimana precedente per questo specifico sub-esercizio
+                        // 1. Cerca nella settimana precedente dello STESSO piano
                         if (currentWeek > 1) {
                             const prevData = ex.sessionData[currentWeek - 1];
                             if (prevData && prevData.rounds && prevData.rounds[0] && prevData.rounds[0].subLoads[sI]) {
@@ -549,6 +434,31 @@
                                     let val = parseFloat(String(load).replace(',', '.'));
                                     if (!isNaN(val)) load = Math.round(val * 0.8 * 10) / 10;
                                 }
+                            }
+                        }
+                        
+                        // 2. Se ancora vuoto (Settimana 1 o nuovo esercizio), cerca nella MEMORIA GLOBALE
+                        if (!load) {
+                            const targetName = sanitize(sx.name).toLowerCase();
+                            for (let otherW of workouts) {
+                                for (let otherD of (otherW.days || [])) {
+                                    for (let otherEx of (otherD.exercises || [])) {
+                                        if (sanitize(otherEx.name).toLowerCase() === targetName && otherEx.sessionData) {
+                                            // Trova l'ultima settimana registrata per questo esercizio in questo piano
+                                            const weeks = Object.keys(otherEx.sessionData).map(Number).sort((a,b) => b-a);
+                                            for (let wKey of weeks) {
+                                                const sData = otherEx.sessionData[wKey];
+                                                if (sData && sData.rounds && sData.rounds[0] && sData.rounds[0].subLoads[sI]) {
+                                                    load = sData.rounds[0].subLoads[sI];
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                        if (load) break;
+                                    }
+                                    if (load) break;
+                                }
+                                if (load) break;
                             }
                         }
                         return load;
@@ -672,9 +582,9 @@
             const a = document.createElement('a'); a.setAttribute('hidden', ''); a.setAttribute('href', url); a.setAttribute('download', `workout_log_${new Date().getTime()}.csv`); document.body.appendChild(a); a.click(); document.body.removeChild(a); 
         }
 
-        async function save(specificWorkout = null) { 
-            const w = specificWorkout || workouts[currentWorkoutIndex];
-            if (!w) return;
+        async function save() { 
+            if (currentWorkoutIndex === null) return;
+            const w = workouts[currentWorkoutIndex];
             try {
                 await fetch('/api/workouts', {
                     method: 'POST',
@@ -706,83 +616,66 @@
         async function importAction() {
             const raw = document.getElementById('import-text').value;
             if(!raw.trim()) return;
-            const isLegacy = document.getElementById('legacy-toggle').checked;
             const btn = document.getElementById('import-btn');
             btn.innerText = "IMPORTANDO..."; btn.disabled = true;
             
             setTimeout(async () => {
-                const w = { 
-                    id: "p-" + Date.now(), 
-                    title: "", 
-                    subtitle: "", 
-                    goal: "", 
-                    numWeeks: 4, 
-                    weeklyStructure: [], 
-                    days: [], 
-                    progress: {},
-                    createdAt: new Date().toLocaleDateString()
-                };
-
+                const w = { id: "p-" + Date.now(), title: "", subtitle: "", goal: "", numWeeks: 4, weeklyStructure: [], days: [], progress: {} };
                 let cleanText = raw;
                 const fontiIdx = raw.toLowerCase().lastIndexOf('fonti');
                 if(fontiIdx !== -1) cleanText = raw.substring(0, fontiIdx);
-                const lines = cleanText.split('\n').map(l => l.trim()).filter(l => l);
-
-                lines.forEach((line, i) => {
-                    if(line.startsWith('# ')) w.title = line.replace('# ', '').trim();
-                    else if(line.startsWith('## ')) w.subtitle = line.replace('## ', '').trim();
-                    else if(line.includes('Obiettivo:')) w.goal = line.split(':')[1].trim();
-                    else if(line.includes('Durata:')) {
-                        const m = line.match(/(\d+)/);
-                        if(m) w.numWeeks = parseInt(m[1]);
-                    }
-                    else if(line.startsWith('### Settimana')) {
-                        const m = line.match(/Settimana (\d+): (.*)/);
-                        if(m) w.weeklyStructure.push({ week: 'W'+m[1], focus: m[2] });
-                    }
-                });
-
-                let curD = null;
-                lines.forEach(l => {
-                    if(l.startsWith('#### Giorno') || l.startsWith('## Giorno') || (l.startsWith('## ') && l.toLowerCase().includes('giorno'))) {
-                        if(curD && curD.exercises.length > 0) w.days.push(curD);
-                        curD = { name: l.replace(/^#+\s*/, '').trim(), exercises: [] };
-                    } else if(curD) {
-                        if(l.includes('|') && !l.toLowerCase().includes('esercizio') && !l.includes('---')) {
-                            const cols = l.split('|').map(c => c.trim());
-                            if(cols.length >= 4 && cols[1] !== "") {
-                                curD.exercises.push({
-                                    name: cols[1],
-                                    sets: cols[2],
-                                    reps: cols[3],
-                                    rest: cols[4] || "90s",
-                                    notes: cols[5] || ""
-                                });
+                const lines = cleanText.split('\n');
+                let inMesociclo = false;
+                for(let i = 0; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if(line.toLowerCase().includes('mesociclo')) { inMesociclo = true; continue; }
+                    if(inMesociclo) {
+                        if(line.startsWith('##')) { inMesociclo = false; continue; }
+                        if(line.includes('**') && (line.includes('–') || line.includes('-')) && !line.toLowerCase().includes('obiettivo')) {
+                            const clean = line.replace(/^[-•\* \s]+/, '').replace(/[\* \s]+$/, '').trim();
+                            const parts = clean.split(/[–-]/);
+                            if(parts.length >= 1) w.title = cleanMD(parts[0]);
+                            if(parts.length >= 2) w.subtitle = cleanMD(parts.slice(1).join('-'));
+                        }
+                        if(line.toLowerCase().includes('obiettivo:')) {
+                            let fullGoal = line.replace(/^[-•\* \s]+/, '').replace(/obiettivo:/i, '').replace(/[\* \s]+$/, '').trim();
+                            let next = i + 1;
+                            while(next < lines.length && !lines[next].trim().startsWith('-') && !lines[next].trim().startsWith('•') && !lines[next].trim().startsWith('##')) {
+                                let nextLine = lines[next].trim();
+                                if(nextLine !== "") fullGoal += " " + nextLine;
+                                next++;
                             }
+                            w.goal = cleanMD(cleanSources(fullGoal));
+                            i = next - 1;
                         }
                     }
-                });
+                }
+                if(!w.title) w.title = "NUOVO PIANO";
+                const wMatch = cleanText.match(/(\d+)\s*settimane/i);
+                if(wMatch) w.numWeeks = parseInt(wMatch[1]);
+                let structureTable = []; let inStructureTable = false;
+                lines.forEach(l => { if(l.includes('| Settimana |')) inStructureTable = true; else if(inStructureTable && l.includes('| W')) structureTable.push(l); else if(inStructureTable && l.trim() === "") inStructureTable = false; });
+                structureTable.forEach(l => { const cols = l.split('|').map(c => c.trim()); if(cols.length >= 3 && cols[1].startsWith('W')) w.weeklyStructure.push({ week: cols[1], focus: cols[2], note: cols[4] || "" }); });
+                let inRules = false;
+                lines.forEach(l => { const cleanL = l.trim(); if(cleanL.toLowerCase().includes('## progressione')) { inRules = true; return; } if(inRules && cleanL.startsWith('##')) { inRules = false; return; } if(inRules) { const ruleMatch = cleanL.match(/(?:-|\*)\s*\**W(\d+)\**\s*:?\s*(.*)/i); if(ruleMatch) { const wkNum = 'W' + ruleMatch[1]; const content = ruleMatch[2].trim(); let existing = w.weeklyStructure.find(s => s.week === wkNum); if(existing) existing.note = content; else w.weeklyStructure.push({ week: wkNum, focus: "Regola", note: content }); } } });
+                let curD = null;
+                lines.forEach(l => { if(l.startsWith('## ') && (l.toLowerCase().includes('giorno') || l.toLowerCase().includes('sessione') || l.toLowerCase().includes('giorno extra'))) { if(curD && curD.exercises.length > 0) w.days.push(curD); curD = { name: sanitize(l), exercises: [] }; } else if(curD) { if(l.includes('|') && !l.includes('Esercizio') && !l.includes('---')) { const cols = l.split('|').map(c => c.trim()); if(cols.length >= 4 && cols[1] !== "") { curD.exercises.push({ name: sanitize(cols[1]), sets: cols[2], reps: cols[3], rest: cols[4] || "90s", notes: cols[5] || "" }); } } } });
                 if(curD && curD.exercises.length > 0) w.days.push(curD);
-
-                if (isLegacy) {
-                    for (let wk = 1; wk <= w.numWeeks; wk++) {
-                        w.progress[wk] = {};
-                        w.days.forEach((d, dI) => {
-                            w.progress[wk][dI] = { done: true, date: new Date().toLocaleDateString(), time: "STORICO" };
-                        });
-                    }
+                
+                if(w.days.length > 0) { 
+                    workouts.unshift(w); 
+                    // Salva sul server il nuovo piano
+                    await fetch('/api/workouts', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(w)
+                    });
+                    renderHome(); 
+                    showView('view-home'); 
+                    showToast("IMPORTATO");
                 }
-
-                if(w.days.length > 0) {
-                    workouts.unshift(w);
-                    await save();
-                    document.getElementById('import-text').value = '';
-                    document.getElementById('legacy-toggle').checked = false;
-                    renderHome();
-                    showView('view-home');
-                }
-                btn.innerText = "IMPORTA E INIZIALIZZA"; btn.disabled = false;
-            }, 500);
+                btn.innerText = "INIZIALIZZA"; btn.disabled = false;
+            }, 800);
         }
 
         function updateProg(w) { let t = w.numWeeks * (w.days?w.days.length:0); let d = 0; if (w.progress) Object.values(w.progress).forEach(wk => d += Object.keys(wk).length); document.getElementById('total-progress-bar').style.width = `${t?(d / t) * 100:0}%`; }
