@@ -11,122 +11,164 @@
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <style>
         :root {
-            --bg-color: #0a0a0c;
-            --card-bg: rgba(255, 255, 255, 0.03);
-            --accent-color: #cfff04;
-            --text-primary: #ffffff;
-            --text-secondary: #a1a1aa;
-            --border-radius: 24px;
+            --bg-color: #e8e6e1; /* Cream/Off-white */
+            --card-bg: transparent;
+            --accent-color: #111111; /* Deep black for lines and text */
+            --outline-color: #ff3300; /* Vibrant editorial red */
+            --text-primary: #111111;
+            --text-secondary: #555555;
+            --border-radius: 0px;
             --safe-area-top: env(safe-area-inset-top);
-            --glass-border: rgba(255, 255, 255, 0.08);
+            --line-thickness: 1px;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         body {
             background-color: var(--bg-color);
-            background-image: radial-gradient(circle at 10% 10%, rgba(207, 255, 4, 0.05) 0%, transparent 40%);
             color: var(--text-primary);
             font-family: 'Outfit', sans-serif;
             margin: 0; padding: 0; overflow-x: hidden;
+            background-image: 
+                linear-gradient(var(--accent-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--accent-color) 1px, transparent 1px);
+            background-size: 100% 100px, 100px 100%;
+            background-position: center top;
+            background-repeat: repeat;
+            /* Very subtle grid background to mimic the poster lines, but we'll make it extremely faint */
+            background-image: none; /* Let's stick to clean borders instead of full grid background to avoid mess */
         }
 
         .view { display: none; padding: 0 20px 180px 20px; min-height: 100vh; position: relative; z-index: 10; }
-        .view.active { display: block; animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); filter: blur(5px); } to { opacity: 1; transform: translateY(0); filter: blur(0); } }
+        .view.active { display: block; animation: fade 0.4s ease-out; }
+        @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
 
         .sticky-header {
             position: sticky; top: 0; 
-            padding: calc(30px + var(--safe-area-top)) 20px 15px 20px;
-            margin: 0 -20px 15px -20px;
-            background: linear-gradient(to bottom, var(--bg-color) 80%, transparent);
-            backdrop-filter: blur(25px);
+            padding: calc(30px + var(--safe-area-top)) 20px 20px 20px;
+            margin: 0 -20px 20px -20px;
+            background: var(--bg-color);
+            border-bottom: var(--line-thickness) solid var(--accent-color);
             z-index: 1000;
         }
+        
+        .home-header-inner { display: flex; justify-content: space-between; align-items: flex-end; }
 
-        h1 { font-size: 2.4rem; font-weight: 900; margin: 0; letter-spacing: -1.5px; text-transform: uppercase; line-height: 1; }
-        h2 { font-size: 1.8rem; font-weight: 800; margin: 0; letter-spacing: -1px; line-height: 1.2; }
-        h3 { font-size: 1rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); margin: 30px 0 15px 0; display: flex; align-items: center; justify-content: space-between; }
+        .brand-title { font-size: 3.5rem; font-weight: 900; margin: 0; letter-spacing: -2px; text-transform: uppercase; line-height: 0.8; }
+        .brand-title span.outline { color: transparent; -webkit-text-stroke: 1.5px var(--outline-color); display: block; }
+        .brand-title span.solid { color: var(--outline-color); }
+        
+        .util-text { font-size: 0.55rem; text-transform: uppercase; letter-spacing: 1px; line-height: 1.4; text-align: right; font-weight: 600; }
 
-        .subtitle { color: var(--text-secondary); font-size: 0.9rem; margin-top: 6px; }
+        h2 { font-size: 2.2rem; font-weight: 300; margin: 0; letter-spacing: -1px; line-height: 1.1; text-transform: uppercase; color: transparent; -webkit-text-stroke: 1px var(--accent-color); }
+        h3 { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; color: var(--outline-color); margin: 30px 0 15px 0; display: flex; align-items: center; justify-content: space-between; border-top: var(--line-thickness) solid var(--accent-color); padding-top: 10px; }
+
+        .subtitle { color: var(--text-primary); font-size: 0.8rem; margin-top: 10px; font-weight: 300; text-transform: uppercase; letter-spacing: 1px; }
 
         /* PROGRESS MONITOR */
-        .progress-monitor { font-size: 0.65rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent-color); margin: 15px 0 8px 0; opacity: 0.8; }
+        .progress-monitor { font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--accent-color); margin: 15px 0 8px 0; display: flex; justify-content: space-between; }
 
         .resume-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            border-radius: 28px; padding: 24px; margin: 0 0 20px 0;
-            border: 1px solid var(--glass-border);
-            cursor: pointer; color: #fff; position: relative; overflow: hidden;
-            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            background: transparent;
+            border-top-left-radius: 150px; border-top-right-radius: 150px; /* Arch shape */
+            padding: 80px 20px 30px 20px; margin: 20px 0 30px 0;
+            border: var(--line-thickness) solid var(--accent-color);
+            cursor: pointer; color: var(--text-primary); position: relative; overflow: hidden;
+            text-align: center;
+            transition: 0.3s ease;
         }
-        .resume-card:active { transform: scale(0.96); }
-        .resume-card h2 { color: var(--accent-color); font-size: 1.35rem; margin-bottom: 10px; line-height: 1.2; font-weight: 800; letter-spacing: -0.5px; }
-        .resume-card small { font-weight: 800; opacity: 0.5; text-transform: uppercase; letter-spacing: 1.5px; font-size: 0.65rem; display: block; margin-bottom: 8px; }
-        .resume-card p { font-size: 0.85rem; line-height: 1.5; font-weight: 400; margin: 0; color: var(--text-secondary); max-width: 90%; }
-        .resume-card .play-icon { position: absolute; right: 24px; bottom: 24px; font-size: 1.5rem; opacity: 0.4; color: var(--accent-color); }
+        .resume-card:active { transform: scale(0.98); background: rgba(0,0,0,0.03); }
+        .resume-card h2 { color: var(--outline-color); -webkit-text-stroke: 0; font-size: 2.5rem; margin-bottom: 15px; font-weight: 900; }
+        .resume-card small { font-weight: 600; color: var(--accent-color); text-transform: uppercase; letter-spacing: 2px; font-size: 0.7rem; display: block; margin-bottom: 10px; }
+        .resume-card p { font-size: 0.85rem; line-height: 1.5; font-weight: 300; margin: 0 auto; max-width: 80%; }
+        .resume-card .play-icon { display: none; } /* Remove play icon for minimal look */
+        
+        .resume-card::after { content: '✴'; position: absolute; top: 25px; left: 50%; transform: translateX(-50%); color: var(--outline-color); font-size: 1.8rem; }
 
-        .manage-toggle { font-size: 0.65rem; padding: 6px 12px; border-radius: 10px; background: rgba(255,255,255,0.05); color: var(--text-secondary); border: 1px solid rgba(255,255,255,0.1); cursor: pointer; transition: 0.3s; }
-        .manage-toggle.active { background: #ff4444; color: #fff; border-color: transparent; }
+        .manage-toggle { font-size: 0.65rem; padding: 4px 10px; border-radius: 50px; background: transparent; color: var(--accent-color); border: var(--line-thickness) solid var(--accent-color); cursor: pointer; font-weight: 600; transition: 0.2s; text-transform: uppercase; letter-spacing: 1px; }
+        .manage-toggle.active { background: var(--outline-color); color: #fff; border-color: var(--outline-color); }
 
-        .list-card { background: var(--card-bg); border-radius: 20px; padding: 16px; border: 1px solid var(--glass-border); backdrop-filter: blur(10px); display: flex; align-items: center; cursor: pointer; transition: 0.3s; margin-bottom: 10px; position: relative; }
-        .list-card.completed { border-left: 4px solid var(--accent-color); background: rgba(255, 255, 255, 0.05); }
-        .list-card.manage-mode { animation: wobble 0.3s infinite; }
-        @keyframes wobble { 0% { transform: rotate(0.5deg); } 50% { transform: rotate(-0.5deg); } 100% { transform: rotate(0.5deg); } }
-        .delete-btn { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); width: 35px; height: 35px; border-radius: 50%; background: #ff4444; display: none; align-items: center; justify-content: center; color: white; font-size: 0.8rem; }
-        .manage-mode .delete-btn { display: flex; }
+        .list-card { background: transparent; padding: 20px 0; border-bottom: var(--line-thickness) solid var(--accent-color); display: flex; align-items: center; cursor: pointer; transition: 0.2s; position: relative; }
+        .list-card:active { background: rgba(0,0,0,0.02); padding-left: 10px; }
+        .list-card.completed { border-color: var(--accent-color); opacity: 0.5; }
+        .list-card.completed::after { content: 'COMPLETED'; position: absolute; right: 0; font-size: 0.6rem; font-weight: 600; letter-spacing: 1px; color: var(--outline-color); transform: rotate(-90deg); transform-origin: right center; }
+        
+        .delete-btn { position: absolute; right: 0; top: 50%; transform: translateY(-50%); width: auto; padding: 5px 10px; border-radius: 50px; background: var(--outline-color); border: none; display: none; color: white; font-weight: 600; font-size: 0.7rem; z-index: 10; letter-spacing: 1px; }
+        .manage-mode .delete-btn { display: block; }
 
-        /* Resto degli stili per le altre view... */
-        .sticky-header { position: sticky; top: 0; padding: calc(30px + var(--safe-area-top)) 20px 15px 20px; margin: 0 -20px 15px -20px; background: linear-gradient(to bottom, var(--bg-color) 80%, transparent); backdrop-filter: blur(25px); z-index: 1000; }
-        .action-btn { position: absolute; top: calc(35px + var(--safe-area-top)); right: 20px; padding: 8px 16px; border-radius: 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); font-weight: 800; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); cursor: pointer; transition: 0.3s; z-index: 1100; }
-        .action-btn.danger { color: #ff4444; border-color: rgba(255, 68, 68, 0.2); }
-        .progress-container { width: 100%; height: 6px; background: rgba(255,255,255,0.03); border-radius: 10px; margin: 15px 0; overflow: hidden; }
-        .progress-bar { height: 100%; background: var(--accent-color); transition: width 1s cubic-bezier(0.16, 1, 0.3, 1); }
-        .week-grid { display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; }
-        .week-btn { flex: 0 0 85px; padding: 14px; background: var(--card-bg); border-radius: 18px; text-align: center; cursor: pointer; opacity: 0.5; border: 1px solid var(--glass-border); transition: 0.3s; }
-        .week-btn.active { opacity: 1; background: var(--accent-color); color: #000; border-color: transparent; }
-        .ex-item { background: var(--card-bg); border-radius: 20px; padding: 16px; margin-bottom: 10px; display: flex; align-items: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.05); }
-        .ex-item.done { opacity: 0.4; border-left: 4px solid var(--accent-color); }
-        .ex-item-name { font-weight: 700; flex: 1; font-size: 1rem; }
-        .metrics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0; }
-        .metric-box { background: rgba(255,255,255,0.03); padding: 15px 10px; border-radius: 18px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
-        .metric-label { font-size: 0.65rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
-        .metric-value { font-size: 1.1rem; font-weight: 800; color: var(--accent-color); }
-        .set-block { background: rgba(255,255,255,0.03); border-radius: 20px; padding: 18px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.05); }
-        .set-header { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
-        .set-circle { width: 45px; height: 45px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; font-weight: 800; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); cursor: pointer; flex-shrink: 0; }
-        .set-circle.active { background: var(--accent-color); color: #000; border-color: transparent; transform: scale(1.05); }
-        .sub-ex-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-top: 1px solid rgba(255,255,255,0.03); gap: 10px; }
+        .action-btn { position: absolute; top: calc(30px + var(--safe-area-top)); right: 20px; padding: 6px 12px; border-radius: 50px; background: var(--bg-color); border: var(--line-thickness) solid var(--accent-color); font-weight: 600; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; color: var(--accent-color); cursor: pointer; z-index: 1100; transition: 0.2s; }
+        .action-btn.danger { color: var(--outline-color); border-color: var(--outline-color); }
+        
+        .progress-container { width: 100%; height: 2px; background: rgba(0,0,0,0.1); margin: 5px 0 25px 0; position: relative; }
+        .progress-bar { height: 100%; background: var(--outline-color); transition: width 0.5s ease; position: relative; }
+        .progress-bar::after { content: ''; position: absolute; right: -3px; top: -2px; width: 6px; height: 6px; background: var(--outline-color); border-radius: 50%; }
+        
+        .week-grid { display: flex; gap: 15px; margin-bottom: 30px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; border-bottom: var(--line-thickness) solid var(--accent-color); }
+        .week-btn { flex: 0 0 auto; padding: 0 5px 10px 5px; background: transparent; text-align: center; cursor: pointer; font-weight: 300; font-size: 1.5rem; color: var(--text-secondary); transition: 0.2s; position: relative; border-bottom: 2px solid transparent; }
+        .week-btn.active { color: var(--outline-color); font-weight: 600; border-bottom-color: var(--outline-color); }
+        
+        .ex-item { background: transparent; padding: 20px 0; margin-bottom: 0; display: flex; align-items: center; cursor: pointer; border-bottom: var(--line-thickness) solid var(--accent-color); transition: 0.2s; }
+        .ex-item:active { background: rgba(0,0,0,0.02); padding-left: 10px; }
+        .ex-item.done { opacity: 0.4; }
+        .ex-item-name { font-weight: 600; flex: 1; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .metrics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--accent-color); border: var(--line-thickness) solid var(--accent-color); margin: 20px 0; }
+        .metric-box { background: var(--bg-color); padding: 15px 10px; text-align: center; }
+        .metric-label { font-size: 0.6rem; color: var(--text-primary); font-weight: 600; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; }
+        .metric-value { font-size: 1.5rem; font-weight: 300; color: var(--outline-color); }
+        
+        .set-block { background: transparent; border-radius: 0; padding: 0; margin-bottom: 30px; }
+        .set-header { display: flex; align-items: center; gap: 15px; margin-bottom: 0; border-bottom: var(--line-thickness) solid var(--accent-color); padding-bottom: 10px; }
+        
+        .set-circle { width: 35px; height: 35px; border-radius: 50%; border: var(--line-thickness) solid var(--accent-color); display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 600; transition: 0.2s; cursor: pointer; flex-shrink: 0; background: transparent; color: var(--accent-color); }
+        .set-circle.active { background: var(--outline-color); color: #fff; border-color: var(--outline-color); }
+        
+        .sub-ex-list { padding-left: 50px; border-left: var(--line-thickness) solid var(--accent-color); margin-left: 17px; padding-top: 10px; }
+        .sub-ex-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; gap: 10px; }
         .sub-ex-info { flex: 1; }
-        .sub-ex-name { font-size: 0.9rem; font-weight: 700; color: #fff; }
-        .sub-ex-reps { font-size: 0.75rem; color: var(--text-secondary); }
-        .load-input-wrap { width: 80px; display: flex; align-items: center; gap: 4px; }
-        .load-input { width: 100%; background: transparent; border: none; border-bottom: 2px solid rgba(255,255,255,0.1); color: var(--accent-color); font-size: 1rem; font-weight: 800; padding: 2px 0; text-align: center; }
-        .session-notes-box { background: rgba(255,255,255,0.02); border-radius: 20px; padding: 20px; margin-top: 30px; border: 1px solid rgba(255,255,255,0.05); }
-        .session-notes-box label { display: block; font-size: 0.65rem; font-weight: 900; color: var(--accent-color); letter-spacing: 1px; margin-bottom: 10px; }
-        .session-notes-textarea { width: 100%; background: transparent; border: none; color: #ccc; font-size: 0.95rem; line-height: 1.6; resize: none; min-height: 80px; font-family: inherit; }
-        .nav-dock { position: fixed; bottom: 0; left: 0; width: 100%; padding: 20px 20px 40px 20px; background: linear-gradient(to top, var(--bg-color) 80%, transparent); display: flex; gap: 10px; z-index: 1000; }
-        .nav-dock.vertical { flex-direction: column; }
-        .btn { flex: 1; border: none; padding: 18px; border-radius: 20px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 0.8rem; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); width: 100%; }
-        .btn:active { transform: scale(0.96); opacity: 0.8; }
-        .btn-main { background: var(--accent-color); color: #000; }
-        .btn-alt { background: rgba(255,255,255,0.08); color: #fff; }
-        #toast { position: fixed; top: 30px; left: 50%; transform: translateX(-50%); background: var(--accent-color); color: #000; padding: 10px 20px; border-radius: 50px; font-weight: 800; z-index: 5000; display: none; font-size: 0.8rem; }
+        .sub-ex-name { font-size: 0.9rem; font-weight: 600; color: var(--text-primary); text-transform: uppercase; letter-spacing: 1px; }
+        .sub-ex-reps { font-size: 0.75rem; font-weight: 300; color: var(--outline-color); margin-top: 4px; }
+        
+        .load-input-wrap { width: 90px; display: flex; align-items: baseline; gap: 4px; border-bottom: var(--line-thickness) solid var(--accent-color); padding-bottom: 2px; }
+        .load-input { width: 100%; background: transparent; border: none; color: var(--text-primary); font-size: 1.5rem; font-weight: 300; padding: 0; text-align: right; border-radius: 0; }
+        .load-input:focus { color: var(--outline-color); }
+        .load-unit { font-weight: 600; font-size: 0.6rem; color: var(--text-secondary); text-transform: uppercase; }
+        
+        .session-notes-box { background: transparent; border-radius: 0; padding: 20px 0; margin-top: 40px; border-top: var(--line-thickness) solid var(--accent-color); }
+        .session-notes-box label { display: block; font-size: 0.7rem; font-weight: 600; color: var(--accent-color); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; }
+        .session-notes-textarea { width: 100%; background: transparent; border: none; color: var(--text-primary); font-size: 1rem; font-weight: 300; line-height: 1.6; resize: none; min-height: 80px; font-family: inherit; }
+        .session-notes-textarea:focus { outline: none; }
+        
+        .nav-dock { position: fixed; bottom: 0; left: 0; width: 100%; padding: 15px 20px 35px 20px; background: var(--bg-color); border-top: var(--line-thickness) solid var(--accent-color); display: flex; gap: 10px; z-index: 1000; }
+        .nav-dock.vertical { flex-direction: column; gap: 10px; }
+        .btn { flex: 1; border: var(--line-thickness) solid var(--accent-color); padding: 15px; border-radius: 50px; font-weight: 600; cursor: pointer; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; transition: 0.2s; width: 100%; }
+        .btn:active { transform: scale(0.98); }
+        .btn-main { background: var(--outline-color); color: #fff; border-color: var(--outline-color); }
+        .btn-alt { background: transparent; color: var(--accent-color); }
+        
+        #toast { position: fixed; top: 40px; left: 50%; transform: translateX(-50%); background: var(--outline-color); color: #fff; padding: 10px 20px; border-radius: 50px; font-weight: 600; text-transform: uppercase; z-index: 5000; display: none; font-size: 0.7rem; letter-spacing: 2px; }
+        
+        .floating-add { position: fixed; bottom: 40px; right: 20px; width: 60px; height: 60px; background: transparent; border: var(--line-thickness) solid var(--outline-color); color: var(--outline-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 300; z-index: 1000; cursor: pointer; transition: 0.2s; background-color: var(--bg-color); }
+        .floating-add:active { background: var(--outline-color); color: #fff; }
     </style>
 </head>
 <body>
     <div id="toast"></div>
 
     <div id="view-home" class="view active">
-        <div class="sticky-header"><h1>Pale<br><span style="color:var(--accent-color)">App</span></h1><p class="subtitle">Peak Performance Hub.</p></div>
+        <div class="sticky-header">
+            <div class="home-header-inner">
+                <h1 class="brand-title"><span class="outline">PALE</span><span class="solid">APP</span></h1>
+                <div class="util-text">c. 2026<br>PERFORMANCE<br>TRACKER</div>
+            </div>
+        </div>
         
         <div id="progress-info" class="progress-monitor"></div>
         <div id="resume-section"></div>
         
-        <h3>I tuoi Piani <div id="manage-btn" class="manage-toggle" onclick="toggleManageMode()">GESTISCI</div></h3>
+        <h3 style="margin-top: 40px;">I tuoi Piani <div id="manage-btn" class="manage-toggle" onclick="toggleManageMode()">GESTISCI</div></h3>
         <div id="workouts-list"></div>
         
-        <div onclick="showView('view-import')" style="position: fixed; bottom: 40px; right: 25px; width: 64px; height: 64px; background: var(--accent-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: #000; z-index: 1000; cursor: pointer;">+</div>
+        <div onclick="showView('view-import')" class="floating-add">+</div>
     </div>
 
     <!-- Resto delle View invariate... -->
@@ -137,9 +179,9 @@
     </div>
 
     <div id="view-plan" class="view">
-        <div class="sticky-header">
-            <div onclick="showView('view-home')" style="color:var(--text-secondary); font-weight:800; cursor:pointer; margin-bottom:8px;">← DASHBOARD</div>
-            <h1 id="plan-title">Protocol</h1>
+        <div class="sticky-header" style="padding-bottom: 25px;">
+            <div onclick="showView('view-home')" style="font-size:0.7rem; letter-spacing:1px; text-transform:uppercase; color:var(--text-secondary); font-weight:600; cursor:pointer; margin-bottom:12px;">← DASHBOARD</div>
+            <h1 id="plan-title" style="margin-bottom: 15px;">Protocol</h1>
             <div class="progress-container"><div class="progress-bar" id="total-progress-bar"></div></div>
             <div class="week-grid" id="week-selector"></div>
         </div>
@@ -147,12 +189,12 @@
     </div>
 
     <div id="view-session" class="view">
-        <div class="sticky-header">
-            <div onclick="openWorkout(currentWorkoutIndex)" style="color:var(--text-secondary); font-weight:800; cursor:pointer; margin-bottom:8px;">← PIANO</div>
-            <h1 id="session-title">Day X</h1>
+        <div class="sticky-header" style="padding-bottom: 25px;">
+            <div onclick="openWorkout(currentWorkoutIndex)" style="font-size:0.7rem; letter-spacing:1px; text-transform:uppercase; color:var(--text-secondary); font-weight:600; cursor:pointer; margin-bottom:12px;">← PIANO</div>
+            <h1 id="session-title" style="margin-bottom: 5px;">Day X</h1>
+            <p class="subtitle" id="session-subtitle" style="margin-top: 0;">Week 1</p>
             <div class="action-btn danger" onclick="resetDayAction()">Reset</div>
-            <p class="subtitle" id="session-subtitle">Week 1</p>
-            <div id="session-focus-container" style="margin-top:12px;"></div>
+            <div id="session-focus-container" style="margin-top:15px;"></div>
         </div>
         <div id="exercise-list"></div>
         <div class="nav-dock">
@@ -162,11 +204,11 @@
     </div>
 
     <div id="view-exercise" class="view">
-        <div class="sticky-header">
-            <div onclick="startSession(currentDayIdx)" style="color:var(--text-secondary); font-weight:800; cursor:pointer; margin-bottom:8px;">← LISTA</div>
-            <h2 id="ex-detail-name">Exercise Name</h2>
+        <div class="sticky-header" style="padding-bottom: 25px;">
+            <div onclick="startSession(currentDayIdx)" style="font-size:0.7rem; letter-spacing:1px; text-transform:uppercase; color:var(--text-secondary); font-weight:600; cursor:pointer; margin-bottom:12px;">← LISTA</div>
+            <h2 id="ex-detail-name" style="margin-bottom: 5px;">Exercise Name</h2>
+            <p class="subtitle" id="ex-detail-meta" style="margin-top: 0; color: var(--outline-color);">Serie 1 di 4</p>
             <div class="action-btn danger" onclick="resetExAction()">Reset</div>
-            <p class="subtitle" id="ex-detail-meta">Serie 1 di 4</p>
         </div>
         <div class="metrics-grid">
             <div class="metric-box"><div class="metric-label">Serie</div><div class="metric-value" id="val-sets">4</div></div>
