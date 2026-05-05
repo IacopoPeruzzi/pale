@@ -332,6 +332,7 @@
                     <div style="flex:1">
                         <b>${sanitize(w.title)}</b><br>
                         <small style="opacity:0.6; font-weight:800;">${sanitize(w.subtitle) || "STANDARD"}</small>
+                        ${w.createdAt ? `<div style="font-size:0.55rem; opacity:0.4; margin-top:5px; font-weight:800; text-transform:uppercase;">CARICATO IL ${w.createdAt}</div>` : ''}
                     </div>
                     <div class="delete-btn" onclick="event.stopPropagation(); deleteWorkoutAction(${i})">X</div>
                 `;
@@ -595,7 +596,17 @@
             btn.innerText = "IMPORTANDO..."; btn.disabled = true;
             
             setTimeout(async () => {
-                const w = { id: "p-" + Date.now(), title: "", subtitle: "", goal: "", numWeeks: 4, weeklyStructure: [], days: [], progress: {} };
+                const w = { 
+                    id: "p-" + Date.now(), 
+                    title: "", 
+                    subtitle: "", 
+                    goal: "", 
+                    numWeeks: 4, 
+                    weeklyStructure: [], 
+                    days: [], 
+                    progress: {},
+                    createdAt: new Date().toLocaleDateString()
+                };
                 let cleanText = raw;
                 const fontiIdx = raw.toLowerCase().lastIndexOf('fonti');
                 if(fontiIdx !== -1) cleanText = raw.substring(0, fontiIdx);
