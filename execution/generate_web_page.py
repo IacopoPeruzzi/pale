@@ -61,7 +61,6 @@ def generate_html():
 
         .subtitle {{ color: var(--text-secondary); font-size: 0.9rem; margin-top: 6px; }}
 
-        /* STATS BAR */
         .stats-bar {{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 10px 0 20px 0; }}
         .stat-item {{ background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 18px; padding: 12px 8px; text-align: center; }}
         .stat-val {{ font-size: 1.1rem; font-weight: 900; color: var(--accent-color); display: block; }}
@@ -100,7 +99,6 @@ def generate_html():
         }}
         .manage-mode .delete-btn {{ display: flex; }}
 
-        /* Resto degli stili invariati per coerenza... */
         .view {{ display: none; padding: 0 20px 140px 20px; min-height: 100vh; position: relative; z-index: 10; }}
         .view.active {{ display: block; animation: fadeIn 0.3s ease; }}
         .sticky-header {{ position: sticky; top: 0; padding: calc(30px + var(--safe-area-top)) 20px 15px 20px; margin: 0 -20px 15px -20px; background: linear-gradient(to bottom, var(--bg-color) 80%, transparent); backdrop-filter: blur(25px); z-index: 1000; }}
@@ -141,25 +139,16 @@ def generate_html():
 <body>
     <div id="toast"></div>
 
-    <!-- HOME VIEW -->
     <div id="view-home" class="view active">
         <div class="sticky-header"><h1>Pale<br><span style="color:var(--accent-color)">App</span></h1><p class="subtitle">Peak Performance Hub.</p></div>
-        
-        <!-- STATS BAR -->
         <div id="dashboard-stats" class="stats-bar"></div>
-
         <div id="resume-section"></div>
-        
-        <h3>
-            I tuoi Piani 
-            <div id="manage-btn" class="manage-toggle" onclick="toggleManageMode()">GESTISCI</div>
-        </h3>
+        <h3>I tuoi Piani <div id="manage-btn" class="manage-toggle" onclick="toggleManageMode()">GESTISCI</div></h3>
         <div id="workouts-list"></div>
-        
         <div onclick="showView('view-import')" style="position: fixed; bottom: 40px; right: 25px; width: 70px; height: 70px; background: var(--accent-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: #000; box-shadow: 0 10px 20px var(--accent-glow); z-index: 1000; cursor: pointer;">+</div>
     </div>
 
-    <!-- Resto delle view identiche... (Import, Plan, Session, Exercise) -->
+    <!-- View: Import, Plan, Session, Exercise identiche... -->
     <div id="view-import" class="view">
         <div class="sticky-header"><div onclick="showView('view-home')" style="color:var(--text-secondary); font-weight:800; cursor:pointer; margin-bottom:8px;">← BACK</div><h1>Import</h1></div>
         <textarea id="import-text" style="width: 100%; height: 300px; background: #111; color: #fff; border-radius: 20px; padding: 20px; border: 1px solid #333; margin: 15px 0;" placeholder="Paste protocol..."></textarea>
@@ -250,13 +239,7 @@ def generate_html():
             let totalSessions = 0;
             let currentPlanProg = 0;
             let streak = 0;
-
-            workouts.forEach(w => {{
-                if(w.progress) {{
-                    Object.values(w.progress).forEach(wk => totalSessions += Object.keys(wk).length);
-                }}
-            }});
-
+            workouts.forEach(w => {{ if(w.progress) {{ Object.values(w.progress).forEach(wk => totalSessions += Object.keys(wk).length); }} }});
             if(workouts.length > 0) {{
                 const w = workouts[0];
                 let t = w.numWeeks * (w.days?w.days.length:0);
@@ -264,10 +247,7 @@ def generate_html():
                 if (w.progress) Object.values(w.progress).forEach(wk => d += Object.keys(wk).length);
                 currentPlanProg = t ? Math.round((d/t)*100) : 0;
             }}
-
-            // Streak fittizia basata sulle sessioni fatte oggi o negli ultimi giorni (logica semplificata)
             streak = totalSessions % 7 || totalSessions; 
-
             return {{ total: totalSessions, prog: currentPlanProg, streak: streak }};
         }}
 
@@ -279,7 +259,6 @@ def generate_html():
                 <div class="stat-item"><span class="stat-val">${{stats.prog}}%</span><span class="stat-lab">Piano Attuale</span></div>
                 <div class="stat-item"><span class="stat-val">${{stats.streak}}</span><span class="stat-lab">Workout/7d</span></div>
             `;
-
             const res = document.getElementById('resume-section');
             res.innerHTML = '';
             if (workouts.length > 0) {{
@@ -306,7 +285,6 @@ def generate_html():
                 card.onclick = () => {{ if(!manageMode) openWorkout(i); }};
                 card.innerHTML = `
                     <div style="flex:1">
-                        <small style="color:var(--accent-color); font-weight:900; font-size:0.6rem;">${{w.id.substring(0,8)}}</small><br>
                         <b>${{w.title}}</b><br>
                         <small style="opacity:0.5">${{w.subtitle || "Senza sottotitolo"}}</small>
                     </div>
@@ -316,122 +294,13 @@ def generate_html():
             }});
         }}
 
-        // Le altre funzioni JS (resumeWorkout, sanitize, cleanMD, cleanSources, openWorkout, startSession, openExercise, etc.) 
-        // rimangono identiche alle versioni precedenti per garantire la funzionalità.
-        
-        function resumeWorkout(idx) {{
-            const w = workouts[idx];
-            const n = getInc(w);
-            currentWorkoutIndex = idx;
-            if(n) {{ currentWeek = n.week; startSession(n.day); }} 
-            else openWorkout(idx);
-        }}
-
+        function resumeWorkout(idx) {{ const w = workouts[idx]; const n = getInc(w); currentWorkoutIndex = idx; if(n) {{ currentWeek = n.week; startSession(n.day); }} else openWorkout(idx); }}
         function sanitize(str) {{ return str ? str.replace(/^[#\\*\\s\\-\\–\\—]+/g, '').replace(/[#\\*\\-\\–\\—\\s]+$/g, '').trim() : ""; }}
         function cleanMD(str) {{ return str ? str.replace(/\\*\\*/g, '').trim() : ""; }}
         function cleanSources(str) {{ return str ? str.replace(/\\[[\\d,\\s]+\\]/g, '').trim() : ""; }}
-
-        function openWorkout(idx) {{
-            currentWorkoutIndex = idx;
-            const w = workouts[idx];
-            const n = getInc(w);
-            if(!currentWeek) currentWeek = n ? n.week : 1;
-            document.getElementById('plan-title').innerText = sanitize(w.title);
-            updateProg(w);
-            const sel = document.getElementById('week-selector');
-            sel.innerHTML = '';
-            for(let i=1; i<=w.numWeeks; i++) {{
-                const b = document.createElement('div');
-                b.className = `week-btn ${{currentWeek === i ? 'active' : ''}}`;
-                b.innerHTML = `W${{i}}`;
-                b.onclick = () => {{ currentWeek = i; openWorkout(idx); }};
-                sel.appendChild(b);
-            }}
-            const dList = document.getElementById('day-list');
-            dList.innerHTML = '';
-            w.days.forEach((d, dI) => {{
-                const status = w.progress && w.progress[currentWeek] && w.progress[currentWeek][dI];
-                const c = document.createElement('div');
-                c.className = `list-card ${{status ? 'completed' : ''}}`;
-                c.onclick = () => startSession(dI);
-                c.innerHTML = `<div style="flex:1"><small style="color:var(--accent-color)">GIORNO ${{dI+1}}</small><br><b>${{sanitize(d.name)}}</b></div>`;
-                dList.appendChild(c);
-            }});
-            showView('view-plan');
-        }}
-
-        function startSession(dI) {{
-            currentDayIdx = dI;
-            const w = workouts[currentWorkoutIndex];
-            const d = w.days[dI];
-            document.getElementById('session-title').innerText = `GIORNO ${{dI + 1}}`;
-            document.getElementById('session-subtitle').innerText = `WEEK ${{currentWeek}} • ${{sanitize(d.name)}}`;
-            const focus = document.getElementById('session-focus-container');
-            const str = w.weeklyStructure?.find(s => s.week === 'W' + currentWeek);
-            focus.innerHTML = str ? `<div style="background:rgba(207,255,4,0.08); padding:12px; border-radius:15px; border:1px solid var(--accent-color); font-size:0.8rem;"><b>FOCUS</b>: ${{str.note || str.focus}}</div>` : '';
-            const list = document.getElementById('exercise-list');
-            list.innerHTML = '';
-            d.exercises.forEach((ex, eI) => {{
-                const isD = ex.sessionData && ex.sessionData[currentWeek] && ex.sessionData[currentWeek].completed;
-                const item = document.createElement('div');
-                item.className = `ex-item ${{isD ? 'done' : ''}}`;
-                item.onclick = () => openExercise(eI);
-                item.innerHTML = `<div class="ex-item-name">${{sanitize(ex.name)}}</div><div style="font-size:0.8rem; opacity:0.5">${{ex.sets}} SETS</div>`;
-                list.appendChild(item);
-            }});
-            showView('view-session');
-        }}
-
-        function openExercise(eI) {{
-            try {{
-                currentExIdx = eI;
-                const ex = workouts[currentWorkoutIndex].days[currentDayIdx].exercises[eI];
-                if(!ex.sessionData) ex.sessionData = {{}};
-                if(!ex.sessionData[currentWeek]) ex.sessionData[currentWeek] = {{ completed: false, rounds: [], notes: "" }};
-                const data = ex.sessionData[currentWeek];
-                if(!data.rounds) data.rounds = [];
-
-                let subExs = [];
-                const hasPlus = ex.notes && ex.notes.includes('+');
-                const isCircuit = ex.name.toLowerCase().includes('circuito') || ex.name.toLowerCase().includes('superserie');
-
-                if(ex.notes && (hasPlus || isCircuit)) {{
-                    subExs = ex.notes.split('+').map(s => {{
-                        const clean = s.trim();
-                        if(!clean) return null;
-                        const m = clean.match(/(.*?)\\s*(\\d+.*)/);
-                        return {{ name: m?m[1].trim():clean, reps: m?m[2].trim():"" }};
-                    }}).filter(x => x !== null);
-                }} 
-                if(subExs.length === 0) {{ subExs = [{{ name: sanitize(ex.name), reps: ex.reps }}]; }}
-
-                const nR = parseInt(ex.sets) || 1;
-                while(data.rounds.length < nR) {{ data.rounds.push({{ done: false, subLoads: new Array(subExs.length).fill("") }}); }}
-                data.rounds.forEach(r => {{ if(r.subLoads.length < subExs.length) {{ while(r.subLoads.length < subExs.length) r.subLoads.push(""); }} }});
-
-                document.getElementById('ex-detail-name').innerText = sanitize(ex.name);
-                document.getElementById('val-sets').innerText = ex.sets;
-                document.getElementById('val-reps').innerText = subExs.length > 1 ? "Circuito" : ex.reps;
-                document.getElementById('val-rest').innerText = ex.rest;
-                document.getElementById('session-notes').value = data.notes || "";
-
-                const container = document.getElementById('sets-blocks-container');
-                container.innerHTML = '';
-                data.rounds.forEach((round, rI) => {{
-                    const block = document.createElement('div');
-                    block.className = 'set-block';
-                    let subHtml = '';
-                    subExs.forEach((sx, sI) => {{
-                        subHtml += `<div class="sub-ex-row"><div class="sub-ex-info"><div class="sub-ex-name">${{sx.name}}</div><div class="sub-ex-reps">${{sx.reps}}</div></div><div class="load-input-wrap"><input type="number" class="load-input" value="${{round.subLoads[sI] || ""}}" placeholder="---" oninput="updateSubLoad(${{rI}}, ${{sI}}, this.value)"><span class="load-unit">KG</span></div></div>`;
-                    }});
-                    block.innerHTML = `<div class="set-header"><div class="set-circle ${{round.done ? 'active' : ''}}" onclick="toggleRound(${{rI}})">${{rI+1}}</div><div style="font-weight:800; font-size:0.8rem; color:var(--text-secondary)">${{subExs.length > 1 ? 'GIRO COMPLETO' : 'SERIE'}}</div></div><div class="sub-ex-list">${{subHtml}}</div>`;
-                    container.appendChild(block);
-                }});
-                updateExMeta();
-                showView('view-exercise');
-            }} catch(e) {{ console.error(e); showToast("Errore apertura esercizio."); }}
-        }}
-
+        function openWorkout(idx) {{ currentWorkoutIndex = idx; const w = workouts[idx]; const n = getInc(w); if(!currentWeek) currentWeek = n ? n.week : 1; document.getElementById('plan-title').innerText = sanitize(w.title); updateProg(w); const sel = document.getElementById('week-selector'); sel.innerHTML = ''; for(let i=1; i<=w.numWeeks; i++) {{ const b = document.createElement('div'); b.className = `week-btn ${{currentWeek === i ? 'active' : ''}}`; b.innerHTML = `W${{i}}`; b.onclick = () => {{ currentWeek = i; openWorkout(idx); }}; sel.appendChild(b); }} const dList = document.getElementById('day-list'); dList.innerHTML = ''; w.days.forEach((d, dI) => {{ const status = w.progress && w.progress[currentWeek] && w.progress[currentWeek][dI]; const c = document.createElement('div'); c.className = `list-card ${{status ? 'completed' : ''}}`; c.onclick = () => startSession(dI); c.innerHTML = `<div style="flex:1"><small style="color:var(--accent-color)">GIORNO ${{dI+1}}</small><br><b>${{sanitize(d.name)}}</b></div>`; dList.appendChild(c); }}); showView('view-plan'); }}
+        function startSession(dI) {{ currentDayIdx = dI; const w = workouts[currentWorkoutIndex]; const d = w.days[dI]; document.getElementById('session-title').innerText = `GIORNO ${{dI + 1}}`; document.getElementById('session-subtitle').innerText = `WEEK ${{currentWeek}} • ${{sanitize(d.name)}}`; const focus = document.getElementById('session-focus-container'); const str = w.weeklyStructure?.find(s => s.week === 'W' + currentWeek); focus.innerHTML = str ? `<div style="background:rgba(207,255,4,0.08); padding:12px; border-radius:15px; border:1px solid var(--accent-color); font-size:0.8rem;"><b>FOCUS</b>: ${{str.note || str.focus}}</div>` : ''; const list = document.getElementById('exercise-list'); list.innerHTML = ''; d.exercises.forEach((ex, eI) => {{ const isD = ex.sessionData && ex.sessionData[currentWeek] && ex.sessionData[currentWeek].completed; const item = document.createElement('div'); item.className = `ex-item ${{isD ? 'done' : ''}}`; item.onclick = () => openExercise(eI); item.innerHTML = `<div class="ex-item-name">${{sanitize(ex.name)}}</div><div style="font-size:0.8rem; opacity:0.5">${{ex.sets}} SETS</div>`; list.appendChild(item); }}); showView('view-session'); }}
+        function openExercise(eI) {{ try {{ currentExIdx = eI; const ex = workouts[currentWorkoutIndex].days[currentDayIdx].exercises[eI]; if(!ex.sessionData) ex.sessionData = {{}}; if(!ex.sessionData[currentWeek]) ex.sessionData[currentWeek] = {{ completed: false, rounds: [], notes: "" }}; const data = ex.sessionData[currentWeek]; if(!data.rounds) data.rounds = []; let subExs = []; const hasPlus = ex.notes && ex.notes.includes('+'); const isCircuit = ex.name.toLowerCase().includes('circuito') || ex.name.toLowerCase().includes('superserie'); if(ex.notes && (hasPlus || isCircuit)) {{ subExs = ex.notes.split('+').map(s => {{ const clean = s.trim(); if(!clean) return null; const m = clean.match(/(.*?)\\s*(\\d+.*)/); return {{ name: m?m[1].trim():clean, reps: m?m[2].trim():"" }}; }}).filter(x => x !== null); }} if(subExs.length === 0) {{ subExs = [{{ name: sanitize(ex.name), reps: ex.reps }}]; }} const nR = parseInt(ex.sets) || 1; while(data.rounds.length < nR) {{ data.rounds.push({{ done: false, subLoads: new Array(subExs.length).fill("") }}); }} data.rounds.forEach(r => {{ if(r.subLoads.length < subExs.length) {{ while(r.subLoads.length < subExs.length) r.subLoads.push(""); }} }}); document.getElementById('ex-detail-name').innerText = sanitize(ex.name); document.getElementById('val-sets').innerText = ex.sets; document.getElementById('val-reps').innerText = subExs.length > 1 ? "Circuito" : ex.reps; document.getElementById('val-rest').innerText = ex.rest; document.getElementById('session-notes').value = data.notes || ""; const container = document.getElementById('sets-blocks-container'); container.innerHTML = ''; data.rounds.forEach((round, rI) => {{ const block = document.createElement('div'); block.className = 'set-block'; let subHtml = ''; subExs.forEach((sx, sI) => {{ subHtml += `<div class="sub-ex-row"><div class="sub-ex-info"><div class="sub-ex-name">${{sx.name}}</div><div class="sub-ex-reps">${{sx.reps}}</div></div><div class="load-input-wrap"><input type="number" class="load-input" value="${{round.subLoads[sI] || ""}}" placeholder="---" oninput="updateSubLoad(${{rI}}, ${{sI}}, this.value)"><span class="load-unit">KG</span></div></div>`; }}); block.innerHTML = `<div class="set-header"><div class="set-circle ${{round.done ? 'active' : ''}}" onclick="toggleRound(${{rI}})">${{rI+1}}</div><div style="font-weight:800; font-size:0.8rem; color:var(--text-secondary)">${{subExs.length > 1 ? 'GIRO COMPLETO' : 'SERIE'}}</div></div><div class="sub-ex-list">${{subHtml}}</div>`; container.appendChild(block); }}); updateExMeta(); showView('view-exercise'); }} catch(e) {{ console.error(e); showToast("Errore apertura esercizio."); }} }}
         function toggleRound(rI) {{ const data = workouts[currentWorkoutIndex].days[currentDayIdx].exercises[currentExIdx].sessionData[currentWeek]; data.rounds[rI].done = !data.rounds[rI].done; save(); openExercise(currentExIdx); }}
         function updateSubLoad(rI, sI, val) {{ const data = workouts[currentWorkoutIndex].days[currentDayIdx].exercises[currentExIdx].sessionData[currentWeek]; data.rounds[rI].subLoads[sI] = val; save(); }}
         function updateSessionNotes() {{ const val = document.getElementById('session-notes').value; const data = workouts[currentWorkoutIndex].days[currentDayIdx].exercises[currentExIdx].sessionData[currentWeek]; data.notes = val; save(); }}
@@ -449,7 +318,6 @@ def generate_html():
             if(!raw.trim()) return;
             const btn = document.getElementById('import-btn');
             btn.innerText = "IMPORTING..."; btn.disabled = true;
-
             setTimeout(() => {{
                 const w = {{ id: "p-" + Date.now(), title: "", subtitle: "", goal: "", numWeeks: 4, weeklyStructure: [], days: [], progress: {{}} }};
                 let cleanText = raw;
@@ -485,46 +353,12 @@ def generate_html():
                 const wMatch = cleanText.match(/(\\d+)\\s*settimane/i);
                 if(wMatch) w.numWeeks = parseInt(wMatch[1]);
                 let structureTable = []; let inStructureTable = false;
-                lines.forEach(l => {{
-                    if(l.includes('| Settimana |')) inStructureTable = true;
-                    else if(inStructureTable && l.includes('| W')) structureTable.push(l);
-                    else if(inStructureTable && l.trim() === "") inStructureTable = false;
-                }});
-                structureTable.forEach(l => {{
-                    const cols = l.split('|').map(c => c.trim());
-                    if(cols.length >= 3 && cols[1].startsWith('W')) 
-                        w.weeklyStructure.push({{ week: cols[1], focus: cols[2], note: cols[4] || "" }});
-                }});
+                lines.forEach(l => {{ if(l.includes('| Settimana |')) inStructureTable = true; else if(inStructureTable && l.includes('| W')) structureTable.push(l); else if(inStructureTable && l.trim() === "") inStructureTable = false; }});
+                structureTable.forEach(l => {{ const cols = l.split('|').map(c => c.trim()); if(cols.length >= 3 && cols[1].startsWith('W')) w.weeklyStructure.push({{ week: cols[1], focus: cols[2], note: cols[4] || "" }}); }});
                 let inRules = false;
-                lines.forEach(l => {{
-                    const cleanL = l.trim();
-                    if(cleanL.toLowerCase().includes('## progressione')) {{ inRules = true; return; }}
-                    if(inRules && cleanL.startsWith('##')) {{ inRules = false; return; }}
-                    if(inRules) {{
-                        const ruleMatch = cleanL.match(/(?:-|\\*)\\s*\\**W(\\d+)\\**\\s*:?\\s*(.*)/i);
-                        if(ruleMatch) {{
-                            const wkNum = 'W' + ruleMatch[1];
-                            const content = ruleMatch[2].trim();
-                            let existing = w.weeklyStructure.find(s => s.week === wkNum);
-                            if(existing) existing.note = content;
-                            else w.weeklyStructure.push({{ week: wkNum, focus: "Regola", note: content }});
-                        }}
-                    }}
-                }});
+                lines.forEach(l => {{ const cleanL = l.trim(); if(cleanL.toLowerCase().includes('## progressione')) {{ inRules = true; return; }} if(inRules && cleanL.startsWith('##')) {{ inRules = false; return; }} if(inRules) {{ const ruleMatch = cleanL.match(/(?:-|\\*)\\s*\\**W(\\d+)\\**\\s*:?\\s*(.*)/i); if(ruleMatch) {{ const wkNum = 'W' + ruleMatch[1]; const content = ruleMatch[2].trim(); let existing = w.weeklyStructure.find(s => s.week === wkNum); if(existing) existing.note = content; else w.weeklyStructure.push({{ week: wkNum, focus: "Regola", note: content }}); }} }} }});
                 let curD = null;
-                lines.forEach(l => {{
-                    if(l.startsWith('## ') && (l.toLowerCase().includes('giorno') || l.toLowerCase().includes('sessione') || l.toLowerCase().includes('giorno extra'))) {{
-                        if(curD && curD.exercises.length > 0) w.days.push(curD);
-                        curD = {{ name: sanitize(l), exercises: [] }};
-                    }} else if(curD) {{
-                        if(l.includes('|') && !l.includes('Esercizio') && !l.includes('---')) {{
-                            const cols = l.split('|').map(c => c.trim());
-                            if(cols.length >= 4 && cols[1] !== "") {{
-                                curD.exercises.push({{ name: sanitize(cols[1]), sets: cols[2], reps: cols[3], rest: cols[4] || "90s", notes: cols[5] || "" }});
-                            }}
-                        }}
-                    }}
-                }});
+                lines.forEach(l => {{ if(l.startsWith('## ') && (l.toLowerCase().includes('giorno') || l.toLowerCase().includes('sessione') || l.toLowerCase().includes('giorno extra'))) {{ if(curD && curD.exercises.length > 0) w.days.push(curD); curD = {{ name: sanitize(l), exercises: [] }}; }} else if(curD) {{ if(l.includes('|') && !l.includes('Esercizio') && !l.includes('---')) {{ const cols = l.split('|').map(c => c.trim()); if(cols.length >= 4 && cols[1] !== "") {{ curD.exercises.push({{ name: sanitize(cols[1]), sets: cols[2], reps: cols[3], rest: cols[4] || "90s", notes: cols[5] || "" }}); }} }} }} }});
                 if(curD && curD.exercises.length > 0) w.days.push(curD);
                 if(w.days.length > 0) {{ workouts.unshift(w); save(); showToast("IMPORTED"); renderHome(); showView('view-home'); }}
                 btn.innerText = "INITIALIZE"; btn.disabled = false;
@@ -543,4 +377,4 @@ if __name__ == "__main__":
     html_content = generate_html()
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(html_content)
-    print(f"Successo: Aggiunte statistiche e modalità gestione piani.")
+    print(f"Successo: Rimosso codice ID e rifinita Dashboard.")
