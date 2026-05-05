@@ -11,132 +11,153 @@
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <style>
         :root {
-            --bg-color: #050507;
-            --card-bg: rgba(25, 25, 35, 0.85);
-            --accent-color: #cfff04;
-            --accent-glow: rgba(207, 255, 4, 0.35);
-            --text-primary: #ffffff;
-            --text-secondary: #8a8a93;
-            --border-radius: 24px;
+            --bg-color: #ffffff;
+            --accent-color: #000000;
+            --highlight-yellow: #FFE600;
+            --highlight-purple: #DDB8FF;
+            --highlight-pink: #FF85C0;
+            --text-primary: #000000;
+            --text-secondary: #444;
+            --border-thickness: 3px;
+            --hard-shadow: 4px 4px 0px var(--accent-color);
+            --hard-shadow-active: 0px 0px 0px var(--accent-color);
             --safe-area-top: env(safe-area-inset-top);
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         body {
             background-color: var(--bg-color);
-            background-image: radial-gradient(circle at 10% 10%, rgba(207, 255, 4, 0.05) 0%, transparent 40%);
+            background-image: 
+                linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
             color: var(--text-primary);
             font-family: 'Outfit', sans-serif;
             margin: 0; padding: 0; overflow-x: hidden;
         }
 
         .view { display: none; padding: 0 20px 140px 20px; min-height: 100vh; position: relative; z-index: 10; }
-        .view.active { display: block; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .view.active { display: block; }
 
         .sticky-header {
             position: sticky; top: 0; 
-            padding: calc(30px + var(--safe-area-top)) 20px 15px 20px;
-            margin: 0 -20px 15px -20px;
-            background: linear-gradient(to bottom, var(--bg-color) 80%, transparent);
-            backdrop-filter: blur(25px);
+            padding: calc(30px + var(--safe-area-top)) 0px 15px 0px;
+            margin: 0 0 20px 0;
+            background: var(--bg-color);
+            border-bottom: var(--border-thickness) solid var(--accent-color);
             z-index: 1000;
         }
 
-        h1 { font-size: 2.4rem; font-weight: 900; margin: 0; letter-spacing: -1.5px; text-transform: uppercase; line-height: 1; }
-        h2 { font-size: 1.8rem; font-weight: 800; margin: 0; letter-spacing: -1px; line-height: 1.2; }
-        h3 { font-size: 1rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); margin: 30px 0 15px 0; display: flex; align-items: center; justify-content: space-between; }
+        h1 { font-size: 3rem; font-weight: 900; margin: 0; letter-spacing: -1.5px; text-transform: uppercase; line-height: 0.85; }
+        h1 .highlight { background: var(--highlight-yellow); padding: 0 8px; border: var(--border-thickness) solid #000; border-radius: 8px; display: inline-block; transform: rotate(-2deg); margin-left: 5px; }
+        
+        h2 { font-size: 1.8rem; font-weight: 900; margin: 0; letter-spacing: -1px; text-transform: uppercase; }
+        h3 { font-size: 0.8rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-primary); margin: 30px 0 15px 0; display: flex; align-items: center; justify-content: space-between; }
 
-        .subtitle { color: var(--text-secondary); font-size: 0.9rem; margin-top: 6px; }
-
-        /* PROGRESS MONITOR */
-        .progress-monitor { font-size: 0.65rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent-color); margin: 15px 0 8px 0; opacity: 0.8; }
+        .subtitle { font-weight: 800; text-transform: uppercase; font-size: 0.75rem; margin-top: 10px; color: #444; }
 
         .resume-card {
-            background: linear-gradient(135deg, var(--accent-color) 0%, #b8e600 100%);
-            border-radius: 28px; padding: 24px; margin: 0 0 20px 0;
-            border: none; box-shadow: 0 15px 35px var(--accent-glow);
-            cursor: pointer; color: #000; position: relative; overflow: hidden;
-            transition: transform 0.2s;
+            background: var(--highlight-yellow);
+            border: var(--border-thickness) solid var(--accent-color);
+            border-radius: 15px; padding: 24px; margin: 0 0 25px 0;
+            box-shadow: 6px 6px 0px #000;
+            cursor: pointer; color: #000; position: relative;
+            transition: 0.1s;
         }
-        .resume-card:active { transform: scale(0.97); }
-        .resume-card h2 { color: #000; font-size: 1.35rem; margin-bottom: 10px; line-height: 1.2; font-weight: 900; }
-        .resume-card small { font-weight: 800; opacity: 0.6; text-transform: uppercase; letter-spacing: 1px; font-size: 0.7rem; display: block; margin-bottom: 6px; }
-        .resume-card p { font-size: 0.85rem; line-height: 1.5; font-weight: 600; margin: 0; opacity: 0.85; max-width: 95%; }
-        .resume-card .play-icon { position: absolute; right: 20px; bottom: 20px; font-size: 2.5rem; opacity: 0.15; }
+        .resume-card:active { transform: translate(4px, 4px); box-shadow: 2px 2px 0px #000; }
+        .resume-card h2 { font-size: 1.5rem; margin-bottom: 8px; }
+        .resume-card p { font-size: 0.9rem; font-weight: 700; margin: 0; }
 
-        .manage-toggle { font-size: 0.65rem; padding: 6px 12px; border-radius: 10px; background: rgba(255,255,255,0.05); color: var(--text-secondary); border: 1px solid rgba(255,255,255,0.1); cursor: pointer; transition: 0.3s; }
-        .manage-toggle.active { background: #ff4444; color: #fff; border-color: transparent; }
+        .list-card { 
+            background: #fff; 
+            border: var(--border-thickness) solid var(--accent-color); 
+            border-radius: 12px; 
+            padding: 16px; 
+            margin-bottom: 12px; 
+            box-shadow: var(--hard-shadow); 
+            display: flex; align-items: center; cursor: pointer; transition: 0.1s;
+        }
+        .list-card:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0px #000; }
+        .list-card.completed { background: var(--highlight-purple); }
 
-        .list-card { background: var(--card-bg); border-radius: 20px; padding: 16px; border: 1px solid rgba(255,255,255,0.05); backdrop-filter: blur(10px); display: flex; align-items: center; cursor: pointer; transition: 0.3s; margin-bottom: 10px; position: relative; }
-        .list-card.completed { border-left: 6px solid var(--accent-color); background: rgba(207, 255, 4, 0.03); }
-        .list-card.manage-mode { animation: wobble 0.3s infinite; }
-        @keyframes wobble { 0% { transform: rotate(0.5deg); } 50% { transform: rotate(-0.5deg); } 100% { transform: rotate(0.5deg); } }
-        .delete-btn { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); width: 35px; height: 35px; border-radius: 50%; background: #ff4444; display: none; align-items: center; justify-content: center; color: white; font-size: 0.8rem; }
-        .manage-mode .delete-btn { display: flex; }
+        .week-grid { display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 10px; }
+        .week-btn { 
+            flex: 0 0 70px; padding: 12px; 
+            background: #fff; border: 2px solid #000; border-radius: 12px; 
+            font-weight: 900; text-align: center; cursor: pointer;
+            box-shadow: 3px 3px 0px #000;
+        }
+        .week-btn.active { background: var(--highlight-yellow); transform: translate(2px, 2px); box-shadow: 1px 1px 0px #000; }
 
-        /* Resto degli stili per le altre view... */
-        .sticky-header { position: sticky; top: 0; padding: calc(30px + var(--safe-area-top)) 20px 15px 20px; margin: 0 -20px 15px -20px; background: linear-gradient(to bottom, var(--bg-color) 80%, transparent); backdrop-filter: blur(25px); z-index: 1000; }
-        .action-btn { position: absolute; top: calc(35px + var(--safe-area-top)); right: 20px; padding: 8px 16px; border-radius: 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); font-weight: 800; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); cursor: pointer; transition: 0.3s; z-index: 1100; }
-        .action-btn.danger { color: #ff4444; border-color: rgba(255, 68, 68, 0.2); }
-        .progress-container { width: 100%; height: 4px; background: rgba(255,255,255,0.03); border-radius: 10px; margin: 15px 0; overflow: hidden; }
-        .progress-bar { height: 100%; background: var(--accent-color); transition: width 0.8s ease; }
-        .week-grid { display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; }
-        .week-btn { flex: 0 0 85px; padding: 14px; background: var(--card-bg); border-radius: 18px; text-align: center; cursor: pointer; opacity: 0.4; border: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }
-        .week-btn.active { opacity: 1; background: var(--accent-color); color: #000; box-shadow: 0 5px 15px var(--accent-glow); }
-        .ex-item { background: var(--card-bg); border-radius: 20px; padding: 16px; margin-bottom: 10px; display: flex; align-items: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.05); }
-        .ex-item.done { opacity: 0.4; border-left: 4px solid var(--accent-color); }
-        .ex-item-name { font-weight: 700; flex: 1; font-size: 1rem; }
-        .metrics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0; }
-        .metric-box { background: rgba(255,255,255,0.03); padding: 15px 10px; border-radius: 18px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
-        .metric-label { font-size: 0.65rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
-        .metric-value { font-size: 1.1rem; font-weight: 800; color: var(--accent-color); }
-        .set-block { background: rgba(255,255,255,0.03); border-radius: 20px; padding: 18px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.05); }
-        .set-header { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
-        .set-circle { width: 45px; height: 45px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; font-weight: 900; transition: 0.3s; cursor: pointer; flex-shrink: 0; }
-        .set-circle.active { background: var(--accent-color); color: #000; border-color: transparent; box-shadow: 0 0 20px var(--accent-glow); }
-        .sub-ex-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-top: 1px solid rgba(255,255,255,0.03); gap: 10px; }
-        .sub-ex-info { flex: 1; }
-        .sub-ex-name { font-size: 0.9rem; font-weight: 700; color: #fff; }
-        .sub-ex-reps { font-size: 0.75rem; color: var(--text-secondary); }
-        .load-input-wrap { width: 80px; display: flex; align-items: center; gap: 4px; }
-        .load-input { width: 100%; background: transparent; border: none; border-bottom: 2px solid rgba(255,255,255,0.1); color: var(--accent-color); font-size: 1rem; font-weight: 800; padding: 2px 0; text-align: center; }
-        .session-notes-box { background: rgba(255,255,255,0.02); border-radius: 20px; padding: 20px; margin-top: 30px; border: 1px solid rgba(255,255,255,0.05); }
-        .session-notes-box label { display: block; font-size: 0.65rem; font-weight: 900; color: var(--accent-color); letter-spacing: 1px; margin-bottom: 10px; }
-        .session-notes-textarea { width: 100%; background: transparent; border: none; color: #ccc; font-size: 0.95rem; line-height: 1.6; resize: none; min-height: 80px; font-family: inherit; }
-        .nav-dock { position: fixed; bottom: 0; left: 0; width: 100%; padding: 20px 20px 40px 20px; background: linear-gradient(to top, var(--bg-color) 80%, transparent); display: flex; gap: 10px; z-index: 1000; }
-        .btn { flex: 1; border: none; padding: 18px; border-radius: 20px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 0.8rem; transition: 0.2s; }
-        .btn-main { background: var(--accent-color); color: #000; box-shadow: 0 8px 20px var(--accent-glow); }
-        .btn-alt { background: rgba(255,255,255,0.08); color: #fff; }
-        #toast { position: fixed; top: 30px; left: 50%; transform: translateX(-50%); background: var(--accent-color); color: #000; padding: 10px 20px; border-radius: 50px; font-weight: 800; z-index: 5000; display: none; font-size: 0.8rem; }
+        .ex-item { 
+            background: #fff; border: var(--border-thickness) solid #000; 
+            border-radius: 12px; padding: 15px; margin-bottom: 10px; 
+            box-shadow: var(--hard-shadow); display: flex; align-items: center; cursor: pointer;
+        }
+        .ex-item.done { background: #eee; box-shadow: none; transform: translate(4px, 4px); opacity: 0.7; }
+        
+        .metric-box { background: #fff; border: 2px solid #000; padding: 12px; border-radius: 12px; box-shadow: 3px 3px 0px #000; }
+        
+        .set-block { background: #fff; border: var(--border-thickness) solid #000; border-radius: 15px; padding: 15px; margin-bottom: 15px; box-shadow: var(--hard-shadow); }
+        .set-circle { 
+            width: 40px; height: 40px; border: 2px solid #000; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; font-weight: 900;
+            box-shadow: 2px 2px 0px #000; cursor: pointer;
+        }
+        .set-circle.active { background: var(--highlight-purple); transform: translate(2px, 2px); box-shadow: none; }
+
+        .load-input { border: none; border-bottom: 3px solid #000; font-weight: 900; font-size: 1.1rem; width: 60px; text-align: center; }
+        
+        .nav-dock { position: fixed; bottom: 0; left: 0; width: 100%; padding: 20px; background: rgba(255,255,255,0.9); border-top: var(--border-thickness) solid #000; display: flex; gap: 10px; z-index: 1000; }
+        .btn { 
+            flex: 1; border: var(--border-thickness) solid #000; padding: 16px; border-radius: 50px; 
+            font-weight: 900; text-transform: uppercase; font-size: 0.9rem; cursor: pointer; 
+            box-shadow: var(--hard-shadow); transition: 0.1s;
+        }
+        .btn:active { transform: translate(4px, 4px); box-shadow: none; }
+        .btn-main { background: var(--highlight-purple); }
+        .btn-alt { background: #fff; }
+
+        .progress-container { width: 100%; height: 12px; background: #fff; border: 2px solid #000; border-radius: 10px; margin: 15px 0; overflow: hidden; box-shadow: 2px 2px 0px #000; }
+        .progress-bar { height: 100%; background: var(--highlight-yellow); transition: width 0.8s ease; }
+        .action-btn { position: absolute; top: calc(35px + var(--safe-area-top)); right: 0px; padding: 6px 12px; border: 2px solid #000; border-radius: 8px; background: #fff; font-weight: 900; font-size: 0.6rem; text-transform: uppercase; cursor: pointer; box-shadow: 2px 2px 0px #000; }
+        .action-btn.danger { background: var(--highlight-pink); }
+        
+        #toast { 
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%); 
+            background: var(--highlight-pink); border: 2px solid #000; padding: 10px 20px; 
+            font-weight: 900; border-radius: 10px; box-shadow: 4px 4px 0px #000; z-index: 9999; display: none;
+        }
+        .floating-add { position: fixed; bottom: 40px; right: 25px; width: 70px; height: 70px; background: var(--highlight-yellow); border: var(--border-thickness) solid #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; color: #000; box-shadow: 4px 4px 0px #000; z-index: 1000; cursor: pointer; transition: 0.1s; }
+        .floating-add:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0px #000; }
     </style>
 </head>
 <body>
     <div id="toast"></div>
 
     <div id="view-home" class="view active">
-        <div class="sticky-header"><h1>Pale<br><span style="color:var(--accent-color)">App</span></h1><p class="subtitle">Peak Performance Hub.</p></div>
+        <div class="sticky-header"><h1>PALE<br><span class="highlight">APP</span></h1><p class="subtitle">Peak Performance Hub.</p></div>
         
         <div id="progress-info" class="progress-monitor"></div>
         <div id="resume-section"></div>
         
-        <h3>I tuoi Piani <div id="manage-btn" class="manage-toggle" onclick="toggleManageMode()">GESTISCI</div></h3>
+        <h3>I TUOI PIANI <div id="manage-btn" class="manage-toggle" onclick="toggleManageMode()">GESTISCI</div></h3>
         <div id="workouts-list"></div>
         
-        <div onclick="showView('view-import')" style="position: fixed; bottom: 40px; right: 25px; width: 70px; height: 70px; background: var(--accent-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: #000; box-shadow: 0 10px 20px var(--accent-glow); z-index: 1000; cursor: pointer;">+</div>
+        <div onclick="showView('view-import')" class="floating-add">+</div>
     </div>
 
     <!-- Resto delle View invariate... -->
     <div id="view-import" class="view">
-        <div class="sticky-header"><div onclick="showView('view-home')" style="color:var(--text-secondary); font-weight:800; cursor:pointer; margin-bottom:8px;">← BACK</div><h1>Import</h1></div>
-        <textarea id="import-text" style="width: 100%; height: 300px; background: #111; color: #fff; border-radius: 20px; padding: 20px; border: 1px solid #333; margin: 15px 0;" placeholder="Paste protocol..."></textarea>
+        <div class="sticky-header"><div onclick="showView('view-home')" style="font-weight:900; cursor:pointer; margin-bottom:8px; text-transform:uppercase; font-size:0.7rem;">← BACK</div><h1>Import</h1></div>
+        <textarea id="import-text" style="width: 100%; height: 300px; background: #fff; color: #000; border-radius: 12px; padding: 20px; border: var(--border-thickness) solid #000; margin: 15px 0; font-weight: 800; font-family:inherit;" placeholder="Paste protocol..."></textarea>
         <button id="import-btn" class="btn btn-main" style="width: 100%" onclick="importAction()">INITIALIZE</button>
     </div>
 
     <div id="view-plan" class="view">
         <div class="sticky-header">
-            <div onclick="showView('view-home')" style="color:var(--text-secondary); font-weight:800; cursor:pointer; margin-bottom:8px;">← DASHBOARD</div>
-            <h1 id="plan-title">Protocol</h1>
+            <div onclick="showView('view-home')" style="font-weight:900; cursor:pointer; margin-bottom:8px; text-transform:uppercase; font-size:0.7rem;">← DASHBOARD</div>
+            <h2 id="plan-title">Protocol</h2>
             <div class="progress-container"><div class="progress-bar" id="total-progress-bar"></div></div>
             <div class="week-grid" id="week-selector"></div>
         </div>
@@ -145,8 +166,8 @@
 
     <div id="view-session" class="view">
         <div class="sticky-header">
-            <div onclick="openWorkout(currentWorkoutIndex)" style="color:var(--text-secondary); font-weight:800; cursor:pointer; margin-bottom:8px;">← PIANO</div>
-            <h1 id="session-title">Day X</h1>
+            <div onclick="openWorkout(currentWorkoutIndex)" style="font-weight:900; cursor:pointer; margin-bottom:8px; text-transform:uppercase; font-size:0.7rem;">← PIANO</div>
+            <h2 id="session-title">Day X</h2>
             <div class="action-btn danger" onclick="resetDayAction()">Reset</div>
             <p class="subtitle" id="session-subtitle">Week 1</p>
             <div id="session-focus-container" style="margin-top:12px;"></div>
@@ -157,7 +178,7 @@
 
     <div id="view-exercise" class="view">
         <div class="sticky-header">
-            <div onclick="startSession(currentDayIdx)" style="color:var(--text-secondary); font-weight:800; cursor:pointer; margin-bottom:8px;">← LISTA</div>
+            <div onclick="startSession(currentDayIdx)" style="font-weight:900; cursor:pointer; margin-bottom:8px; text-transform:uppercase; font-size:0.7rem;">← LISTA</div>
             <h2 id="ex-detail-name">Exercise Name</h2>
             <div class="action-btn danger" onclick="resetExAction()">Reset</div>
             <p class="subtitle" id="ex-detail-meta">Serie 1 di 4</p>
@@ -168,9 +189,9 @@
             <div class="metric-box"><div class="metric-label">Rest</div><div class="metric-value" id="val-rest">90"</div></div>
         </div>
         <div id="sets-blocks-container"></div>
-        <div class="session-notes-box">
-            <label>NOTE DI SESSIONE</label>
-            <textarea class="session-notes-textarea" id="session-notes" placeholder="Com'è andata oggi?" oninput="updateSessionNotes()"></textarea>
+        <div class="session-notes-box" style="background:#fff; border:var(--border-thickness) solid #000; border-radius:12px; padding:20px; box-shadow:var(--hard-shadow); margin-top:20px;">
+            <label style="font-weight:900; font-size:0.7rem; color:#000; display:block; margin-bottom:10px;">NOTE DI SESSIONE</label>
+            <textarea class="session-notes-textarea" id="session-notes" placeholder="Com'è andata oggi?" oninput="updateSessionNotes()" style="width:100%; border:none; background:transparent; font-weight:700; font-family:inherit; min-height:80px;"></textarea>
         </div>
         <div class="nav-dock"><button class="btn btn-main" onclick="nextExercise()">PROSSIMO</button></div>
     </div>
@@ -182,6 +203,21 @@
         let currentWeek = 1;
         let currentDayIdx = null;
         let currentExIdx = null;
+
+        async function init() {
+            try {
+                const res = await fetch('/api/workouts');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.length > 0) {
+                        workouts = data;
+                        localStorage.setItem('pale_workouts', JSON.stringify(workouts));
+                        renderHome();
+                    }
+                }
+            } catch(e) { console.error("Load error:", e); }
+        }
+        init();
 
         function showToast(msg) {
             const t = document.getElementById('toast');
@@ -405,8 +441,27 @@
         function resetExAction() { if(confirm('Resettare esercizio?')) { const ex = workouts[currentWorkoutIndex].days[currentDayIdx].exercises[currentExIdx]; if(ex.sessionData) delete ex.sessionData[currentWeek]; save(); openExercise(currentExIdx); } }
         function finishSession() { const w = workouts[currentWorkoutIndex]; if (!w.progress) w.progress = {}; if (!w.progress[currentWeek]) w.progress[currentWeek] = {}; w.progress[currentWeek][currentDayIdx] = true; save(); exportToCSV(); showToast("SALVATA!"); openWorkout(currentWorkoutIndex); }
         function exportToCSV() { const w = workouts[currentWorkoutIndex]; const d = w.days[currentDayIdx]; let csv = "Data,Piano,Settimana,Giorno,Esercizio,SottoEsercizio,Giro,Carico,Note\n"; const date = new Date().toLocaleDateString(); d.exercises.forEach(ex => { const data = ex.sessionData && ex.sessionData[currentWeek]; if(data) { data.rounds.forEach((round, rI) => { round.subLoads.forEach((load, sI) => { csv += `"${date}","${w.title}","W${currentWeek}","${sanitize(d.name)}","${sanitize(ex.name)}","Set ${sI+1}",${rI+1},"${load}","${(data.notes||'').replace(/"/g, '""')}"\n`; }); }); } }); const blob = new Blob([csv], { type: 'text/csv' }); const url = window.URL.createObjectURL(blob); const a = document.createElement('a'); a.setAttribute('hidden', ''); a.setAttribute('href', url); a.setAttribute('download', `workout_log_${new Date().getTime()}.csv`); document.body.appendChild(a); a.click(); document.body.removeChild(a); }
-        function save() { localStorage.setItem('pale_workouts', JSON.stringify(workouts)); }
-        function deleteWorkout(i) { if(confirm('ELIMINARE IL PIANO?')) { workouts.splice(i, 1); save(); renderHome(); } }
+        function save() {
+            localStorage.setItem('pale_workouts', JSON.stringify(workouts));
+            if (currentWorkoutIndex !== null) {
+                const w = workouts[currentWorkoutIndex];
+                fetch('/api/workouts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(w)
+                }).catch(err => console.error("Sync error:", err));
+            }
+        }
+
+        function deleteWorkout(i) {
+            if(confirm('ELIMINARE IL PIANO?')) {
+                const id = workouts[i].id;
+                workouts.splice(i, 1);
+                localStorage.setItem('pale_workouts', JSON.stringify(workouts));
+                renderHome();
+                fetch(`/api/workouts/${id}`, { method: 'DELETE' }).catch(err => console.error("Delete error:", err));
+            }
+        }
 
         function importAction() {
             const raw = document.getElementById('import-text').value;
@@ -455,7 +510,23 @@
                 let curD = null;
                 lines.forEach(l => { if(l.startsWith('## ') && (l.toLowerCase().includes('giorno') || l.toLowerCase().includes('sessione') || l.toLowerCase().includes('giorno extra'))) { if(curD && curD.exercises.length > 0) w.days.push(curD); curD = { name: sanitize(l), exercises: [] }; } else if(curD) { if(l.includes('|') && !l.includes('Esercizio') && !l.includes('---')) { const cols = l.split('|').map(c => c.trim()); if(cols.length >= 4 && cols[1] !== "") { curD.exercises.push({ name: sanitize(cols[1]), sets: cols[2], reps: cols[3], rest: cols[4] || "90s", notes: cols[5] || "" }); } } } });
                 if(curD && curD.exercises.length > 0) w.days.push(curD);
-                if(w.days.length > 0) { workouts.unshift(w); save(); showToast("IMPORTED"); renderHome(); showView('view-home'); }
+                if(w.days.length > 0) { 
+                    workouts.unshift(w); 
+                    localStorage.setItem('pale_workouts', JSON.stringify(workouts));
+                    fetch('/api/workouts', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(w)
+                    }).then(() => {
+                        showToast("IMPORTED & SYNCED");
+                        renderHome();
+                        showView('view-home');
+                    }).catch(err => {
+                        showToast("IMPORTED (Local only)");
+                        renderHome();
+                        showView('view-home');
+                    });
+                }
                 btn.innerText = "INITIALIZE"; btn.disabled = false;
             }, 800);
         }
