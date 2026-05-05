@@ -489,10 +489,16 @@
                             const targetReps = parseReps(sx.reps);
                             
                             for (let otherW of workouts) {
+                                const otherNumWeeks = Number(otherW.numWeeks);
                                 for (let otherD of (otherW.days || [])) {
                                     for (let otherEx of (otherD.exercises || [])) {
                                         if (sanitize(otherEx.name).toLowerCase() === targetName && otherEx.sessionData) {
-                                            const weeks = Object.keys(otherEx.sessionData).map(Number).sort((a,b) => b-a);
+                                            // Filtra le settimane: NON usare MAI l'ultima settimana (scarico) se il piano è > 1 settimana
+                                            const weeks = Object.keys(otherEx.sessionData)
+                                                .map(Number)
+                                                .filter(wKey => otherNumWeeks === 1 || wKey !== otherNumWeeks)
+                                                .sort((a,b) => b-a);
+                                                
                                             for (let wKey of weeks) {
                                                 const sData = otherEx.sessionData[wKey];
                                                 if (sData && sData.rounds && sData.rounds[0] && sData.rounds[0].subLoads[sI]) {
