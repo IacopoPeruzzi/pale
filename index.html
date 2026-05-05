@@ -11,14 +11,14 @@
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <style>
         :root {
-            --bg-color: #050507;
-            --card-bg: rgba(25, 25, 35, 0.85);
+            --bg-color: #0a0a0c;
+            --card-bg: rgba(255, 255, 255, 0.03);
             --accent-color: #cfff04;
-            --accent-glow: rgba(207, 255, 4, 0.35);
             --text-primary: #ffffff;
-            --text-secondary: #8a8a93;
+            --text-secondary: #a1a1aa;
             --border-radius: 24px;
             --safe-area-top: env(safe-area-inset-top);
+            --glass-border: rgba(255, 255, 255, 0.08);
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
@@ -53,23 +53,24 @@
         .progress-monitor { font-size: 0.65rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent-color); margin: 15px 0 8px 0; opacity: 0.8; }
 
         .resume-card {
-            background: linear-gradient(135deg, var(--accent-color) 0%, #b8e600 100%);
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
             border-radius: 28px; padding: 24px; margin: 0 0 20px 0;
-            border: none; box-shadow: 0 15px 35px var(--accent-glow);
-            cursor: pointer; color: #000; position: relative; overflow: hidden;
-            transition: transform 0.2s;
+            border: 1px solid var(--glass-border);
+            cursor: pointer; color: #fff; position: relative; overflow: hidden;
+            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .resume-card:active { transform: scale(0.96); }
-        .resume-card h2 { color: #000; font-size: 1.35rem; margin-bottom: 10px; line-height: 1.2; font-weight: 900; }
-        .resume-card small { font-weight: 800; opacity: 0.6; text-transform: uppercase; letter-spacing: 1px; font-size: 0.7rem; display: block; margin-bottom: 6px; }
-        .resume-card p { font-size: 0.85rem; line-height: 1.5; font-weight: 600; margin: 0; opacity: 0.85; max-width: 95%; }
-        .resume-card .play-icon { position: absolute; right: 20px; bottom: 20px; font-size: 2.5rem; opacity: 0.15; }
+        .resume-card h2 { color: var(--accent-color); font-size: 1.35rem; margin-bottom: 10px; line-height: 1.2; font-weight: 800; letter-spacing: -0.5px; }
+        .resume-card small { font-weight: 800; opacity: 0.5; text-transform: uppercase; letter-spacing: 1.5px; font-size: 0.65rem; display: block; margin-bottom: 8px; }
+        .resume-card p { font-size: 0.85rem; line-height: 1.5; font-weight: 400; margin: 0; color: var(--text-secondary); max-width: 90%; }
+        .resume-card .play-icon { position: absolute; right: 24px; bottom: 24px; font-size: 1.5rem; opacity: 0.4; color: var(--accent-color); }
 
         .manage-toggle { font-size: 0.65rem; padding: 6px 12px; border-radius: 10px; background: rgba(255,255,255,0.05); color: var(--text-secondary); border: 1px solid rgba(255,255,255,0.1); cursor: pointer; transition: 0.3s; }
         .manage-toggle.active { background: #ff4444; color: #fff; border-color: transparent; }
 
-        .list-card { background: var(--card-bg); border-radius: 20px; padding: 16px; border: 1px solid rgba(255,255,255,0.05); backdrop-filter: blur(10px); display: flex; align-items: center; cursor: pointer; transition: 0.3s; margin-bottom: 10px; position: relative; }
-        .list-card.completed { border-left: 6px solid var(--accent-color); background: rgba(207, 255, 4, 0.03); }
+        .list-card { background: var(--card-bg); border-radius: 20px; padding: 16px; border: 1px solid var(--glass-border); backdrop-filter: blur(10px); display: flex; align-items: center; cursor: pointer; transition: 0.3s; margin-bottom: 10px; position: relative; }
+        .list-card.completed { border-left: 4px solid var(--accent-color); background: rgba(255, 255, 255, 0.05); }
         .list-card.manage-mode { animation: wobble 0.3s infinite; }
         @keyframes wobble { 0% { transform: rotate(0.5deg); } 50% { transform: rotate(-0.5deg); } 100% { transform: rotate(0.5deg); } }
         .delete-btn { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); width: 35px; height: 35px; border-radius: 50%; background: #ff4444; display: none; align-items: center; justify-content: center; color: white; font-size: 0.8rem; }
@@ -82,8 +83,8 @@
         .progress-container { width: 100%; height: 6px; background: rgba(255,255,255,0.03); border-radius: 10px; margin: 15px 0; overflow: hidden; }
         .progress-bar { height: 100%; background: var(--accent-color); transition: width 1s cubic-bezier(0.16, 1, 0.3, 1); }
         .week-grid { display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; }
-        .week-btn { flex: 0 0 85px; padding: 14px; background: var(--card-bg); border-radius: 18px; text-align: center; cursor: pointer; opacity: 0.4; border: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }
-        .week-btn.active { opacity: 1; background: var(--accent-color); color: #000; box-shadow: 0 5px 15px var(--accent-glow); }
+        .week-btn { flex: 0 0 85px; padding: 14px; background: var(--card-bg); border-radius: 18px; text-align: center; cursor: pointer; opacity: 0.5; border: 1px solid var(--glass-border); transition: 0.3s; }
+        .week-btn.active { opacity: 1; background: var(--accent-color); color: #000; border-color: transparent; }
         .ex-item { background: var(--card-bg); border-radius: 20px; padding: 16px; margin-bottom: 10px; display: flex; align-items: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.05); }
         .ex-item.done { opacity: 0.4; border-left: 4px solid var(--accent-color); }
         .ex-item-name { font-weight: 700; flex: 1; font-size: 1rem; }
@@ -93,8 +94,8 @@
         .metric-value { font-size: 1.1rem; font-weight: 800; color: var(--accent-color); }
         .set-block { background: rgba(255,255,255,0.03); border-radius: 20px; padding: 18px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.05); }
         .set-header { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
-        .set-circle { width: 45px; height: 45px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; font-weight: 900; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; flex-shrink: 0; }
-        .set-circle.active { background: var(--accent-color); color: #000; border-color: transparent; box-shadow: 0 0 25px var(--accent-glow); transform: scale(1.05); }
+        .set-circle { width: 45px; height: 45px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; font-weight: 800; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); cursor: pointer; flex-shrink: 0; }
+        .set-circle.active { background: var(--accent-color); color: #000; border-color: transparent; transform: scale(1.05); }
         .sub-ex-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-top: 1px solid rgba(255,255,255,0.03); gap: 10px; }
         .sub-ex-info { flex: 1; }
         .sub-ex-name { font-size: 0.9rem; font-weight: 700; color: #fff; }
@@ -108,7 +109,7 @@
         .nav-dock.vertical { flex-direction: column; }
         .btn { flex: 1; border: none; padding: 18px; border-radius: 20px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 0.8rem; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); width: 100%; }
         .btn:active { transform: scale(0.96); opacity: 0.8; }
-        .btn-main { background: var(--accent-color); color: #000; box-shadow: 0 8px 20px var(--accent-glow); }
+        .btn-main { background: var(--accent-color); color: #000; }
         .btn-alt { background: rgba(255,255,255,0.08); color: #fff; }
         #toast { position: fixed; top: 30px; left: 50%; transform: translateX(-50%); background: var(--accent-color); color: #000; padding: 10px 20px; border-radius: 50px; font-weight: 800; z-index: 5000; display: none; font-size: 0.8rem; }
     </style>
@@ -125,7 +126,7 @@
         <h3>I tuoi Piani <div id="manage-btn" class="manage-toggle" onclick="toggleManageMode()">GESTISCI</div></h3>
         <div id="workouts-list"></div>
         
-        <div onclick="showView('view-import')" style="position: fixed; bottom: 40px; right: 25px; width: 70px; height: 70px; background: var(--accent-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: #000; box-shadow: 0 10px 20px var(--accent-glow); z-index: 1000; cursor: pointer;">+</div>
+        <div onclick="showView('view-import')" style="position: fixed; bottom: 40px; right: 25px; width: 64px; height: 64px; background: var(--accent-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: #000; z-index: 1000; cursor: pointer;">+</div>
     </div>
 
     <!-- Resto delle View invariate... -->
