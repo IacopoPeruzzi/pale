@@ -24,6 +24,7 @@ def generate_html():
             --border-heavy: 2.5px;
             --border-light: 1px;
             --safe-top: env(safe-area-inset-top);
+            --safe-bottom: env(safe-area-inset-bottom);
         }}
 
         @keyframes prop-pulse {{ 0% {{ background: transparent; }} 50% {{ background: var(--accent-lime); opacity: 0.3; }} 100% {{ background: transparent; }} }}
@@ -41,116 +42,183 @@ def generate_html():
             margin: 0; padding: 0; overflow-x: hidden;
         }}
 
+        /* Precision Navigation Header */
         .ui-anchor {{
             position: fixed; top: calc(12px + var(--safe-top)); left: 12px; right: 12px;
             z-index: 5000; pointer-events: none;
-            display: flex; justify-content: space-between; align-items: flex-start;
+            display: flex; justify-content: space-between; align-items: center;
         }}
+
+        .nav-col {{ flex: 1; display: flex; align-items: center; pointer-events: none; }}
+        .nav-col.left {{ justify-content: flex-start; }}
+        .nav-col.center {{ justify-content: center; }}
+        .nav-col.right {{ justify-content: flex-end; }}
 
         .badge-core {{
             pointer-events: auto; background: #000; color: #fff;
-            padding: 10px 18px; border: var(--border-heavy) solid #000;
-            box-shadow: 5px 5px 0px var(--accent-lime);
-            display: flex; flex-direction: column; cursor: pointer;
+            padding: 8px 14px; border: var(--border-heavy) solid #000;
+            box-shadow: 3px 3px 0px var(--accent-lime);
+            display: flex; flex-direction: column; cursor: pointer; text-align: center;
         }}
-        .badge-core .t1 {{ font-size: 1.2rem; font-weight: 900; letter-spacing: -1.5px; line-height: 0.9; }}
-        .badge-core .t2 {{ font-size: 0.45rem; font-family: 'JetBrains Mono', monospace; opacity: 0.6; margin-top: 4px; }}
+        .badge-core .t1 {{ font-size: 0.9rem; font-weight: 900; letter-spacing: -1px; line-height: 0.85; }}
+        .badge-core .t2 {{ font-size: 0.35rem; font-family: 'JetBrains Mono', monospace; opacity: 0.6; margin-top: 2px; }}
+
+        .nav-btn-sticky {{
+            pointer-events: auto; height: 34px; background: #fff; border: 2.2px solid #000;
+            box-shadow: 3px 3px 0px #000; display: none; align-items: center; justify-content: center;
+            padding: 0 12px; font-weight: 900; font-size: 0.65rem; cursor: pointer; text-transform: uppercase;
+            clip-path: polygon(0 0, 92% 0, 100% 20%, 100% 100%, 8% 100%, 0 80%);
+        }}
+        .nav-btn-sticky.active {{ display: flex; }}
+        .nav-btn-sticky:active {{ transform: translate(2px, 2px); box-shadow: 0px 0px 0px #000; }}
 
         .ctrl-box {{
-            pointer-events: auto; width: 48px; height: 48px; background: #fff;
-            border: var(--border-heavy) solid #000; box-shadow: 5px 5px 0px #000;
+            pointer-events: auto; height: 34px; background: #fff;
+            border: 2.2px solid #000; box-shadow: 3px 3px 0px #000;
             display: flex; align-items: center; justify-content: center;
-            font-weight: 900; font-size: 0.6rem; cursor: pointer;
+            font-weight: 900; font-size: 0.55rem; cursor: pointer; padding: 0 12px;
+            text-transform: uppercase; letter-spacing: 0.5px;
         }}
-        .ctrl-box:active {{ transform: translate(3px, 3px); box-shadow: 0px 0px 0px #000; }}
+        .ctrl-box.exit {{ background: #000; color: #fff; box-shadow: 3px 3px 0px var(--accent-pink); border-color: #000; }}
+        .ctrl-box:active {{ transform: translate(2px, 2px); box-shadow: 0px 0px 0px #000; }}
 
         .view {{ display: none; padding: 12px; padding-top: 95px; min-height: 100vh; position: relative; z-index: 10; }}
-        .view.active {{ display: block; animation: fade-in 0.25s ease-out; }}
+        .view.active {{ display: block; animation: fade-in 0.2s ease-out; }}
         @keyframes fade-in {{ from {{ opacity: 0; transform: translateY(4px); }} to {{ opacity: 1; transform: translateY(0); }} }}
 
         .tech-card {{
             background: #fff; border: var(--border-heavy) solid #000;
-            padding: 16px; margin-bottom: 25px; position: relative;
-            box-shadow: 8px 8px 0px rgba(0,0,0,0.03);
+            padding: 20px; margin-bottom: 25px; position: relative;
+            box-shadow: 10px 10px 0px rgba(0,0,0,0.02);
         }}
-        .tech-card::before {{ content: 'RE_SYS.04'; position: absolute; top: -11px; right: 12px; font-size: 0.5rem; font-family: 'JetBrains Mono', monospace; background: #000; color: #fff; padding: 2px 8px; }}
-        .tech-card .label {{ font-size: 0.55rem; font-weight: 900; background: var(--accent-lime); color: #000; padding: 2px 8px; border: 1.5px solid #000; margin-bottom: 10px; display: inline-block; text-transform: uppercase; }}
+        .tech-card::before {{ content: 'UNIT_REF.04'; position: absolute; top: -11px; right: 12px; font-size: 0.5rem; font-family: 'JetBrains Mono', monospace; background: #000; color: #fff; padding: 2px 10px; }}
+        .tech-card .label {{ font-size: 0.55rem; font-weight: 900; background: var(--accent-lime); color: #000; padding: 2px 10px; border: 2px solid #000; margin-bottom: 12px; display: inline-block; text-transform: uppercase; }}
 
         .heading-xl {{
-            font-size: 1.7rem; font-weight: 900; line-height: 0.85; text-transform: uppercase;
+            font-size: 1.8rem; font-weight: 900; line-height: 0.8; text-transform: uppercase;
             letter-spacing: -1.5px; margin: 0;
         }}
-        .heading-xl span {{ color: var(--accent-blue); }}
+        .heading-xl span {{ color: var(--accent-blue); opacity: 0.3; }}
 
         .shard-node {{ 
-            background: #fff; color: #000; border: var(--border-light) solid #000; 
-            padding: 14px 18px; margin-bottom: 10px; 
+            background: #fff; border: var(--border-light) solid #000; 
+            padding: 16px 20px; margin-bottom: 12px; 
             display: flex; align-items: center; cursor: pointer;
-            font-weight: 700; text-transform: uppercase; font-size: 0.9rem;
+            font-weight: 800; text-transform: uppercase; font-size: 0.95rem;
+            transition: 0.1s; position: relative;
+        }}
+        .shard-node.done {{ border-left: 14px solid var(--accent-lime); background: #fff; font-weight: 900; }}
+        .shard-node.manage {{ border: var(--border-heavy) dashed var(--accent-pink); }}
+
+        /* Elite Industrial Buttons */
+        .btn-elite {{
+            position: relative; height: 64px; border: none; background: transparent;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            padding: 0; transition: 0.1s; overflow: visible; width: 100%;
+        }}
+        .btn-elite .body {{
+            position: absolute; inset: 0; background: #000; color: #fff;
+            border: var(--border-heavy) solid #000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 2; clip-path: polygon(0 0, 95% 0, 100% 15%, 100% 100%, 5% 100%, 0 85%);
             transition: 0.1s;
         }}
-        .shard-node:active {{ border-width: var(--border-heavy); background: var(--bg-canvas); }}
-        .shard-node.done {{ border-left: 12px solid var(--accent-lime); background: #fff; font-weight: 900; }}
-
-        .btn-tech {{
-            background: #000; color: #fff;
-            border: none; padding: 18px; font-weight: 900; 
-            text-transform: uppercase; font-size: 1rem; cursor: pointer;
-            width: 100%; box-shadow: 6px 6px 0px var(--accent-lime);
+        .btn-elite .shadow {{
+            position: absolute; inset: 6px -6px -6px 6px; background: var(--accent-lime);
+            z-index: 1; clip-path: polygon(0 0, 95% 0, 100% 15%, 100% 100%, 5% 100%, 0 85%);
             transition: 0.1s;
         }}
-        .btn-tech:active {{ transform: translate(3px, 3px); box-shadow: 0px 0px 0px #000; background: #222; }}
-        .btn-tech.warning {{ background: var(--accent-pink); box-shadow: 6px 6px 0px #000; }}
+        .btn-elite .hatch {{
+            position: absolute; left: 0; top: 0; bottom: 0; width: 12px;
+            background: repeating-linear-gradient(45deg, transparent, transparent 4px, rgba(255,255,255,0.1) 4px, rgba(255,255,255,0.1) 8px);
+        }}
+        .btn-elite .main-txt {{ font-weight: 900; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1.5px; line-height: 1; }}
+        .btn-elite .sub-txt {{ font-family: 'JetBrains Mono', monospace; font-size: 0.45rem; opacity: 0.5; margin-top: 4px; text-transform: uppercase; }}
+        .btn-elite:active {{ transform: translate(3px, 3px); }}
+        .btn-elite:active .shadow {{ inset: 0; opacity: 0; }}
+        .btn-elite.alt .body {{ background: var(--accent-pink); color: #fff; border-color: #000; }}
+        .btn-elite.alt .shadow {{ background: #000; }}
+        .btn-elite.ghost .body {{ background: #fff; color: #000; border-color: #000; }}
+        .btn-elite.ghost .shadow {{ background: #000; opacity: 0.1; }}
+        .btn-elite.lime .body {{ background: var(--accent-lime); color: #000; border-color: #000; }}
+        .btn-elite.lime .shadow {{ background: #000; }}
 
-        .selector-row {{ display: flex; gap: 8px; margin-bottom: 30px; overflow-x: auto; padding: 10px 5px; }}
+        .selector-row {{ display: flex; gap: 10px; margin-bottom: 35px; overflow-x: auto; padding: 12px 5px; }}
         .selector-node {{ 
-            flex: 0 0 55px; height: 55px; border: var(--border-light) solid #000;
+            flex: 0 0 60px; height: 60px; border: var(--border-light) solid #000;
             display: flex; align-items: center; justify-content: center;
-            font-weight: 900; cursor: pointer; font-size: 0.85rem; background: #fff;
+            font-weight: 900; cursor: pointer; font-size: 0.9rem; background: #fff;
         }}
-        .selector-node.active {{ background: #000; color: #fff; border-width: var(--border-heavy); transform: translateY(-5px); box-shadow: 6px 6px 0px var(--accent-lime); }}
+        .selector-node.active {{ background: #000; color: #fff; border-width: var(--border-heavy); transform: translateY(-6px); box-shadow: 6px 6px 0px var(--accent-lime); }}
 
-        .data-strip {{ display: flex; gap: 10px; margin-top: 15px; }}
+        .data-strip {{ display: flex; gap: 12px; margin-top: 20px; }}
         .data-box {{ 
-            background: #fff; border: var(--border-light) solid #000; padding: 10px; text-align: center; flex: 1;
+            background: #fff; border: var(--border-light) solid #000; padding: 12px; text-align: center; flex: 1;
         }}
-        .data-box .v {{ font-size: 1.2rem; font-weight: 900; font-family: 'JetBrains Mono', monospace; display: block; }}
-        .data-box .l {{ font-size: 0.45rem; opacity: 0.5; text-transform: uppercase; font-weight: 700; margin-top: 4px; display: block; }}
+        .data-box .v {{ font-size: 1.3rem; font-weight: 900; font-family: 'JetBrains Mono', monospace; display: block; }}
+        .data-box .l {{ font-size: 0.45rem; opacity: 0.6; text-transform: uppercase; font-weight: 700; margin-top: 4px; display: block; }}
 
         .set-container {{ 
             background: #fff; border: var(--border-heavy) solid #000; 
-            padding: 18px; margin-bottom: 25px; position: relative;
-            scroll-margin-top: 110px;
+            padding: 20px; margin-bottom: 30px; position: relative;
+            scroll-margin-top: 120px;
         }}
         
         .badge-id {{ 
-            width: 36px; height: 36px; border: var(--border-heavy) solid #000; 
-            font-weight: 900; font-family: 'JetBrains Mono', monospace; font-size: 1rem;
+            width: 40px; height: 40px; border: var(--border-heavy) solid #000; 
+            font-weight: 900; font-family: 'JetBrains Mono', monospace; font-size: 1.1rem;
             display: flex; align-items: center; justify-content: center; cursor: pointer;
             background: #fff; transition: 0.15s;
         }}
-        .badge-id.active {{ background: var(--accent-lime); transform: scale(1.1); box-shadow: 4px 4px 0px #000; }}
+        .badge-id.active {{ background: var(--accent-lime); transform: scale(1.1); box-shadow: 5px 5px 0px #000; }}
 
         .input-tech {{ 
-            border: none; border-bottom: 4px solid #000; 
-            font-weight: 900; font-family: 'JetBrains Mono', monospace; font-size: 2.2rem; 
-            width: 100px; text-align: center; background: transparent; color: #000; 
-            transition: background 0.3s;
+            border: none; border-bottom: 5px solid #000; 
+            font-weight: 900; font-family: 'JetBrains Mono', monospace; font-size: 2.5rem; 
+            width: 110px; text-align: center; background: transparent; color: #000; 
         }}
         .input-tech.pulse {{ animation: prop-pulse 0.6s ease-out; }}
         
-        .prog-grid {{ height: 10px; display: flex; gap: 3px; margin-bottom: 35px; }}
-        .prog-cell {{ flex: 1; background: #fff; border: 1px solid rgba(0,0,0,0.1); transition: 0.3s; }}
-        .prog-cell.on {{ background: #000; border-color: #000; box-shadow: 0 0 5px rgba(0,0,0,0.2); }}
+        .prog-grid {{ height: 12px; display: flex; gap: 4px; margin-bottom: 40px; }}
+        .prog-cell {{ flex: 1; background: #fff; border: 1px solid rgba(0,0,0,0.1); transition: 0.4s; }}
+        .prog-cell.on {{ background: #000; box-shadow: 0 0 8px rgba(0,0,0,0.15); }}
 
         #toast {{ 
-            position: fixed; bottom: 25px; left: 15px; right: 15px;
-            background: #000; color: #fff; padding: 15px; 
+            position: fixed; bottom: 30px; left: 20px; right: 20px;
+            background: #000; color: #fff; padding: 18px; 
             font-weight: 900; font-family: 'JetBrains Mono', monospace; 
             border: var(--border-heavy) solid var(--accent-lime); z-index: 10000;
-            display: none; text-align: center; text-transform: uppercase; font-size: 0.8rem;
+            display: none; text-align: center; text-transform: uppercase; font-size: 0.85rem;
         }}
-        
+
+        .dots-btn {{ 
+            width: 34px; height: 34px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px;
+            cursor: pointer; pointer-events: auto; background: #fff; border: 2.5px solid #000;
+        }}
+        .dots-btn span {{ width: 4px; height: 4px; background: #000; border-radius: 50%; }}
+
+        .edit-input-group {{ margin-bottom: 25px; }}
+        .edit-input-group label {{ display: block; font-size: 0.5rem; font-weight: 900; text-transform: uppercase; margin-bottom: 6px; opacity: 0.7; }}
+        .edit-input {{ width: 100%; padding: 15px; border: var(--border-heavy) solid #000; font-weight: 800; font-size: 1.1rem; font-family: 'Outfit'; }}
+
+        #edit-mode-indicator {{
+            background: var(--accent-pink); color: #fff; font-weight: 900; font-size: 0.6rem; 
+            padding: 8px 15px; margin-bottom: 20px; border: var(--border-heavy) solid #000; 
+            text-transform: uppercase; letter-spacing: 1px;
+            display: none; justify-content: space-between; align-items: center;
+        }}
+
+        .btn-sync-fixed {{
+            position: fixed; bottom: calc(15px + var(--safe-bottom)); left: 50%; transform: translateX(-50%);
+            z-index: 5000; display: none; align-items: center; gap: 8px;
+            font-family: 'JetBrains Mono'; font-weight: 700; font-size: 0.5rem;
+            color: #000; opacity: 0.3; cursor: pointer; border: 1px solid #000;
+            padding: 5px 12px; text-transform: uppercase; background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(4px); white-space: nowrap;
+        }}
+        .btn-sync-fixed.active {{ display: flex; }}
+        .btn-sync-fixed:active {{ opacity: 1; background: #000; color: #fff; }}
+
         ::-webkit-scrollbar {{ display: none; }}
     </style>
 </head>
@@ -158,22 +226,74 @@ def generate_html():
     <div id="toast"></div>
 
     <div class="ui-anchor">
-        <div class="badge-core" onclick="showView('view-home')">
-            <div class="t1">PALE.SYSTEM</div>
-            <div class="t2">ENGINE_V4.6_TRACK</div>
+        <div class="nav-col left">
+            <div id="sticky-back-btn" class="nav-btn-sticky" onclick="handleBackAction()">BACK</div>
         </div>
-        <div class="ctrl-box" onclick="showView('view-import')">
-            SYNC
+        <div class="nav-col center">
+            <div class="badge-core" onclick="showView('view-home')">
+                <div class="t1">PALE.SYS</div>
+                <div class="t2">ENGINE_V5.7</div>
+            </div>
         </div>
+        <div class="nav-col right">
+            <div class="ctrl-box exit" onclick="logoutAction()">EXIT</div>
+        </div>
+    </div>
+
+    <!-- FIXED SYNC COMMAND (Home Only) -->
+    <div id="sync-anchor" class="btn-sync-fixed active" onclick="showView('view-import')">
+        GATE_SYNC_STATION // PHASE.05
     </div>
 
     <div id="view-home" class="view active">
         <div id="progress-grid" class="prog-grid"></div>
         <div id="resume-section"></div>
-        <div style="font-weight:900; color:#000; font-size:0.5rem; margin:20px 0 10px 0; letter-spacing:1px; display:flex; align-items:center; gap:8px;">
-            <div style="width:12px; height:2px; background:#000;"></div> DATA_CORE_ARCHIVE
+        <div style="margin:25px 0 15px 0; display:flex; justify-content:space-between; align-items:center;">
+            <div style="font-weight:900; color:#000; font-size:0.55rem; letter-spacing:1.5px; display:flex; align-items:center; gap:10px;">
+                <div style="width:15px; height:2px; background:#000;"></div> CORE_ARCHIVE_NODE
+            </div>
+            <div class="dots-btn" onclick="toggleArchiveManage()">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div id="edit-mode-indicator">
+            MANAGEMENT_ACTIVE_STREAMS
+            <span onclick="toggleArchiveManage()" style="background:#000; color:#fff; padding:3px 10px; font-size:0.5rem; cursor:pointer;">CLOSE</span>
         </div>
         <div id="workouts-list"></div>
+        <div style="height:80px;"></div>
+    </div>
+
+    <div id="view-edit-protocol" class="view">
+        <div class="tech-card">
+            <span class="label" style="background:var(--accent-pink); color:#fff;">Kernel.Update</span>
+            <h2 class="heading-xl">MODIFY<span>PROTOCOL</span></h2>
+            <div style="margin-top:30px;">
+                <div class="edit-input-group">
+                    <label>Protocol_ID_Title</label>
+                    <input type="text" id="edit-protocol-title" class="edit-input">
+                </div>
+                <div class="edit-input-group">
+                    <label>Protocol_Strategy_Focus</label>
+                    <textarea id="edit-protocol-desc" class="edit-input" style="height:90px;"></textarea>
+                </div>
+                <div style="margin-top:40px; display:flex; flex-direction:column; gap:15px;">
+                    <button class="btn-elite lime" onclick="saveProtocolMetadata()">
+                        <div class="body"><span class="main-txt">COMMIT_SALVE</span><span class="sub-txt">SYNK_V04</span></div>
+                        <div class="shadow"></div>
+                    </button>
+                    <button class="btn-elite ghost" onclick="showView('view-home')">
+                        <div class="body"><span class="main-txt">ABORT_SYNC</span><span class="sub-txt">SYS_EXIT</span></div>
+                        <div class="shadow"></div>
+                    </button>
+                    <div style="height:30px;"></div>
+                    <button class="btn-elite alt" onclick="wipeProtocolAction()">
+                        <div class="body"><span class="main-txt">WIPE_CORE</span><span class="sub-txt">DANGER_ZONE</span></div>
+                        <div class="shadow"></div>
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div id="view-import" class="view">
@@ -181,32 +301,53 @@ def generate_html():
             <span class="label">Kernel.Inbound</span>
             <h2 class="heading-xl">INJECT<span>SOURCE</span></h2>
             <textarea id="import-text" style="width:100%; height:260px; border:var(--border-heavy) solid #000; background:#fff; padding:18px; font-family:'JetBrains Mono', monospace; font-weight:700; font-size:0.8rem; margin:15px 0;"></textarea>
-            <button id="import-btn" class="btn-tech" onclick="importAction()">EXECUTE_SYNC</button>
-            <button class="btn-tech" style="margin-top:12px; background:transparent; border:none; box-shadow:none; color:#000; font-size:0.8rem;" onclick="showView('view-home')">CANCEL_SYSTEM</button>
+            <button class="btn-elite lime" id="import-btn" onclick="importAction()">
+                <div class="body"><span class="main-txt">EXECUTE_SYNC</span><span class="sub-txt">SOURCE_STREAM</span></div>
+                <div class="shadow"></div>
+            </button>
+            <button class="btn-elite ghost" style="margin-top:15px;" onclick="showView('view-home')">
+                <div class="body"><span class="main-txt">ABORT</span><span class="sub-txt">CLOSE_SOURCE</span></div>
+                <div class="shadow"></div>
+            </button>
         </div>
     </div>
 
     <div id="view-workout" class="view">
         <div id="workout-content"></div>
-        <div style="margin-top:35px;"><button class="btn-tech" onclick="showView('view-home')">TERMINATE_SESSION</button></div>
+        <div style="margin-top:40px;">
+            <button class="btn-elite" onclick="showView('view-home')">
+                <div class="body"><span class="main-txt">CLOSE_PROTOCOL</span><span class="sub-txt">EXIT_SESSION</span></div>
+                <div class="shadow"></div>
+            </button>
+        </div>
     </div>
 
     <div id="view-session" class="view">
         <div id="session-header"></div>
         <div id="session-content"></div>
-        <div style="margin-top:35px; display:flex; gap:12px;">
-            <button class="btn-tech" style="flex:1; background:#fff; color:#000; border:var(--border-heavy) solid #000; box-shadow:none;" onclick="openWorkout(currentWorkoutIndex)">BACK</button>
-            <button class="btn-tech" style="flex:2;" onclick="finishSession()">COMMIT_LOG_DATA</button>
+        <div style="margin-top:40px; display:flex; gap:15px;">
+            <button class="btn-elite" style="width:100%;" onclick="finishSession()">
+                <div class="body"><span class="main-txt">COMMIT_LOG</span><span class="sub-txt">SAVE_SNAPSHOT</span></div>
+                <div class="shadow"></div>
+            </button>
         </div>
     </div>
 
     <div id="view-exercise" class="view">
         <div id="ex-header"></div>
         <div id="ex-content"></div>
-        <div style="margin-top:35px; display:flex; gap:12px;" id="exercise-actions">
-            <button class="btn-tech" style="padding:12px; flex:0.4; background:#fff; color:#000; border:var(--border-heavy) solid #000; box-shadow:none;" onclick="startSession(currentDayIdx)">LST</button>
-            <button class="btn-tech warning" style="flex:1;" onclick="nextExercise()">SKIP</button>
-            <button class="btn-tech" style="flex:2; background:var(--accent-lime); color:#000;" onclick="nextExercise()">NEXT_FORWARD</button>
+        <div style="margin-top:40px; display:flex; gap:15px;" id="exercise-actions">
+            <button class="btn-elite alt" style="flex:1;" onclick="nextExercise()">
+                <div class="body"><span class="main-txt">SKIP</span><span class="sub-txt">VOID_02</span></div>
+                <div class="shadow"></div>
+            </button>
+            <button class="btn-elite lime" style="flex:2;" onclick="nextExercise()">
+                <div class="body">
+                    <div class="hatch"></div>
+                    <span class="main-txt">FORWARD</span><span class="sub-txt">NEXT_STREAM</span>
+                </div>
+                <div class="shadow"></div>
+            </button>
         </div>
     </div>
 
@@ -216,6 +357,8 @@ def generate_html():
         let currentWeek = 1;
         let currentDayIdx = null;
         let currentExIdx = null;
+        let isManagementMode = false;
+        let historyStack = [];
 
         async function init() {{
             try {{
@@ -238,6 +381,47 @@ def generate_html():
             setTimeout(() => t.style.display = 'none', 1500);
         }}
 
+        function logoutAction() {{
+            if(confirm('TERMINATE_SESSION: Exit system?')) {{
+                window.location.href = '/logout';
+            }}
+        }}
+
+        function toggleArchiveManage() {{
+            isManagementMode = !isManagementMode;
+            document.getElementById('edit-mode-indicator').style.display = isManagementMode ? 'flex' : 'none';
+            renderHome();
+        }}
+
+        function showView(id) {{
+            const backBtn = document.getElementById('sticky-back-btn');
+            const syncAnchor = document.getElementById('sync-anchor');
+            
+            if (id === 'view-home') {{
+                historyStack = [];
+                backBtn.classList.remove('active');
+                syncAnchor.classList.add('active');
+            }} else {{
+                if (historyStack[historyStack.length - 1] !== id) historyStack.push(id);
+                backBtn.classList.add('active');
+                syncAnchor.classList.remove('active');
+            }}
+
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            window.scrollTo(0,0);
+        }}
+
+        function handleBackAction() {{
+            if (historyStack.length > 1) {{
+                historyStack.pop(); 
+                const prev = historyStack.pop(); 
+                showView(prev || 'view-home');
+            }} else {{
+                showView('view-home');
+            }}
+        }}
+
         function getInc(w) {{
             if(!w.days) return null;
             for(let w_i=1; w_i<=w.numWeeks; w_i++) {{
@@ -246,12 +430,6 @@ def generate_html():
                 }}
             }}
             return null;
-        }}
-
-        function showView(id) {{
-            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            window.scrollTo(0,0);
         }}
 
         function renderHome() {{
@@ -277,7 +455,7 @@ def generate_html():
                         <div class="tech-card" onclick="resumeWorkout(0)">
                             <span class="label">Session.Active</span>
                             <h2 class="heading-xl">${{sanitize(w.title)}}<span>_ONLINE</span></h2>
-                            <p style="font-family:'JetBrains Mono', monospace; font-weight:700; margin-top:10px; font-size:0.85rem;">[ PHASE_0${{n.week}} // NODE_0${{n.day+1}} ]</p>
+                            <p style="font-family:'JetBrains Mono', monospace; font-weight:700; margin-top:12px; font-size:0.85rem;">[ PHASE_0${{n.week}} // NODE_0${{n.day+1}} ]</p>
                         </div>`;
                 }}
             }}
@@ -285,11 +463,45 @@ def generate_html():
             list.innerHTML = '';
             workouts.forEach((w, i) => {{
                 const card = document.createElement('div');
-                card.className = `shard-node`;
-                card.onclick = () => openWorkout(i);
-                card.innerHTML = `<div style="flex:1">${{w.title}}</div><div style="font-size:0.45rem; border:1px solid #000; padding:2px 6px; font-family:'JetBrains Mono'">OPEN_ARCHIVE</div>`;
+                card.className = `shard-node ${{isManagementMode ? 'manage' : ''}}`;
+                card.onclick = () => isManagementMode ? openEditProtocol(i) : openWorkout(i);
+                card.innerHTML = `<div style="flex:1">${{w.title}}</div><div style="font-size:0.45rem; border:1.5px solid #000; padding:2px 8px; font-family:'JetBrains Mono'">${{isManagementMode ? 'MODIFY' : 'OPEN'}}</div>`;
                 list.appendChild(card);
             }});
+        }}
+
+        function openEditProtocol(idx) {{
+            currentWorkoutIndex = idx;
+            const w = workouts[idx];
+            document.getElementById('edit-protocol-title').value = w.title;
+            document.getElementById('edit-protocol-desc').value = w.subtitle || "";
+            showView('view-edit-protocol');
+        }}
+
+        function saveProtocolMetadata() {{
+            const w = workouts[currentWorkoutIndex];
+            w.title = document.getElementById('edit-protocol-title').value;
+            w.subtitle = document.getElementById('edit-protocol-desc').value;
+            save();
+            showToast("METADATA_COMMITTED");
+            showView('view-home');
+            renderHome();
+        }}
+
+        function wipeProtocolAction() {{
+            if(confirm('WIPE_CORE_PROTOCOL: Dangerous action. Confirm permanent deletion?')) {{
+                const w = workouts[currentWorkoutIndex];
+                workouts.splice(currentWorkoutIndex, 1);
+                localStorage.setItem('pale_workouts', JSON.stringify(workouts));
+                fetch('/api/workouts', {{ 
+                    method: 'DELETE', 
+                    headers: {{ 'Content-Type': 'application/json' }}, 
+                    body: JSON.stringify({{ id: w.id }}) 
+                }}).catch(e => console.error(e));
+                showView('view-home');
+                renderHome();
+                showToast("PROTOCOL_WIPED");
+            }}
         }}
 
         function resumeWorkout(idx) {{ const w = workouts[idx]; const n = getInc(w); currentWorkoutIndex = idx; if(n) {{ currentWeek = n.week; startSession(n.day); }} else openWorkout(idx); }}
@@ -339,15 +551,14 @@ def generate_html():
                 <div class="tech-card" style="background:var(--accent-lime)">
                     <span class="label" style="background:#000; color:#fff;">Channel.Active</span>
                     <h2 class="heading-xl">${{sanitize(d.name)}}<span>_LOG</span></h2>
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:15px;">
-                        <span style="font-weight:900; background:#000; color:#fff; padding:4px 12px; font-size:0.7rem; font-family:'JetBrains Mono'">PHASE_0${{currentWeek}}</span>
-                        <button class="btn-tech" style="font-size:0.5rem; padding:8px 12px; width:auto; box-shadow:none; background:#fff; color:#000; border:2px solid #000;" onclick="resetDayAction()">RESET_CORE</button>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
+                        <span style="font-weight:900; background:#000; color:#fff; padding:5px 15px; font-size:0.75rem; font-family:'JetBrains Mono'">PHASE_0${{currentWeek}}</span>
+                        <button class="dots-btn" style="width:auto; padding:0 10px; font-size:0.5rem; font-weight:900;" onclick="resetDayAction()">RESET</button>
                     </div>
                 </div>`;
             const content = document.getElementById('session-content');
             content.innerHTML = '';
             d.exercises.forEach((ex, eI) => {{
-                // L'esercizio è completato se TUTTE le serie sono smarcate
                 const isD = ex.sessionData && ex.sessionData[currentWeek] && 
                            ex.sessionData[currentWeek].rounds && 
                            ex.sessionData[currentWeek].rounds.length > 0 &&
@@ -380,14 +591,29 @@ def generate_html():
             const nR = parseInt(ex.sets) || 1;
             while (data.rounds.length < nR) data.rounds.push({{ done: false, subLoads: new Array(subExs.length).fill("") }});
             
+            const isDeload = (currentWeek == w.numWeeks);
+            
             if (currentWeek > 1) {{
-                const prev = ex.sessionData[currentWeek - 1];
-                if (prev && prev.rounds) {{
+                // Robust Deload Search: find the latest week with recorded loads
+                let lastRecordedWeek = null;
+                for (let wk = currentWeek - 1; wk >= 1; wk--) {{
+                    if (ex.sessionData[wk] && ex.sessionData[wk].rounds && ex.sessionData[wk].rounds.some(r => r.subLoads && r.subLoads.some(l => l !== ""))) {{
+                        lastRecordedWeek = ex.sessionData[wk];
+                        break;
+                    }}
+                }}
+
+                if (lastRecordedWeek) {{
                     data.rounds.forEach((round, rI) => {{
-                        if (prev.rounds[rI] && prev.rounds[rI].subLoads) {{
-                            prev.rounds[rI].subLoads.forEach((sLoad, sI) => {{
+                        if (lastRecordedWeek.rounds[rI] && lastRecordedWeek.rounds[rI].subLoads) {{
+                            lastRecordedWeek.rounds[rI].subLoads.forEach((sLoad, sI) => {{
                                 if (round.subLoads[sI] === "" || round.subLoads[sI] === undefined) {{
-                                    round.subLoads[sI] = sLoad;
+                                    let val = sLoad;
+                                    if (isDeload && val && !isNaN(val)) {{
+                                        val = (parseFloat(val) * 0.8).toFixed(1);
+                                        if (val.endsWith('.0')) val = parseInt(val);
+                                    }}
+                                    round.subLoads[sI] = val;
                                 }}
                             }});
                         }}
@@ -397,13 +623,14 @@ def generate_html():
 
             document.getElementById('ex-header').innerHTML = `
                 <div class="tech-card" style="transform:none;">
-                    <span class="label">Target.Dynamics</span>
+                    <span class="label">${{isDeload ? 'Mode.Deload_Active' : 'Target.Dynamics'}}</span>
                     <h2 class="heading-xl">${{sanitize(ex.name)}}<span>_DATA</span></h2>
                     <div class="data-strip">
                         <div class="data-box"><span class="v">${{ex.sets}}</span><span class="l">SETS</span></div>
                         <div class="data-box"><span class="v">${{subExs.length > 1 ? 'CIRC' : ex.reps}}</span><span class="l">REPS</span></div>
-                        <div class="data-box" style="background:var(--accent-lime)"><span class="v">${{ex.rest}}</span><span class="l">REST</span></div>
+                        <div class="data-box" style="background:${{isDeload ? 'var(--accent-pink)' : 'var(--accent-lime)'}}"><span class="v">${{ex.rest}}</span><span class="l">REST</span></div>
                     </div>
+                    ${{isDeload ? `<div style="margin-top:10px; font-family:'JetBrains Mono'; font-size:0.5rem; font-weight:900; color:var(--accent-pink);">// WARNING: 80% LOAD CALCULATION APPLIED FROM PREV RECORD</div>` : ''}}
                 </div>`;
             const content = document.getElementById('ex-content');
             content.innerHTML = '';
@@ -413,18 +640,18 @@ def generate_html():
                 block.id = 'set-block-' + rI;
                 let subHtml = '';
                 subExs.forEach((sx, sI) => {{
-                    subHtml += `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
-                        <div><b style="font-size:1.1rem; line-height:0.85;">${{sx.name}}</b><br><small style="font-family:'JetBrains Mono'; font-weight:700; font-size:0.5rem; color:#888;">// TGT: ${{sx.reps}}</small></div>
+                    subHtml += `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                        <div><b style="font-size:1.1rem; line-height:0.85;">${{sx.name}}</b><br><small style="font-family:'JetBrains Mono'; font-weight:700; font-size:0.55rem; color:#888;">// TGT: ${{sx.reps}}</small></div>
                         <div style="display:flex; align-items:center;">
                             <input type="number" class="input-tech subload-input" data-round="${{rI}}" data-sub="${{sI}}" value="${{round.subLoads[sI] || ""}}" oninput="updateSubLoad(${{rI}}, ${{sI}}, this.value)">
-                            <small style="font-weight:900; font-family:'JetBrains Mono'; margin-left:8px; font-size:0.75rem;">KG</small>
+                            <small style="font-weight:900; font-family:'JetBrains Mono'; margin-left:10px; font-size:0.8rem;">KG</small>
                         </div>
                     </div>`;
                 }});
                 block.innerHTML = `
-                    <div style="display:flex; align-items:center; gap:20px; margin-bottom:20px;">
+                    <div style="display:flex; align-items:center; gap:22px; margin-bottom:25px;">
                         <div class="badge-id ${{round.done ? 'active' : ''}}" data-round-badge="${{rI}}" onclick="toggleRound(${{rI}})">${{rI+1}}</div>
-                        <div style="font-family:'JetBrains Mono'; font-weight:900; text-transform:uppercase; font-size:0.5rem; letter-spacing:1px; background:#000; color:#fff; padding:3px 10px;">CORE_NODE_0${{rI+1}}</div>
+                        <div style="font-family:'JetBrains Mono'; font-weight:900; text-transform:uppercase; font-size:0.55rem; letter-spacing:1.5px; background:#000; color:#fff; padding:4px 12px;">CORE_NODE_0${{rI+1}}</div>
                     </div>
                     ${{subHtml}}`;
                 content.appendChild(block);
@@ -432,7 +659,7 @@ def generate_html():
             const notes = document.createElement('div');
             notes.className = 'tech-card';
             notes.style.background = 'var(--accent-pink)';
-            notes.innerHTML = `<span class="label" style="background:#fff;">Log.Notes</span><textarea id="session-notes" oninput="updateSessionNotes()" style="width:100%; border:var(--border-heavy) solid #000; margin-top:12px; background:#fff; padding:15px; font-family:'JetBrains Mono'; font-weight:700; min-height:100px; font-size:0.85rem;">${{data.notes || ""}}</textarea>`;
+            notes.innerHTML = `<span class="label" style="background:#fff;">Log.Notes</span><textarea id="session-notes" oninput="updateSessionNotes()" style="width:100%; border:var(--border-heavy) solid #000; margin-top:15px; background:#fff; padding:18px; font-family:'JetBrains Mono'; font-weight:700; min-height:110px; font-size:0.9rem;">${{data.notes || ""}}</textarea>`;
             content.appendChild(notes);
             showView('view-exercise');
         }}
@@ -441,17 +668,12 @@ def generate_html():
             const data = workouts[currentWorkoutIndex].days[currentDayIdx].exercises[currentExIdx].sessionData[currentWeek]; 
             data.rounds[rI].done = !data.rounds[rI].done; 
             save(); 
-            
             const badge = document.querySelector(`[data-round-badge="${{rI}}"]`);
             if (badge) badge.classList.toggle('active');
-            
             if (data.rounds[rI].done) {{
                 const nextBlock = document.getElementById('set-block-' + (rI + 1));
-                if (nextBlock) {{
-                    nextBlock.scrollIntoView({{ behavior: 'smooth', block: 'start' }});
-                }} else {{
-                    document.getElementById('exercise-actions').scrollIntoView({{ behavior: 'smooth', block: 'end' }});
-                }}
+                if (nextBlock) nextBlock.scrollIntoView({{ behavior: 'smooth', block: 'start' }});
+                else document.getElementById('exercise-actions').scrollIntoView({{ behavior: 'smooth', block: 'end' }});
             }}
         }}
         
@@ -459,7 +681,6 @@ def generate_html():
             const data = workouts[currentWorkoutIndex].days[currentDayIdx].exercises[currentExIdx].sessionData[currentWeek]; 
             const oldVal = data.rounds[rI].subLoads[sI];
             data.rounds[rI].subLoads[sI] = val; 
-            
             if (rI === 0) {{
                 document.querySelectorAll(`.subload-input[data-sub="${{sI}}"]`).forEach(input => {{
                     const roundIdx = parseInt(input.dataset.round);
@@ -490,7 +711,7 @@ def generate_html():
             const raw = document.getElementById('import-text').value;
             if(!raw.trim()) return;
             const btn = document.getElementById('import-btn');
-            btn.innerText = "INITIALIZING..."; btn.disabled = true;
+            btn.querySelector('.main-txt').innerText = "PROCESSING..."; 
             setTimeout(() => {{
                 const w = {{ id: "p-" + Date.now(), title: "CORE_PROTOCOL", subtitle: "", days: [], numWeeks: 4, progress: {{}} }};
                 const lines = raw.split('\\n');
@@ -506,7 +727,6 @@ def generate_html():
                 }});
                 if(curD) w.days.push(curD);
                 if(w.days.length > 0) {{ workouts.unshift(w); save(); showView('view-home'); renderHome(); }}
-                btn.innerText = "EXECUTE_SYNC"; btn.disabled = false;
             }}, 800);
         }}
         renderHome();
@@ -521,4 +741,4 @@ if __name__ == "__main__":
     html_content = generate_html()
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(html_content)
-    print(f"Successo: UI Cyber-Industrial Track completion generata.")
+    print(f"Successo: UI Cyber-Industrial Layout V5.7 (Fixed Sync & Robust Deload) generata.")

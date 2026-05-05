@@ -36,77 +36,113 @@ LOGIN_HTML = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Pale App - Login</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@900&display=swap" rel="stylesheet">
+    <title>Pale App - Auth</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;400;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-black: #000000;
-            --accent-yellow: #FFEA00;
-            --accent-lime: #B8FF00;
-            --accent-white: #FFFFFF;
-            --border-thick: 3px;
+            --bg-canvas: #F8F8F8;
+            --text-dark: #111111;
+            --accent-lime: #BFFF00;
+            --accent-pink: #FF0077;
+            --accent-blue: #0055FF;
+            --border-heavy: 2.5px;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-        body {
-            background-color: var(--bg-black);
-            color: var(--accent-white);
-            font-family: 'Outfit', sans-serif;
-            margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh;
-            overflow: hidden;
-        }
-
-        .login-card { 
-            text-align: center; width: 100%; max-width: 340px; padding: 50px 30px; 
-            background: var(--accent-yellow); border: var(--border-thick) solid var(--bg-black);
-            box-shadow: 12px 12px 0px var(--accent-lime);
-            position: relative;
-        }
         
-        .meta-strip {
-            background: var(--bg-black); color: var(--accent-white);
-            padding: 5px 12px; font-weight: 900; text-transform: uppercase; 
-            font-size: 0.7rem; margin-bottom: 25px; display: inline-block;
+        body {
+            background-color: var(--bg-canvas);
+            background-image: 
+                linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+            background-size: 25px 25px;
+            color: var(--text-dark);
+            font-family: 'Outfit', sans-serif;
+            margin: 0; padding: 0; height: 100vh;
+            display: flex; align-items: center; justify-content: center;
         }
 
-        .brand-title { 
-            font-size: 4rem; font-weight: 900; margin: 0 0 40px 0; letter-spacing: -2px; 
-            text-transform: uppercase; line-height: 0.85; color: var(--bg-black);
+        .login-node {
+            width: 100%; max-width: 360px; padding: 15px;
         }
+
+        .tech-card {
+            background: #fff; border: var(--border-heavy) solid #000;
+            padding: 30px; position: relative;
+            box-shadow: 12px 12px 0px rgba(0,0,0,0.05);
+        }
+        .tech-card::before { content: 'AUTH_GATE.01'; position: absolute; top: -11px; right: 12px; font-size: 0.5rem; font-family: 'JetBrains Mono', monospace; background: #000; color: #fff; padding: 2px 10px; }
+        
+        .brand-logo { text-align: center; margin-bottom: 40px; }
+        .brand-logo h1 { font-size: 3.5rem; font-weight: 900; line-height: 0.8; margin: 0; letter-spacing: -3px; }
+        .brand-logo span { color: var(--accent-blue); opacity: 0.4; }
+
+        .input-group { margin-bottom: 35px; text-align: center; }
+        .input-group label { display: block; font-family: 'JetBrains Mono'; font-size: 0.5rem; font-weight: 900; text-transform: uppercase; margin-bottom: 8px; opacity: 0.6; }
         
         input { 
-            width: 100%; padding: 20px; 
-            border: var(--border-thick) solid var(--bg-black); 
-            background: var(--accent-white); border-radius: 0;
-            color: var(--bg-black); font-family: inherit; font-size: 1.2rem; text-align: center; font-weight: 900; 
-            margin-bottom: 25px;
+            width: 100%; border: none; border-bottom: 5px solid #000; 
+            background: transparent; font-family: 'JetBrains Mono'; font-size: 2rem; 
+            text-align: center; font-weight: 900; padding: 10px 0;
+            transition: 0.3s;
         }
-        
-        button { 
-            width: 100%; padding: 22px; 
-            background: var(--bg-black); color: var(--accent-lime); 
-            border: none; font-weight: 900; font-size: 1.1rem; 
-            text-transform: uppercase; cursor: pointer; transition: 0.1s; 
-            box-shadow: 8px 8px 0px var(--accent-white);
+        input:focus { border-color: var(--accent-blue); }
+
+        .btn-elite {
+            position: relative; height: 68px; border: none; background: transparent;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            width: 100%; transition: 0.1s;
         }
-        button:active { transform: translate(4px, 4px); box-shadow: 4px 4px 0px var(--accent-white); }
+        .btn-elite .body {
+            position: absolute; inset: 0; background: var(--accent-lime); color: #000;
+            border: var(--border-heavy) solid #000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 2; clip-path: polygon(0 0, 95% 0, 100% 15%, 100% 100%, 5% 100%, 0 85%);
+        }
+        .btn-elite .shadow {
+            position: absolute; inset: 8px -8px -8px 8px; background: #000;
+            z-index: 1; clip-path: polygon(0 0, 95% 0, 100% 15%, 100% 100%, 5% 100%, 0 85%);
+        }
+        .btn-elite .hatch {
+            position: absolute; left: 0; top: 0; bottom: 0; width: 14px;
+            background: repeating-linear-gradient(45deg, transparent, transparent 4px, rgba(0,0,0,0.05) 4px, rgba(0,0,0,0.05) 8px);
+        }
+        .btn-elite .main-txt { font-weight: 900; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 2px; }
+        .btn-elite .sub-txt { font-family: 'JetBrains Mono'; font-size: 0.45rem; opacity: 0.6; margin-top: 4px; }
         
-        .error { 
-            background: #ff3b30; color: #fff; font-size: 0.75rem; font-weight: 900; 
-            margin-top: 25px; padding: 10px; border: var(--border-thick) solid var(--bg-black);
-            text-transform: uppercase; display: block;
+        .btn-elite:active { transform: translate(4px, 4px); }
+        .btn-elite:active .shadow { inset: 0; opacity: 0; }
+
+        .error-node {
+            background: var(--accent-pink); color: #fff; padding: 12px;
+            font-family: 'JetBrains Mono'; font-size: 0.6rem; font-weight: 900;
+            margin-top: 25px; text-align: center; border: 2px solid #000;
+            text-transform: uppercase;
         }
     </style>
 </head>
 <body>
-    <div class="login-card">
-        <div class="meta-strip">Secure Gateway</div>
-        <h1 class="brand-title">PALE<br><span style="color:var(--accent-white)">APP</span></h1>
-        <form method="post">
-            <input type="password" name="password" placeholder="PASSWORD" required autofocus>
-            <button type="submit">ACCESS NODE</button>
-        </form>
-        {% if error %}<div class="error">{{ error }}</div>{% endif %}
+    <div class="login-node">
+        <div class="tech-card">
+            <div class="brand-logo">
+                <h1>PALE<span>.SYS</span></h1>
+            </div>
+            <form method="post">
+                <div class="input-group">
+                    <label>CORE_AUTH_KEY_REQUIRED</label>
+                    <input type="password" name="password" required autofocus>
+                </div>
+                <button type="submit" class="btn-elite">
+                    <div class="body">
+                        <div class="hatch"></div>
+                        <span class="main-txt">INITIATE</span>
+                        <span class="sub-txt">AUTH_SEQUENCE_START</span>
+                    </div>
+                    <div class="shadow"></div>
+                </button>
+            </form>
+            {% if error %}<div class="error-node">ACCESS_DENIED: {{ error }}</div>{% endif %}
+        </div>
     </div>
 </body>
 </html>
