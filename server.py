@@ -35,24 +35,71 @@ LOGIN_HTML = """
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Pale App - Login</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #e8e6e1; --accent: #ff3300; --text: #111; }
-        body { background: var(--bg); color: var(--text); font-family: 'Outfit', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .login-box { text-align: center; width: 100%; max-width: 300px; padding: 20px; }
-        h1 { font-size: 3rem; font-weight: 900; margin: 0 0 30px 0; letter-spacing: -2px; }
-        h1 span { color: transparent; -webkit-text-stroke: 1.5px var(--accent); }
-        input { width: 100%; padding: 15px; border: 1px solid var(--text); background: transparent; border-radius: 50px; font-family: inherit; font-size: 1rem; text-align: center; margin-bottom: 15px; box-sizing: border-box; }
-        button { width: 100%; padding: 15px; background: var(--accent); color: #fff; border: none; border-radius: 50px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: 0.2s; }
-        button:active { transform: scale(0.98); }
-        .error { color: var(--accent); font-size: 0.8rem; font-weight: 900; margin-top: 15px; text-transform: uppercase; }
+        :root {
+            --bg-color: #ffffff;
+            --accent-color: #000000;
+            --highlight-yellow: #FFE600;
+            --highlight-purple: #DDB8FF;
+            --highlight-pink: #FF85C0;
+            --text-primary: #000000;
+            --btn-radius: 50px;
+            --border-thickness: 3px;
+            --hard-shadow: 4px 4px 0px var(--accent-color);
+            --hard-shadow-active: 0px 0px 0px var(--accent-color);
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: 'Outfit', sans-serif;
+            margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh;
+            background-image: 
+                linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        
+        .login-box { text-align: center; width: 100%; max-width: 320px; padding: 20px; }
+        
+        .brand-title { font-size: 3.5rem; font-weight: 900; margin: 0 0 40px 0; letter-spacing: -1px; text-transform: uppercase; line-height: 0.9; position: relative; display: inline-block; }
+        .brand-title::before { content: ''; position: absolute; bottom: 5px; left: -5px; right: -5px; height: 15px; background: var(--highlight-yellow); z-index: -1; transform: rotate(-2deg); border: 2px solid #000; border-radius: 5px; }
+        .brand-title span.outline { color: var(--text-primary); }
+        .brand-title span.solid { color: var(--highlight-purple); -webkit-text-stroke: 2px #000; }
+        
+        input { 
+            width: 100%; padding: 18px; 
+            border: var(--border-thickness) solid var(--accent-color); 
+            background: #fff; border-radius: 15px; 
+            font-family: inherit; font-size: 1.1rem; text-align: center; font-weight: 800; 
+            margin-bottom: 20px; box-sizing: border-box; 
+            box-shadow: inset 2px 2px 0px rgba(0,0,0,0.1); 
+        }
+        
+        button { 
+            width: 100%; padding: 18px; 
+            background: var(--highlight-purple); color: #000; 
+            border: var(--border-thickness) solid var(--accent-color); 
+            border-radius: var(--btn-radius); font-weight: 900; font-size: 1.1rem; 
+            text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: 0.15s; 
+            box-shadow: var(--hard-shadow); 
+        }
+        button:active { transform: translate(4px, 4px); box-shadow: var(--hard-shadow-active); }
+        
+        .error { 
+            background: var(--highlight-pink); color: #000; font-size: 0.8rem; font-weight: 900; 
+            margin-top: 20px; padding: 10px; border: 2px solid #000; border-radius: 10px; 
+            text-transform: uppercase; display: inline-block; box-shadow: 2px 2px 0px #000; transform: rotate(-2deg); 
+        }
     </style>
 </head>
 <body>
     <div class="login-box">
-        <h1>PALE<span>APP</span></h1>
+        <h1 class="brand-title"><span class="outline">PALE</span><span class="solid">APP</span></h1>
         <form method="post">
             <input type="password" name="password" placeholder="PASSWORD" required autofocus>
             <button type="submit">ENTRA</button>
