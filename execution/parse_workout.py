@@ -70,8 +70,14 @@ def parse_workout(text):
                 ex_name = cols[idx["name"]] if idx["name"] != -1 else "Esercizio"
                 if not ex_name or ex_name.startswith('---'): continue
                 
+                tech_val = cols[idx["tech"]] if idx["tech"] != -1 else ""
                 day_data["exercises"].append({
-                    "name": ex_name, "sets": cols[idx["sets"]], "reps": cols[idx["reps"]], "rest": cols[idx["rest"]], "notes": cols[idx["tech"]] if idx["tech"] != -1 else ""
+                    "name": ex_name,
+                    "sets": cols[idx["sets"]],
+                    "reps": cols[idx["reps"]],
+                    "rest": cols[idx["rest"]],
+                    "tecnica": tech_val,
+                    "notes": tech_val
                 })
                 workout["totalEx"] += 1
         else:
@@ -81,7 +87,12 @@ def parse_workout(text):
                 if m:
                     exercise_name = re.sub(r'(\d+)\s*[xX]\s*(\d+(?:-\d+)?)', '', line).strip(' :-*•').strip()
                     day_data["exercises"].append({
-                        "name": exercise_name, "sets": m.group(1), "reps": m.group(2), "rest": "90s", "notes": ""
+                        "name": exercise_name,
+                        "sets": m.group(1),
+                        "reps": m.group(2),
+                        "rest": "90s",
+                        "tecnica": "",
+                        "notes": ""
                     })
                     workout["totalEx"] += 1
 

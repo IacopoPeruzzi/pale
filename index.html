@@ -561,7 +561,14 @@
                 const item = document.createElement('div');
                 item.className = `shard-node ${isD ? 'done' : ''}`;
                 item.onclick = () => openExercise(eI);
-                item.innerHTML = `<div style="flex:1">${sanitize(ex.name)}</div><div style="font-size:0.65rem; opacity:0.6; font-family:'JetBrains Mono'">${ex.sets}S</div>`;
+                const tecnicaText = ex.tecnica || ex.notes || "";
+                const isCircuit = tecnicaText.includes('+') || ex.name.toLowerCase().includes('circuito');
+                let labelHtml = `<div style="flex:1"><b>${sanitize(ex.name)}</b>`;
+                if (tecnicaText && !isCircuit) {
+                    labelHtml += `<br><small style="font-size:0.65rem; opacity:0.6; font-family:'JetBrains Mono'; color:var(--accent-pink);">// TEC: ${tecnicaText}</small>`;
+                }
+                labelHtml += `</div><div style="font-size:0.65rem; opacity:0.6; font-family:'JetBrains Mono'">${ex.sets}S</div>`;
+                item.innerHTML = labelHtml;
                 content.appendChild(item);
             });
             showView('view-session');
@@ -574,9 +581,10 @@
             if (!ex.sessionData) ex.sessionData = {};
             if (!ex.sessionData[currentWeek]) ex.sessionData[currentWeek] = { completed: false, rounds: [], notes: "" };
             const data = ex.sessionData[currentWeek];
+            const tecnicaText = ex.tecnica || ex.notes || "";
             let subExs = [];
-            if (ex.notes && (ex.notes.includes('+') || ex.name.toLowerCase().includes('circuito'))) {
-                subExs = ex.notes.split('+').map(s => {
+            if (tecnicaText && (tecnicaText.includes('+') || ex.name.toLowerCase().includes('circuito'))) {
+                subExs = tecnicaText.split('+').map(s => {
                     const m = s.trim().match(/(.*?)\s*(\d+.*)/);
                     return { name: m ? m[1].trim() : s.trim(), reps: m ? m[2].trim() : "" };
                 }).filter(x => x.name);
@@ -625,6 +633,14 @@
                         <div class="data-box" style="background:${isDeload ? 'var(--accent-pink)' : 'var(--accent-lime)'}"><span class="v">${ex.rest}</span><span class="l">REST</span></div>
                     </div>
                     ${isDeload ? `<div style="margin-top:10px; font-family:'JetBrains Mono'; font-size:0.5rem; font-weight:900; color:var(--accent-pink);">// WARNING: 80% LOAD CALCULATION APPLIED FROM PREV RECORD</div>` : ''}
+                    ${tecnicaText ? `
+                    <div style="margin-top:15px; border-top:1.5px dashed rgba(0,0,0,0.15); padding-top:15px;">
+                        <span class="label" style="background:var(--accent-pink); color:#fff; margin-bottom:6px;">TECNICA</span>
+                        <div style="font-family:'JetBrains Mono', monospace; font-size:0.8rem; font-weight:700; color:#000;">
+                            ${tecnicaText}
+                        </div>
+                    </div>
+                    ` : ''}
                 </div>`;
             const content = document.getElementById('ex-content');
             content.innerHTML = '';
@@ -716,7 +732,17 @@
                         curD = { name: l.replace('##', '').trim(), exercises: [] };
                     } else if(curD && l.includes('|') && !l.includes('Esercizio') && !l.includes('---')) {
                         const cols = l.split('|').map(c => c.trim());
-                        if(cols.length >= 4) curD.exercises.push({ name: cols[1], sets: cols[2], reps: cols[3], rest: cols[4] || "90s", notes: cols[5] || "" });
+                        if(cols.length >= 4) {
+                            const tecnicaVal = cols[5] || "";
+                            curD.exercises.push({ 
+                                name: cols[1], 
+                                sets: cols[2], 
+                                reps: cols[3], 
+                                rest: cols[4] || "90s", 
+                                tecnica: tecnicaVal, 
+                                notes: tecnicaVal 
+                            });
+                        }
                     }
                 });
                 if(curD) w.days.push(curD);

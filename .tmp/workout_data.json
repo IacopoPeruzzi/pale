@@ -238,6 +238,7 @@
                     "sets": "4",
                     "reps": "10–12/lato",
                     "rest": "1'45\"–2'00\"",
+                    "tecnica": "Ultima serie con 4–5 partials lunghe",
                     "notes": "Ultima serie con 4–5 partials lunghe"
                 },
                 {
@@ -245,6 +246,7 @@
                     "sets": "4",
                     "reps": "8–10",
                     "rest": "2'00\"–2'30\"",
+                    "tecnica": "Lineare",
                     "notes": "Lineare"
                 },
                 {
@@ -252,6 +254,7 @@
                     "sets": "3",
                     "reps": "12–15",
                     "rest": "1'15\"–1'30\"",
+                    "tecnica": "Eccentrica 3\"",
                     "notes": "Eccentrica 3\""
                 },
                 {
@@ -259,6 +262,7 @@
                     "sets": "3",
                     "reps": "10–12",
                     "rest": "1'30\"–1'45\"",
+                    "tecnica": "Pausa 1\" in chiusura",
                     "notes": "Pausa 1\" in chiusura"
                 },
                 {
@@ -266,6 +270,7 @@
                     "sets": "3",
                     "reps": "15–20",
                     "rest": "1'00\"–1'15\"",
+                    "tecnica": "Pausa 2\"",
                     "notes": "Pausa 2\""
                 },
                 {
@@ -273,6 +278,7 @@
                     "sets": "3",
                     "reps": "40–45\"",
                     "rest": "30\"–45\"",
+                    "tecnica": "Core",
                     "notes": "Core"
                 },
                 {
@@ -280,6 +286,7 @@
                     "sets": "3",
                     "reps": "12–15/lato",
                     "rest": "30\"–45\"",
+                    "tecnica": "Core",
                     "notes": "Core"
                 }
             ]
@@ -292,6 +299,7 @@
                     "sets": "4",
                     "reps": "8–10",
                     "rest": "2'00\"–2'30\"",
+                    "tecnica": "1 top set + 2 back-off + 1 serie lineare",
                     "notes": "1 top set + 2 back-off + 1 serie lineare"
                 },
                 {
@@ -299,6 +307,7 @@
                     "sets": "3",
                     "reps": "12–15",
                     "rest": "1'00\"–1'15\"",
+                    "tecnica": "Ultima Myo-reps",
                     "notes": "Ultima Myo-reps"
                 },
                 {
@@ -306,6 +315,7 @@
                     "sets": "2",
                     "reps": "12–15",
                     "rest": "1'00\"",
+                    "tecnica": "Controllo totale",
                     "notes": "Controllo totale"
                 },
                 {
@@ -313,6 +323,7 @@
                     "sets": "3",
                     "reps": "15–20",
                     "rest": "1'00\"",
+                    "tecnica": "Pausa 2\"",
                     "notes": "Pausa 2\""
                 },
                 {
@@ -320,6 +331,7 @@
                     "sets": "3",
                     "reps": "10–12",
                     "rest": "1'15\"–1'30\"",
+                    "tecnica": "Stretch pieno",
                     "notes": "Stretch pieno"
                 },
                 {
@@ -327,6 +339,7 @@
                     "sets": "3",
                     "reps": "12/lato",
                     "rest": "30\"–45\"",
+                    "tecnica": "Core",
                     "notes": "Core"
                 },
                 {
@@ -334,6 +347,7 @@
                     "sets": "2",
                     "reps": "35–40\"",
                     "rest": "30\"–45\"",
+                    "tecnica": "Core",
                     "notes": "Core"
                 }
             ]
@@ -346,6 +360,7 @@
                     "sets": "4",
                     "reps": "8–10",
                     "rest": "1'30\"–1'45\"",
+                    "tecnica": "Ultima serie con 4 partials in allungamento",
                     "notes": "Ultima serie con 4 partials in allungamento"
                 },
                 {
@@ -353,6 +368,7 @@
                     "sets": "3",
                     "reps": "10–12",
                     "rest": "1'15\"–1'30\"",
+                    "tecnica": "Eccentrica 3\"",
                     "notes": "Eccentrica 3\""
                 },
                 {
@@ -360,6 +376,7 @@
                     "sets": "4",
                     "reps": "8–10",
                     "rest": "1'45\"–2'00\"",
+                    "tecnica": "Lineare",
                     "notes": "Lineare"
                 },
                 {
@@ -367,6 +384,7 @@
                     "sets": "3",
                     "reps": "12–15",
                     "rest": "1'15\"–1'30\"",
+                    "tecnica": "Ultima drop 10%",
                     "notes": "Ultima drop 10%"
                 },
                 {
@@ -374,6 +392,7 @@
                     "sets": "3",
                     "reps": "10–12",
                     "rest": "1'15\"",
+                    "tecnica": "Lineare",
                     "notes": "Lineare"
                 },
                 {
@@ -381,6 +400,7 @@
                     "sets": "4",
                     "reps": "15/lato",
                     "rest": "30\"–45\"",
+                    "tecnica": "Core",
                     "notes": "Core"
                 }
             ]
@@ -393,6 +413,7 @@
                     "sets": "3",
                     "reps": "12–15",
                     "rest": "1'30\"–1'45\"",
+                    "tecnica": "Tensione continua",
                     "notes": "Tensione continua"
                 },
                 {
@@ -400,6 +421,7 @@
                     "sets": "3",
                     "reps": "10–12",
                     "rest": "1'45\"–2'00\"",
+                    "tecnica": "Pausa 1\"",
                     "notes": "Pausa 1\""
                 },
                 {
@@ -407,6 +429,7 @@
                     "sets": "3",
                     "reps": "15–20",
                     "rest": "1'00\"–1'15\"",
+                    "tecnica": "Eccentrica 3\"",
                     "notes": "Eccentrica 3\""
                 },
                 {
@@ -414,6 +437,7 @@
                     "sets": "3",
                     "reps": "15–20",
                     "rest": "1'00\"",
+                    "tecnica": "Ultima Myo-reps",
                     "notes": "Ultima Myo-reps"
                 },
                 {
@@ -421,6 +445,7 @@
                     "sets": "2",
                     "reps": "20",
                     "rest": "45\"–1'00\"",
+                    "tecnica": "Pump",
                     "notes": "Pump"
                 },
                 {
@@ -428,6 +453,7 @@
                     "sets": "3 giri",
                     "reps": "—",
                     "rest": "1'00\" tra giri",
+                    "tecnica": "Hollow 35\" + Dead bug 12/lato + Pallof 15/lato",
                     "notes": "Hollow 35\" + Dead bug 12/lato + Pallof 15/lato"
                 }
             ]
@@ -440,6 +466,7 @@
                     "sets": "3",
                     "reps": "10–12",
                     "rest": "2'00\"–2'30\"",
+                    "tecnica": "1 top set + 2 back-off",
                     "notes": "1 top set + 2 back-off"
                 },
                 {
@@ -447,6 +474,7 @@
                     "sets": "3",
                     "reps": "12–15",
                     "rest": "1'15\"–1'30\"",
+                    "tecnica": "Ultima Myo-reps",
                     "notes": "Ultima Myo-reps"
                 },
                 {
@@ -454,6 +482,7 @@
                     "sets": "3",
                     "reps": "10–12",
                     "rest": "1'30\"–1'45\"",
+                    "tecnica": "Pausa 1\"",
                     "notes": "Pausa 1\""
                 },
                 {
@@ -461,6 +490,7 @@
                     "sets": "3",
                     "reps": "60–80\"",
                     "rest": "45\"–60\"",
+                    "tecnica": "Pulito",
                     "notes": "Pulito"
                 },
                 {
@@ -468,6 +498,7 @@
                     "sets": "3",
                     "reps": "12–20",
                     "rest": "1'00\"–1'15\"",
+                    "tecnica": "5 partials finali in allungamento [1]",
                     "notes": "5 partials finali in allungamento [1]"
                 }
             ]
