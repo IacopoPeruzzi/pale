@@ -203,15 +203,15 @@
         }
 
         .btn-sync-fixed {
-            position: fixed; bottom: calc(15px + var(--safe-bottom)); left: 50%; transform: translateX(-50%);
-            z-index: 5000; display: none; align-items: center; gap: 8px;
-            font-family: 'JetBrains Mono'; font-weight: 700; font-size: 0.5rem;
-            color: #000; opacity: 0.3; cursor: pointer; border: 1px solid #000;
-            padding: 5px 12px; text-transform: uppercase; background: rgba(255,255,255,0.8);
-            backdrop-filter: blur(4px); white-space: nowrap;
+            position: fixed; bottom: calc(25px + var(--safe-bottom)); right: 20px;
+            z-index: 5000; display: none; align-items: center; justify-content: center;
+            font-family: 'JetBrains Mono'; font-weight: 900; font-size: 0.75rem;
+            color: #fff; background: #000; cursor: pointer; border: 2.2px solid #000;
+            padding: 12px 18px; text-transform: uppercase;
+            box-shadow: 4px 4px 0px var(--accent-lime);
         }
         .btn-sync-fixed.active { display: flex; }
-        .btn-sync-fixed:active { opacity: 1; background: #000; color: #fff; }
+        .btn-sync-fixed:active { transform: translate(4px, 4px); box-shadow: 0px 0px 0px var(--accent-lime); }
 
         ::-webkit-scrollbar { display: none; }
     </style>
@@ -236,7 +236,7 @@
 
     <!-- FIXED SYNC COMMAND (Home Only) -->
     <div id="sync-anchor" class="btn-sync-fixed active" onclick="showView('view-import')">
-        GATE_SYNC_STATION // PHASE.05
+        + IMPORT PROTOCOL
     </div>
 
     <div id="view-home" class="view active">
