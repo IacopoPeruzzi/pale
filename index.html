@@ -439,6 +439,7 @@
                 historyStack = [];
                 backBtn.classList.remove('active');
                 syncAnchor.classList.add('active');
+                renderHome();
             } else {
                 if (historyStack[historyStack.length - 1] !== id) historyStack.push(id);
                 backBtn.classList.add('active');
