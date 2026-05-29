@@ -479,7 +479,21 @@
             res.innerHTML = ''; grid.innerHTML = '';
             
             if (workouts.length > 0) {
-                const w = workouts[0];
+                let activeIdx = 0;
+                let maxActive = -1;
+                workouts.forEach((w, i) => {
+                    const act = w.lastActive || 0;
+                    if (act > maxActive) { maxActive = act; activeIdx = i; }
+                });
+                if (maxActive === 0) {
+                    for (let i = 0; i < workouts.length; i++) {
+                        const w = workouts[i];
+                        const n = getInc(w);
+                        if (n && w.progress && Object.keys(w.progress).length > 0) { activeIdx = i; break; }
+                    }
+                }
+
+                const w = workouts[activeIdx];
                 const n = getInc(w);
                 let total = w.numWeeks * (w.days?w.days.length:0);
                 let done = 0;
@@ -493,7 +507,7 @@
 
                 if (n) {
                     res.innerHTML = `
-                        <div class="tech-card" onclick="resumeWorkout(0)">
+                        <div class="tech-card" onclick="resumeWorkout(${activeIdx})">
                             <span class="label">Session.Active</span>
                             <h2 class="heading-xl">${sanitize(w.title)}<span>_ONLINE</span></h2>
                             <p style="font-family:'JetBrains Mono', monospace; font-weight:700; margin-top:12px; font-size:0.85rem;">[ PHASE_0${n.week} // NODE_0${n.day+1} ]</p>
@@ -703,6 +717,8 @@
         function startSession(dI) {
             currentDayIdx = dI;
             const w = workouts[currentWorkoutIndex];
+            w.lastActive = Date.now();
+            localStorage.setItem('pale_workouts', JSON.stringify(workouts));
             const d = w.days[dI];
             document.getElementById('session-header').innerHTML = `
                 <div class="tech-card" style="background:var(--accent-lime)">
