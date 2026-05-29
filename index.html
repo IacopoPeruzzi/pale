@@ -203,8 +203,7 @@
         }
 
         .btn-sync-fixed {
-            position: fixed; top: calc(12px + var(--safe-top)); left: 12px;
-            z-index: 5000; display: none; align-items: center; justify-content: center;
+            pointer-events: auto; display: none; align-items: center; justify-content: center;
             font-family: 'JetBrains Mono'; font-weight: 900; font-size: 1.4rem;
             color: #fff; background: #000; cursor: pointer; border: 2.2px solid #000;
             width: 34px; height: 34px; padding: 0; line-height: 0;
@@ -222,6 +221,7 @@
     <div class="ui-anchor">
         <div class="nav-col left">
             <div id="sticky-back-btn" class="nav-btn-sticky" onclick="handleBackAction()">BACK</div>
+            <div id="sync-anchor" class="btn-sync-fixed active" onclick="showView('view-import')">+</div>
         </div>
         <div class="nav-col center">
             <div class="badge-core" onclick="showView('view-home')">
@@ -234,10 +234,7 @@
         </div>
     </div>
 
-    <!-- FIXED SYNC COMMAND (Home Only) -->
-    <div id="sync-anchor" class="btn-sync-fixed active" onclick="showView('view-import')">
-        +
-    </div>
+
 
     <div id="view-home" class="view active">
         <div id="progress-grid" class="prog-grid"></div>
