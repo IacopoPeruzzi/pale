@@ -752,7 +752,7 @@
             const data = ex.sessionData[currentWeek];
             const tecnicaText = ex.tecnica || ex.notes || "";
             let subExs = [];
-            if (tecnicaText && (tecnicaText.includes('+') || ex.name.toLowerCase().includes('circuito'))) {
+            if (tecnicaText && tecnicaText.includes('+')) {
                 subExs = tecnicaText.split('+').map(s => {
                     const m = s.trim().match(/(.*?)\s*(\d+.*)/);
                     return { name: m ? m[1].trim() : s.trim(), reps: m ? m[2].trim() : "" };
@@ -761,6 +761,7 @@
             if (subExs.length === 0) subExs = [{ name: sanitize(ex.name), reps: ex.reps }];
             const nR = parseInt(ex.sets) || 1;
             while (data.rounds.length < nR) data.rounds.push({ done: false, subLoads: new Array(subExs.length).fill("") });
+            if (data.rounds.length > nR) data.rounds = data.rounds.slice(0, nR);
             
             const isDeload = (currentWeek == w.numWeeks);
             
