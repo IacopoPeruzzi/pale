@@ -506,11 +506,28 @@
                 }
 
                 if (n) {
+                    const nextDay = w.days[n.day];
+                    let exsHtml = '';
+                    if (nextDay && nextDay.exercises) {
+                        const exs = nextDay.exercises;
+                        const preview = exs.slice(0, 4).map(ex => `<li style="margin-bottom:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">> ${sanitize(ex.name)} <span style="opacity:0.6; font-size:0.6rem;">${ex.sets}x${ex.reps}</span></li>`).join('');
+                        const extra = exs.length > 4 ? `<li style="opacity:0.5; font-size:0.6rem; margin-top:6px;">+ ${exs.length - 4} MORE...</li>` : '';
+                        exsHtml = `
+                        <div style="margin-top: 15px; border-top: 1px dashed rgba(255,255,255,0.2); padding-top: 15px;">
+                            <div style="font-family:'JetBrains Mono'; font-size:0.65rem; opacity:0.7; margin-bottom:8px; color:var(--accent-lime);">// PREVIEW: ${sanitize(nextDay.name).toUpperCase()}</div>
+                            <ul style="list-style:none; padding:0; margin:0; font-family:'JetBrains Mono'; font-size:0.7rem;">
+                                ${preview}
+                                ${extra}
+                            </ul>
+                        </div>`;
+                    }
+
                     res.innerHTML = `
                         <div class="tech-card" onclick="resumeWorkout(${activeIdx})">
                             <span class="label">Session.Active</span>
                             <h2 class="heading-xl">${sanitize(w.title)}<span>_ONLINE</span></h2>
                             <p style="font-family:'JetBrains Mono', monospace; font-weight:700; margin-top:12px; font-size:0.85rem;">[ PHASE_0${n.week} // NODE_0${n.day+1} ]</p>
+                            ${exsHtml}
                         </div>`;
                 }
             }
