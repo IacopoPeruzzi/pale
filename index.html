@@ -271,6 +271,7 @@
                     <label>Protocol_Strategy_Focus</label>
                     <textarea id="edit-protocol-desc" class="edit-input" style="height:90px;"></textarea>
                 </div>
+                <div id="edit-protocol-days"></div>
                 <div style="margin-top:40px; display:flex; flex-direction:column; gap:15px;">
                     <button class="btn-elite lime" onclick="saveProtocolMetadata()">
                         <div class="body"><span class="main-txt">COMMIT_SALVE</span><span class="sub-txt">SYNK_V04</span></div>
@@ -283,6 +284,52 @@
                     <div style="height:30px;"></div>
                     <button class="btn-elite alt" onclick="wipeProtocolAction()">
                         <div class="body"><span class="main-txt">WIPE_CORE</span><span class="sub-txt">DANGER_ZONE</span></div>
+                        <div class="shadow"></div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-edit-exercise" class="view">
+        <div class="tech-card">
+            <span class="label" style="background:var(--accent-pink); color:#fff;">Kernel.Update.Ex</span>
+            <h2 class="heading-xl">MODIFY<span>EXERCISE</span></h2>
+            <div style="margin-top:30px;">
+                <input type="hidden" id="edit-ex-day-idx">
+                <input type="hidden" id="edit-ex-idx">
+                <div class="edit-input-group">
+                    <label>Nome Esercizio</label>
+                    <input type="text" id="edit-ex-name" class="edit-input">
+                </div>
+                <div class="edit-input-group">
+                    <label>Serie (Sets)</label>
+                    <input type="text" id="edit-ex-sets" class="edit-input">
+                </div>
+                <div class="edit-input-group">
+                    <label>Ripetizioni (Reps)</label>
+                    <input type="text" id="edit-ex-reps" class="edit-input">
+                </div>
+                <div class="edit-input-group">
+                    <label>Recupero (Rest)</label>
+                    <input type="text" id="edit-ex-rest" class="edit-input">
+                </div>
+                <div class="edit-input-group">
+                    <label>Tecnica / Note</label>
+                    <input type="text" id="edit-ex-tecnica" class="edit-input">
+                </div>
+                <div style="margin-top:40px; display:flex; flex-direction:column; gap:15px;">
+                    <button class="btn-elite lime" onclick="saveExerciseAction()">
+                        <div class="body"><span class="main-txt">SAVE_EXERCISE</span><span class="sub-txt">COMMIT</span></div>
+                        <div class="shadow"></div>
+                    </button>
+                    <button class="btn-elite ghost" onclick="cancelEditExercise()">
+                        <div class="body"><span class="main-txt">CANCEL</span><span class="sub-txt">ABORT</span></div>
+                        <div class="shadow"></div>
+                    </button>
+                    <div style="height:30px;"></div>
+                    <button class="btn-elite alt" onclick="deleteExerciseAction()">
+                        <div class="body"><span class="main-txt">DELETE_EXERCISE</span><span class="sub-txt">REMOVE</span></div>
                         <div class="shadow"></div>
                     </button>
                 </div>
@@ -469,6 +516,29 @@
             const w = workouts[idx];
             document.getElementById('edit-protocol-title').value = w.title;
             document.getElementById('edit-protocol-desc').value = w.subtitle || "";
+            
+            const daysContainer = document.getElementById('edit-protocol-days');
+            if (daysContainer) {
+                daysContainer.innerHTML = '';
+                if (w.days) {
+                    w.days.forEach((d, dI) => {
+                        let html = `<div style="margin-top:20px; padding-top:10px; border-top:2px solid #000;">
+                            <h3 style="font-family:'JetBrains Mono'; font-size:1rem; margin-bottom:10px;">${sanitize(d.name)}</h3>`;
+                        d.exercises.forEach((ex, eI) => {
+                            html += `<div class="shard-node" style="padding:10px; margin-bottom:8px;" onclick="openEditExercise(${dI}, ${eI})">
+                                <div style="flex:1; font-size:0.8rem;"><b>${sanitize(ex.name)}</b> <span style="font-family:'JetBrains Mono'; font-size:0.6rem;">${ex.sets}x${ex.reps}</span></div>
+                                <div style="font-size:0.5rem; border:1px solid #000; padding:2px 5px; font-family:'JetBrains Mono'">EDIT</div>
+                            </div>`;
+                        });
+                        html += `<button class="dots-btn" style="width:100%; height:30px; font-family:'JetBrains Mono'; font-size:0.6rem; font-weight:900;" onclick="openEditExercise(${dI}, -1)">+ ADD EXERCISE</button>`;
+                        html += `</div>`;
+                        const div = document.createElement('div');
+                        div.innerHTML = html;
+                        daysContainer.appendChild(div);
+                    });
+                }
+            }
+
             showView('view-edit-protocol');
         }
 
@@ -487,14 +557,103 @@
                 const w = workouts[currentWorkoutIndex];
                 workouts.splice(currentWorkoutIndex, 1);
                 localStorage.setItem('pale_workouts', JSON.stringify(workouts));
-                fetch('/api/workouts', { 
-                    method: 'DELETE', 
-                    headers: { 'Content-Type': 'application/json' }, 
-                    body: JSON.stringify({ id: w.id }) 
+                fetch('/api/workouts/' + w.id, { 
+                    method: 'DELETE'
                 }).catch(e => console.error(e));
                 showView('view-home');
                 renderHome();
                 showToast("PROTOCOL_WIPED");
+            }
+        }
+
+        function openEditExercise(dI, eI) {
+            document.getElementById('edit-ex-day-idx').value = dI;
+            document.getElementById('edit-ex-idx').value = eI;
+            const w = workouts[currentWorkoutIndex];
+            const d = w.days[dI];
+            if (eI >= 0) {
+                const ex = d.exercises[eI];
+                document.getElementById('edit-ex-name').value = ex.name || "";
+                document.getElementById('edit-ex-sets').value = ex.sets || "";
+                document.getElementById('edit-ex-reps').value = ex.reps || "";
+                document.getElementById('edit-ex-rest').value = ex.rest || "";
+                document.getElementById('edit-ex-tecnica').value = ex.tecnica || ex.notes || "";
+            } else {
+                document.getElementById('edit-ex-name').value = "";
+                document.getElementById('edit-ex-sets').value = "";
+                document.getElementById('edit-ex-reps').value = "";
+                document.getElementById('edit-ex-rest').value = "";
+                document.getElementById('edit-ex-tecnica').value = "";
+            }
+            showView('view-edit-exercise');
+        }
+
+        function cancelEditExercise() {
+            const prevView = historyStack[historyStack.length - 2];
+            if (prevView === 'view-session' || prevView === 'view-exercise') {
+                handleBackAction();
+            } else {
+                openEditProtocol(currentWorkoutIndex);
+            }
+        }
+
+        function saveExerciseAction() {
+            const dI = parseInt(document.getElementById('edit-ex-day-idx').value);
+            const eI = parseInt(document.getElementById('edit-ex-idx').value);
+            const w = workouts[currentWorkoutIndex];
+            const d = w.days[dI];
+            
+            const exData = {
+                name: document.getElementById('edit-ex-name').value,
+                sets: document.getElementById('edit-ex-sets').value,
+                reps: document.getElementById('edit-ex-reps').value,
+                rest: document.getElementById('edit-ex-rest').value,
+                tecnica: document.getElementById('edit-ex-tecnica').value,
+                notes: document.getElementById('edit-ex-tecnica').value
+            };
+
+            if (eI >= 0) {
+                const oldEx = d.exercises[eI];
+                exData.sessionData = oldEx.sessionData;
+                d.exercises[eI] = exData;
+            } else {
+                d.exercises.push(exData);
+            }
+            
+            save();
+            showToast("EXERCISE_SAVED");
+            
+            const prevView = historyStack[historyStack.length - 2];
+            if (prevView === 'view-session') {
+                historyStack.pop();
+                startSession(currentDayIdx);
+            } else if (prevView === 'view-exercise') {
+                historyStack.pop();
+                openExercise(currentExIdx);
+            } else {
+                openEditProtocol(currentWorkoutIndex);
+            }
+        }
+
+        function deleteExerciseAction() {
+            const dI = parseInt(document.getElementById('edit-ex-day-idx').value);
+            const eI = parseInt(document.getElementById('edit-ex-idx').value);
+            if (eI >= 0) {
+                if(confirm('DELETE_EXERCISE: Confirm?')) {
+                    const w = workouts[currentWorkoutIndex];
+                    w.days[dI].exercises.splice(eI, 1);
+                    save();
+                    showToast("EXERCISE_DELETED");
+                    const prevView = historyStack[historyStack.length - 2];
+                    if (prevView === 'view-session' || prevView === 'view-exercise') {
+                        historyStack.pop();
+                        startSession(currentDayIdx);
+                    } else {
+                        openEditProtocol(currentWorkoutIndex);
+                    }
+                }
+            } else {
+                cancelEditExercise();
             }
         }
 
@@ -571,6 +730,12 @@
                 item.innerHTML = labelHtml;
                 content.appendChild(item);
             });
+            const addBtn = document.createElement('button');
+            addBtn.className = "dots-btn";
+            addBtn.style = "width:100%; height:30px; font-family:'JetBrains Mono'; font-size:0.6rem; font-weight:900; margin-top:15px;";
+            addBtn.innerText = "+ ADD EXERCISE";
+            addBtn.onclick = () => openEditExercise(dI, -1);
+            content.appendChild(addBtn);
             showView('view-session');
         }
 
@@ -625,7 +790,10 @@
 
             document.getElementById('ex-header').innerHTML = `
                 <div class="tech-card" style="transform:none;">
-                    <span class="label">${isDeload ? 'Mode.Deload_Active' : 'Target.Dynamics'}</span>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span class="label">${isDeload ? 'Mode.Deload_Active' : 'Target.Dynamics'}</span>
+                        <span class="label" style="background:#000; color:#fff; cursor:pointer;" onclick="openEditExercise(currentDayIdx, currentExIdx)">EDIT</span>
+                    </div>
                     <h2 class="heading-xl">${sanitize(ex.name)}<span>_DATA</span></h2>
                     <div class="data-strip">
                         <div class="data-box"><span class="v">${ex.sets}</span><span class="l">SETS</span></div>
