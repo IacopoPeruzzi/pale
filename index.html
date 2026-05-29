@@ -525,8 +525,12 @@
                         let html = `<div style="margin-top:20px; padding-top:10px; border-top:2px solid #000;">
                             <h3 style="font-family:'JetBrains Mono'; font-size:1rem; margin-bottom:10px;">${sanitize(d.name)}</h3>`;
                         d.exercises.forEach((ex, eI) => {
+                            const tec = ex.tecnica || ex.notes || "";
                             html += `<div class="shard-node" style="padding:10px; margin-bottom:8px;" onclick="openEditExercise(${dI}, ${eI})">
-                                <div style="flex:1; font-size:0.8rem;"><b>${sanitize(ex.name)}</b> <span style="font-family:'JetBrains Mono'; font-size:0.6rem;">${ex.sets}x${ex.reps}</span></div>
+                                <div style="flex:1; font-size:0.8rem;">
+                                    <b>${sanitize(ex.name)}</b> <span style="font-family:'JetBrains Mono'; font-size:0.6rem;">${ex.sets}x${ex.reps}</span>
+                                    ${tec ? `<br><small style="font-size:0.6rem; opacity:0.6; font-family:'JetBrains Mono'; color:var(--accent-pink);">// TEC: ${tec}</small>` : ''}
+                                </div>
                                 <div style="font-size:0.5rem; border:1px solid #000; padding:2px 5px; font-family:'JetBrains Mono'">EDIT</div>
                             </div>`;
                         });
@@ -723,7 +727,7 @@
                 const tecnicaText = ex.tecnica || ex.notes || "";
                 const isCircuit = tecnicaText.includes('+') || ex.name.toLowerCase().includes('circuito');
                 let labelHtml = `<div style="flex:1"><b>${sanitize(ex.name)}</b>`;
-                if (tecnicaText && !isCircuit) {
+                if (tecnicaText) {
                     labelHtml += `<br><small style="font-size:0.65rem; opacity:0.6; font-family:'JetBrains Mono'; color:var(--accent-pink);">// TEC: ${tecnicaText}</small>`;
                 }
                 labelHtml += `</div><div style="font-size:0.65rem; opacity:0.6; font-family:'JetBrains Mono'">${ex.sets}S</div>`;
