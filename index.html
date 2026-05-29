@@ -526,7 +526,7 @@
                         <div class="tech-card" onclick="resumeWorkout(${activeIdx})">
                             <span class="label">Session.Active</span>
                             <h2 class="heading-xl">${sanitize(w.title)}<span>_ONLINE</span></h2>
-                            <p style="font-family:'JetBrains Mono', monospace; font-weight:700; margin-top:12px; font-size:0.85rem;">[ PHASE_0${n.week} // NODE_0${n.day+1} ]</p>
+                            <p style="font-family:'JetBrains Mono', monospace; font-weight:700; margin-top:12px; font-size:0.85rem;">[ WEEK 0${n.week} // DAY 0${n.day+1} ]</p>
                             ${exsHtml}
                         </div>`;
                 }
@@ -725,7 +725,7 @@
                 const c = document.createElement('div');
                 c.className = `shard-node ${status ? 'done' : ''}`;
                 c.onclick = () => startSession(dI);
-                c.innerHTML = `<div style="flex:1"><small style="opacity:0.4; font-size:0.45rem; font-family:'JetBrains Mono'">SYS_DATA.0${dI+1}</small><br>${sanitize(d.name)}</div>`;
+                c.innerHTML = `<div style="flex:1"><small style="opacity:0.4; font-size:0.45rem; font-family:'JetBrains Mono'">DAY 0${dI+1}</small><br>${sanitize(d.name)}</div>`;
                 dList.appendChild(c);
             });
             showView('view-workout');
@@ -742,7 +742,7 @@
                     <span class="label" style="background:#000; color:#fff;">Channel.Active</span>
                     <h2 class="heading-xl">${sanitize(d.name)}<span>_LOG</span></h2>
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
-                        <span style="font-weight:900; background:#000; color:#fff; padding:5px 15px; font-size:0.75rem; font-family:'JetBrains Mono'">PHASE_0${currentWeek}</span>
+                        <span style="font-weight:900; background:#000; color:#fff; padding:5px 15px; font-size:0.75rem; font-family:'JetBrains Mono'">WEEK 0${currentWeek}</span>
                         <button class="dots-btn" style="width:auto; padding:0 10px; font-size:0.5rem; font-weight:900;" onclick="resetDayAction()">RESET</button>
                     </div>
                 </div>`;
@@ -867,7 +867,7 @@
                 block.innerHTML = `
                     <div style="display:flex; align-items:center; gap:22px; margin-bottom:25px;">
                         <div class="badge-id ${round.done ? 'active' : ''}" data-round-badge="${rI}" onclick="toggleRound(${rI})">${rI+1}</div>
-                        <div style="font-family:'JetBrains Mono'; font-weight:900; text-transform:uppercase; font-size:0.55rem; letter-spacing:1.5px; background:#000; color:#fff; padding:4px 12px;">CORE_NODE_0${rI+1}</div>
+                        <div style="font-family:'JetBrains Mono'; font-weight:900; text-transform:uppercase; font-size:0.55rem; letter-spacing:1.5px; background:#000; color:#fff; padding:4px 12px;">SET 0${rI+1}</div>
                     </div>
                     ${subHtml}`;
                 content.appendChild(block);
