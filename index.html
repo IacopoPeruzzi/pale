@@ -866,12 +866,27 @@
                         </div>
                     </div>`;
                 });
+                const isLastRound = rI === data.rounds.length - 1;
+                const isMyo = tecnicaText.toLowerCase().includes('myo');
                 block.innerHTML = `
                     <div style="display:flex; align-items:center; gap:22px; margin-bottom:25px;">
                         <div class="badge-id ${round.done ? 'active' : ''}" data-round-badge="${rI}" onclick="toggleRound(${rI})">${rI+1}</div>
                         <div style="font-family:'JetBrains Mono'; font-weight:900; text-transform:uppercase; font-size:0.55rem; letter-spacing:1.5px; background:#000; color:#fff; padding:4px 12px;">SET 0${rI+1}</div>
                     </div>
-                    ${subHtml}`;
+                    ${subHtml}
+                    ${isLastRound && isMyo ? `
+                    <div style="margin-top:20px; padding-top:20px; border-top:var(--border-heavy) solid #000; display:flex; justify-content:space-between; align-items:center;">
+                        <div style="font-family:'JetBrains Mono'; font-weight:900; font-size:0.65rem; text-transform:uppercase;">
+                            MYO-REPS<br><span style="opacity:0.5;">MINI-SETS TRK</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:15px;">
+                            <button class="ctrl-box" style="height:34px; width:34px; padding:0; border-radius:0; box-shadow:2px 2px 0px #000;" onclick="updateMyo(${rI}, -1)">-</button>
+                            <div id="myo-count-${rI}" style="font-size:1.5rem; font-weight:900; font-family:'JetBrains Mono'; width:34px; text-align:center;">${round.myoSets || 0}</div>
+                            <button class="ctrl-box" style="height:34px; width:34px; padding:0; border-radius:0; box-shadow:2px 2px 0px var(--accent-lime);" onclick="updateMyo(${rI}, 1)">+</button>
+                        </div>
+                    </div>
+                    ` : ''}
+                `;
                 content.appendChild(block);
             });
             const notes = document.createElement('div');
@@ -880,6 +895,13 @@
             notes.innerHTML = `<span class="label" style="background:#fff;">Log.Notes</span><textarea id="session-notes" oninput="updateSessionNotes()" style="width:100%; border:var(--border-heavy) solid #000; margin-top:15px; background:#fff; padding:18px; font-family:'JetBrains Mono'; font-weight:700; min-height:110px; font-size:0.9rem;">${data.notes || ""}</textarea>`;
             content.appendChild(notes);
             showView('view-exercise');
+        }
+
+        function updateMyo(rI, delta) {
+            const data = workouts[currentWorkoutIndex].days[currentDayIdx].exercises[currentExIdx].sessionData[currentWeek];
+            data.rounds[rI].myoSets = Math.max(0, (data.rounds[rI].myoSets || 0) + delta);
+            document.getElementById('myo-count-' + rI).innerText = data.rounds[rI].myoSets;
+            save();
         }
 
         function toggleRound(rI) { 
