@@ -470,71 +470,89 @@
             return null;
         }
 
+        function getProgressStatus(w) {
+            let total = w.numWeeks * (w.days ? w.days.length : 0);
+            let done = 0;
+            if (w.progress) Object.values(w.progress).forEach(wk => done += Object.keys(wk).length);
+            return { done, total, isCompleted: total > 0 && done === total };
+        }
+
         function renderHome() {
             const res = document.getElementById('resume-section');
             const grid = document.getElementById('progress-grid');
             res.innerHTML = ''; grid.innerHTML = '';
             
             if (workouts.length > 0) {
-                let activeIdx = 0;
+                let activeIdx = -1;
                 let maxActive = -1;
                 workouts.forEach((w, i) => {
+                    if (getProgressStatus(w).isCompleted) return;
                     const act = w.lastActive || 0;
                     if (act > maxActive) { maxActive = act; activeIdx = i; }
                 });
                 if (maxActive === 0) {
                     for (let i = 0; i < workouts.length; i++) {
                         const w = workouts[i];
-                        const n = getInc(w);
-                        if (n && w.progress && Object.keys(w.progress).length > 0) { activeIdx = i; break; }
+                        if (getProgressStatus(w).isCompleted) continue;
+                        if (w.progress && Object.keys(w.progress).length > 0) { activeIdx = i; break; }
                     }
                 }
 
-                const w = workouts[activeIdx];
-                const n = getInc(w);
-                let total = w.numWeeks * (w.days?w.days.length:0);
-                let done = 0;
-                if (w.progress) Object.values(w.progress).forEach(wk => done += Object.keys(wk).length);
-                
-                for(let i=0; i<20; i++) {
-                    const c = document.createElement('div');
-                    c.className = `prog-cell ${i < (done/total)*20 ? 'on' : ''}`;
-                    grid.appendChild(c);
-                }
-
-                if (n) {
-                    const nextDay = w.days[n.day];
-                    let exsHtml = '';
-                    if (nextDay && nextDay.exercises) {
-                        const exs = nextDay.exercises;
-                        const preview = exs.slice(0, 4).map(ex => `<li style="margin-bottom:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">> ${sanitize(ex.name)} <span style="opacity:0.6; font-size:0.6rem;">${ex.sets}x${ex.reps}</span></li>`).join('');
-                        const extra = exs.length > 4 ? `<li style="opacity:0.5; font-size:0.6rem; margin-top:6px;">+ ${exs.length - 4} MORE...</li>` : '';
-                        exsHtml = `
-                        <div style="margin-top: 15px; border-top: 1px dashed rgba(255,255,255,0.2); padding-top: 15px;">
-                            <div style="font-family:'JetBrains Mono'; font-size:0.65rem; opacity:0.7; margin-bottom:8px; color:var(--accent-lime);">// PREVIEW: ${sanitize(nextDay.name).toUpperCase()}</div>
-                            <ul style="list-style:none; padding:0; margin:0; font-family:'JetBrains Mono'; font-size:0.7rem;">
-                                ${preview}
-                                ${extra}
-                            </ul>
-                        </div>`;
+                if (activeIdx >= 0) {
+                    const w = workouts[activeIdx];
+                    const n = getInc(w);
+                    const p = getProgressStatus(w);
+                    
+                    for(let i=0; i<20; i++) {
+                        const c = document.createElement('div');
+                        c.className = `prog-cell ${i < (p.done/p.total)*20 ? 'on' : ''}`;
+                        grid.appendChild(c);
                     }
 
+                    if (n) {
+                        const nextDay = w.days[n.day];
+                        let exsHtml = '';
+                        if (nextDay && nextDay.exercises) {
+                            const exs = nextDay.exercises;
+                            const preview = exs.slice(0, 4).map(ex => `<li style="margin-bottom:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">> ${sanitize(ex.name)} <span style="opacity:0.6; font-size:0.6rem;">${ex.sets}x${ex.reps}</span></li>`).join('');
+                            const extra = exs.length > 4 ? `<li style="opacity:0.5; font-size:0.6rem; margin-top:6px;">+ ${exs.length - 4} MORE...</li>` : '';
+                            exsHtml = `
+                            <div style="margin-top: 15px; border-top: 1px dashed rgba(0,0,0,0.2); padding-top: 15px;">
+                                <div style="font-family:'JetBrains Mono'; font-size:0.65rem; font-weight:900; margin-bottom:8px; color:var(--accent-blue);">// PREVIEW: ${sanitize(nextDay.name).toUpperCase()}</div>
+                                <ul style="list-style:none; padding:0; margin:0; font-family:'JetBrains Mono'; font-size:0.7rem; font-weight:700;">
+                                    ${preview}
+                                    ${extra}
+                                </ul>
+                            </div>`;
+                        }
+
+                        res.innerHTML = `
+                            <div class="tech-card" onclick="resumeWorkout(${activeIdx})">
+                                <span class="label">Session.Active</span>
+                                <h2 class="heading-xl">${sanitize(w.title)}<span>_ONLINE</span></h2>
+                                <p style="font-family:'JetBrains Mono', monospace; font-weight:700; margin-top:12px; font-size:0.85rem;">[ WEEK 0${n.week} // DAY 0${n.day+1} ]</p>
+                                ${exsHtml}
+                            </div>`;
+                    }
+                } else {
                     res.innerHTML = `
-                        <div class="tech-card" onclick="resumeWorkout(${activeIdx})">
-                            <span class="label">Session.Active</span>
-                            <h2 class="heading-xl">${sanitize(w.title)}<span>_ONLINE</span></h2>
-                            <p style="font-family:'JetBrains Mono', monospace; font-weight:700; margin-top:12px; font-size:0.85rem;">[ WEEK 0${n.week} // DAY 0${n.day+1} ]</p>
-                            ${exsHtml}
+                        <div class="tech-card" style="opacity: 0.5;">
+                            <span class="label" style="background:#000; color:#fff;">Session.Idle</span>
+                            <h2 class="heading-xl">ALL DONE<span>_OFFLINE</span></h2>
+                            <p style="font-family:'JetBrains Mono', monospace; font-weight:700; margin-top:12px; font-size:0.85rem;">No active programs found. Import a new protocol.</p>
                         </div>`;
                 }
             }
             const list = document.getElementById('workouts-list');
             list.innerHTML = '';
             workouts.forEach((w, i) => {
+                const p = getProgressStatus(w);
+                const statusHtml = p.isCompleted ? `<span style="color:var(--accent-pink); font-size:0.6rem; font-weight:900; font-family:'JetBrains Mono'; margin-left:10px;">[COMPLETED]</span>` : '';
                 const card = document.createElement('div');
-                card.className = `shard-node ${isManagementMode ? 'manage' : ''}`;
+                card.className = `shard-node ${isManagementMode ? 'manage' : ''} ${p.isCompleted ? 'completed' : ''}`;
+                if (p.isCompleted) card.style.opacity = '0.5';
                 card.onclick = () => isManagementMode ? openEditProtocol(i) : openWorkout(i);
-                card.innerHTML = `<div style="flex:1">${w.title}</div><div style="font-size:0.45rem; border:1.5px solid #000; padding:2px 8px; font-family:'JetBrains Mono'">${isManagementMode ? 'MODIFY' : 'OPEN'}</div>`;
+                card.innerHTML = `<div style="flex:1; display:flex; align-items:center;">${sanitize(w.title)} ${statusHtml}</div><div style="font-size:0.45rem; border:1.5px solid #000; padding:2px 8px; font-family:'JetBrains Mono'">${isManagementMode ? 'MODIFY' : 'OPEN'}</div>`;
                 list.appendChild(card);
             });
         }
