@@ -853,8 +853,13 @@
                 block.id = 'set-block-' + rI;
                 let subHtml = '';
                 subExs.forEach((sx, sI) => {
+                    let currentTgt = sx.reps;
+                    if (currentTgt && currentTgt.match(/[\,\/\|]/)) {
+                        const parts = currentTgt.split(/[\,\/\|]+/).map(x => x.trim());
+                        if (parts.length > 1) currentTgt = parts[rI] !== undefined ? parts[rI] : parts[parts.length - 1];
+                    }
                     subHtml += `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                        <div><b style="font-size:1.1rem; line-height:0.85;">${sx.name}</b><br><small style="font-family:'JetBrains Mono'; font-weight:700; font-size:0.55rem; color:#888;">// TGT: ${sx.reps}</small></div>
+                        <div><b style="font-size:1.1rem; line-height:0.85;">${sx.name}</b><br><small style="font-family:'JetBrains Mono'; font-weight:700; font-size:0.55rem; color:#888;">// TGT: ${currentTgt}</small></div>
                         <div style="display:flex; align-items:center;">
                             <input type="number" class="input-tech subload-input" data-round="${rI}" data-sub="${sI}" value="${round.subLoads[sI] || ""}" oninput="updateSubLoad(${rI}, ${sI}, this.value)">
                             <small style="font-weight:900; font-family:'JetBrains Mono'; margin-left:10px; font-size:0.8rem;">KG</small>
