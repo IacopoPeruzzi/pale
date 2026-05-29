@@ -8,6 +8,7 @@ import os
 load_dotenv()
 
 app = Flask(__name__)
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 # Per sicurezza, usa una chiave segreta dalle variabili d'ambiente
 app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'pale-secret-key-123')
 PASSWORD_HASH = os.environ.get('APP_PASSWORD_HASH')
