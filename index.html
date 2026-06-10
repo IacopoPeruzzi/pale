@@ -716,7 +716,7 @@
             const w = workouts[idx]; 
             const n = getInc(w); 
             if(!currentWeek) currentWeek = n ? n.week : 1;
-            const weekInfo = w.weeklyStructure?.find(s => s.week === 'W' + currentWeek);
+            const weekInfo = w.weeklyStructure ? (w.weeklyStructure.find(s => String(s.week).includes(currentWeek) || s.week === 'W' + currentWeek) || w.weeklyStructure[currentWeek - 1]) : null;
             const content = document.getElementById('workout-content');
             content.innerHTML = `
                 <div class="tech-card">
@@ -729,9 +729,13 @@
             `;
             const sel = document.getElementById('week-selector');
             for(let i=1; i<=w.numWeeks; i++) {
+                const wi = w.weeklyStructure ? (w.weeklyStructure.find(s => String(s.week).includes(i) || s.week === 'W' + i) || w.weeklyStructure[i - 1]) : null;
                 const b = document.createElement('div');
                 b.className = `selector-node ${currentWeek === i ? 'active' : ''}`;
-                b.innerHTML = `W0${i}`;
+                b.style.flexDirection = 'column';
+                b.style.gap = '2px';
+                const focusTxt = wi && wi.focus ? wi.focus : "Focus n.d.";
+                b.innerHTML = `W0${i}<div style="font-size:0.45rem; font-weight:normal; opacity:0.7; max-width:50px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${focusTxt}</div>`;
                 b.onclick = () => { currentWeek = i; openWorkout(idx); };
                 sel.appendChild(b);
             }
@@ -753,10 +757,14 @@
             w.lastActive = Date.now();
             localStorage.setItem('pale_workouts', JSON.stringify(workouts));
             const d = w.days[dI];
+            const wi = w.weeklyStructure ? (w.weeklyStructure.find(s => String(s.week).includes(currentWeek) || s.week === 'W' + currentWeek) || w.weeklyStructure[currentWeek - 1]) : null;
+            const focusTxt = wi && wi.focus ? wi.focus : "Non impostato";
+            const noteTxt = wi && wi.note ? ` - ${wi.note}` : "";
             document.getElementById('session-header').innerHTML = `
                 <div class="tech-card" style="background:var(--accent-lime)">
                     <span class="label" style="background:#000; color:#fff;">Channel.Active</span>
                     <h2 class="heading-xl">${sanitize(d.name)}<span>_LOG</span></h2>
+                    <div style="background:#000; color:#fff; padding:10px; margin-top:12px; font-family:'JetBrains Mono'; font-size:0.65rem; border:2px solid #000;">// FOCUS: ${focusTxt}${noteTxt}</div>
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
                         <span style="font-weight:900; background:#000; color:#fff; padding:5px 15px; font-size:0.75rem; font-family:'JetBrains Mono'">WEEK 0${currentWeek}</span>
                         <button class="dots-btn" style="width:auto; padding:0 10px; font-size:0.5rem; font-weight:900;" onclick="resetDayAction()">RESET</button>
@@ -972,7 +980,28 @@
             const btn = document.getElementById('import-btn');
             btn.querySelector('.main-txt').innerText = "PROCESSING..."; 
             setTimeout(() => {
-                const w = { id: "p-" + Date.now(), title: "CORE_PROTOCOL", subtitle: "", days: [], numWeeks: 4, progress: {} };
+                let titleStr = "CORE_PROTOCOL";
+                const titleMatch = raw.match(/(?:#|\*\*|Perfetto:)\s*\*?\*?([A-Z0-9]+)\*?\*?/i);
+                if (titleMatch) titleStr = titleMatch[1].toUpperCase() + " - IMPORTED";
+
+                const w = { id: "p-" + Date.now(), title: titleStr, subtitle: "", days: [], numWeeks: 4, progress: {}, weeklyStructure: [] };
+                
+                // Parse weekly structure
+                const structMatch = raw.match(/\|\s*Settimana\s*\|.*?\n\|\s*[-:| ]+\s*\|\n((?:\|.*\|\s*\n?)+)/i);
+                if (structMatch) {
+                    const rows = structMatch[1].trim().split('\n');
+                    rows.forEach(r => {
+                        const cols = r.split('|').map(c => c.trim()).filter(c => c);
+                        if (cols.length >= 2) {
+                            w.weeklyStructure.push({
+                                week: cols[0],
+                                focus: cols[1],
+                                note: cols.length > 3 ? cols[3] : (cols.length > 2 ? cols[2] : "")
+                            });
+                        }
+                    });
+                }
+
                 const lines = raw.split('\n');
                 let curD = null;
                 lines.forEach(l => {
