@@ -723,6 +723,36 @@
                       .replace(/\*(.*?)\*/g, '<i>$1</i>')
                       .replace(/^- (.*)$/gm, '&bull; $1');
         }
+        function extractRPEForExercise(exName, note, isPrimary) {
+            if (!note || !exName) return null;
+            const lines = note.split('\n');
+            const exWords = exName.toLowerCase().split(/[\s\(\)\[\]]+/).filter(w => w.length > 3);
+
+            for (let l of lines) {
+                if (l.includes(':') && l.match(/\d/)) {
+                    const parts = l.split(':');
+                    const targetStr = parts[0].toLowerCase();
+                    const rpeMatch = parts[1].match(/[\d\.\-\–]+/);
+                    if (!rpeMatch) continue;
+                    const rpeStr = rpeMatch[0];
+
+                    if (exWords.length > 0) {
+                        for (let w of exWords) {
+                            const root = w.substring(0, w.length - 1);
+                            if (targetStr.includes(root)) {
+                                return rpeStr;
+                            }
+                        }
+                    }
+                    
+                    if (isPrimary && targetStr.includes('big')) return rpeStr;
+                    if (!isPrimary && targetStr.includes('complementari')) return rpeStr;
+                    if (exName.toLowerCase().includes('trekking') && targetStr.includes('trekking')) return rpeStr;
+                    if (exName.toLowerCase().includes('addom') && targetStr.includes('addom')) return rpeStr;
+                }
+            }
+            return null;
+        }
         
         function openWorkout(idx) { 
             currentWorkoutIndex = idx; 
@@ -774,6 +804,8 @@
             const wi = w.weeklyStructure ? (w.weeklyStructure.find(s => String(s.week).includes(currentWeek) || s.week === 'W' + currentWeek) || w.weeklyStructure[currentWeek - 1]) : null;
             const focusTxt = wi && wi.focus ? wi.focus : "Non impostato";
             const noteTxt = wi && wi.note ? `<div style="margin-top:8px; border-top:1px dashed rgba(255,255,255,0.3); padding-top:8px; white-space:pre-wrap; line-height:1.4;">// NOTES:<br>${parseMarkdown(wi.note)}</div>` : "";
+            const weekNoteText = wi ? ((wi.focus || "") + "\n" + (wi.note || "")) : "";
+            
             document.getElementById('session-header').innerHTML = `
                 <div class="tech-card" style="background:var(--accent-lime)">
                     <span class="label" style="background:#000; color:#fff;">Channel.Active</span>
@@ -797,9 +829,26 @@
                 item.onclick = () => openExercise(eI);
                 const tecnicaText = ex.tecnica || ex.notes || "";
                 const isCircuit = tecnicaText.includes('+') || ex.name.toLowerCase().includes('circuito');
+                
+                let baseRpe = ex.rpeList && ex.rpeList[currentWeek - 1] ? ex.rpeList[currentWeek - 1] : ex.rpe;
+                let prevRpe = currentWeek > 1 && ex.rpeList && ex.rpeList[currentWeek - 2] ? ex.rpeList[currentWeek - 2] : null;
+                
+                let displayRpe = baseRpe || "";
+                
+                if (prevRpe && baseRpe && prevRpe !== baseRpe) {
+                    displayRpe = `${prevRpe} ➔ ${baseRpe}`;
+                } else {
+                    let extractedRpe = extractRPEForExercise(ex.name, weekNoteText, eI === 0);
+                    if (extractedRpe && baseRpe && extractedRpe !== baseRpe) {
+                        displayRpe = `${baseRpe} ➔ ${extractedRpe}`;
+                    } else if (extractedRpe && !baseRpe) {
+                        displayRpe = extractedRpe;
+                    }
+                }
+
                 let labelHtml = `<div style="flex:1"><b>${sanitize(ex.name)}</b>`;
-                if (ex.rpe) {
-                    labelHtml += `<span style="margin-left: 8px; font-size:0.6rem; background:#000; color:var(--accent-lime); padding:2px 5px; font-family:'JetBrains Mono'; font-weight:900;">RPE ${ex.rpe}</span>`;
+                if (displayRpe) {
+                    labelHtml += `<span style="margin-left: 8px; font-size:0.6rem; background:#000; color:var(--accent-lime); padding:2px 5px; font-family:'JetBrains Mono'; font-weight:900;">RPE ${displayRpe}</span>`;
                 }
                 if (tecnicaText) {
                     labelHtml += `<br><small style="font-size:0.65rem; opacity:0.6; font-family:'JetBrains Mono'; color:var(--accent-pink);">// TEC: ${tecnicaText}</small>`;
@@ -869,6 +918,22 @@
                 }
             }
 
+            let baseRpe = ex.rpeList && ex.rpeList[currentWeek - 1] ? ex.rpeList[currentWeek - 1] : ex.rpe;
+            let prevRpe = currentWeek > 1 && ex.rpeList && ex.rpeList[currentWeek - 2] ? ex.rpeList[currentWeek - 2] : null;
+            
+            let displayRpe = baseRpe || "";
+            
+            if (prevRpe && baseRpe && prevRpe !== baseRpe) {
+                displayRpe = `${prevRpe} ➔ ${baseRpe}`;
+            } else {
+                let extractedRpe = extractRPEForExercise(ex.name, weekText, currentExIdx === 0);
+                if (extractedRpe && baseRpe && extractedRpe !== baseRpe) {
+                    displayRpe = `${baseRpe} ➔ ${extractedRpe}`;
+                } else if (extractedRpe && !baseRpe) {
+                    displayRpe = extractedRpe;
+                }
+            }
+
             document.getElementById('ex-header').innerHTML = `
                 <div class="tech-card" style="transform:none;">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -880,7 +945,7 @@
                         <div class="data-box"><span class="v">${ex.sets}</span><span class="l">SETS</span></div>
                         <div class="data-box"><span class="v">${subExs.length > 1 ? 'CIRC' : ex.reps}</span><span class="l">REPS</span></div>
                         <div class="data-box" style="background:${isDeload ? 'var(--accent-pink)' : 'var(--accent-lime)'}"><span class="v">${ex.rest}</span><span class="l">REST</span></div>
-                        ${ex.rpe ? `<div class="data-box"><span class="v">${ex.rpe}</span><span class="l">RPE</span></div>` : ''}
+                        ${displayRpe ? `<div class="data-box"><span class="v" style="font-size: ${displayRpe.includes('➔') ? '1.1rem' : '1.8rem'}; line-height: ${displayRpe.includes('➔') ? '2.5' : '1.2'}; font-family:'JetBrains Mono'">${displayRpe}</span><span class="l">RPE</span></div>` : ''}
                     </div>
                     ${isDeload ? `<div style="margin-top:10px; font-family:'JetBrains Mono'; font-size:0.5rem; font-weight:900; color:var(--accent-pink);">// WARNING: 80% LOAD CALCULATION APPLIED FROM PREV RECORD</div>` : ''}
                     ${tecnicaText ? `
@@ -1079,17 +1144,23 @@
                         const cols = l.split('|').map(c => c.trim());
                         if(cols.length >= 4) {
                             let rpeVal = "";
+                            let rpeList = [];
                             let tecnicaVal = "";
                             let restVal = "90s";
                             
                             // Map columns based on headers if available, else assume standard format
                             if (tableHeaders.length > 0) {
-                                const rpeIdx = tableHeaders.findIndex(h => h === 'rpe');
                                 const tecIdx = tableHeaders.findIndex(h => h === 'tecnica' || h === 'note');
                                 const restIdx = tableHeaders.findIndex(h => h === 'rest' || h === 'recupero');
-                                if (rpeIdx !== -1) rpeVal = cols[rpeIdx] || "";
                                 if (tecIdx !== -1) tecnicaVal = cols[tecIdx] || "";
                                 if (restIdx !== -1) restVal = cols[restIdx] || "";
+                                
+                                for (let cIdx = 0; cIdx < tableHeaders.length; cIdx++) {
+                                    if (tableHeaders[cIdx].match(/^rpe\s*(w\d+)?$/)) {
+                                        rpeList.push(cols[cIdx] || "");
+                                    }
+                                }
+                                if (rpeList.length > 0) rpeVal = rpeList[0];
                             } else {
                                 if (cols.length >= 8) { 
                                     rpeVal = cols[5] || "";
@@ -1113,6 +1184,7 @@
                                     reps: cols[3], 
                                     rest: restVal, 
                                     rpe: rpeVal,
+                                    rpeList: rpeList.length > 0 ? rpeList : null,
                                     tecnica: tecnicaVal, 
                                     notes: tecnicaVal 
                                 });
