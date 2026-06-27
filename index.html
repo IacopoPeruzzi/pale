@@ -312,6 +312,10 @@
                     <input type="text" id="edit-ex-rest" class="edit-input">
                 </div>
                 <div class="edit-input-group">
+                    <label>RPE</label>
+                    <input type="text" id="edit-ex-rpe" class="edit-input">
+                </div>
+                <div class="edit-input-group">
                     <label>Tecnica / Note</label>
                     <input type="text" id="edit-ex-tecnica" class="edit-input">
                 </div>
@@ -628,12 +632,14 @@
                 document.getElementById('edit-ex-sets').value = ex.sets || "";
                 document.getElementById('edit-ex-reps').value = ex.reps || "";
                 document.getElementById('edit-ex-rest').value = ex.rest || "";
+                document.getElementById('edit-ex-rpe').value = ex.rpe || "";
                 document.getElementById('edit-ex-tecnica').value = ex.tecnica || ex.notes || "";
             } else {
                 document.getElementById('edit-ex-name').value = "";
                 document.getElementById('edit-ex-sets').value = "";
                 document.getElementById('edit-ex-reps').value = "";
                 document.getElementById('edit-ex-rest').value = "";
+                document.getElementById('edit-ex-rpe').value = "";
                 document.getElementById('edit-ex-tecnica').value = "";
             }
             showView('view-edit-exercise');
@@ -659,6 +665,7 @@
                 sets: document.getElementById('edit-ex-sets').value,
                 reps: document.getElementById('edit-ex-reps').value,
                 rest: document.getElementById('edit-ex-rest').value,
+                rpe: document.getElementById('edit-ex-rpe').value,
                 tecnica: document.getElementById('edit-ex-tecnica').value,
                 notes: document.getElementById('edit-ex-tecnica').value
             };
@@ -710,6 +717,12 @@
 
         function resumeWorkout(idx) { const w = workouts[idx]; const n = getInc(w); currentWorkoutIndex = idx; if(n) { currentWeek = n.week; startSession(n.day); } else openWorkout(idx); }
         function sanitize(str) { return str ? str.replace(/^[#\*\s\-\–\—]+/g, '').replace(/[#\*\-\–\—\s]+$/g, '').trim() : ""; }
+        function parseMarkdown(str) {
+            if (!str) return "";
+            return str.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
+                      .replace(/\*(.*?)\*/g, '<i>$1</i>')
+                      .replace(/^- (.*)$/gm, '&bull; $1');
+        }
         
         function openWorkout(idx) { 
             currentWorkoutIndex = idx; 
@@ -722,7 +735,8 @@
                 <div class="tech-card">
                     <span class="label">Protocol.Info</span>
                     <h2 class="heading-xl">${sanitize(w.title)}<span>_V4</span></h2>
-                    ${weekInfo ? `<div style="background:var(--bg-canvas); border-left:6px solid var(--accent-blue); padding:15px; margin-top:12px; font-family:'JetBrains Mono'; font-size:0.75rem;">// LOG: ${weekInfo.note || weekInfo.focus}</div>` : ''}
+                    ${w.subtitle ? `<div style="margin-top:15px; font-family:'JetBrains Mono'; font-size:0.75rem; font-weight:700; white-space:pre-wrap; color:#ccc; line-height:1.4;">${parseMarkdown(w.subtitle)}</div>` : ''}
+                    ${weekInfo && (weekInfo.focus || weekInfo.note) ? `<div style="background:var(--bg-canvas); border-left:6px solid var(--accent-blue); padding:15px; margin-top:12px; font-family:'JetBrains Mono'; font-size:0.75rem; white-space:pre-wrap; line-height: 1.4;">// FOCUS: ${weekInfo.focus}<br>${weekInfo.note ? `<br>// LOG:<br>${parseMarkdown(weekInfo.note)}` : ''}</div>` : ''}
                 </div>
                 <div class="selector-row" id="week-selector"></div>
                 <div id="day-list"></div>
@@ -759,7 +773,7 @@
             const d = w.days[dI];
             const wi = w.weeklyStructure ? (w.weeklyStructure.find(s => String(s.week).includes(currentWeek) || s.week === 'W' + currentWeek) || w.weeklyStructure[currentWeek - 1]) : null;
             const focusTxt = wi && wi.focus ? wi.focus : "Non impostato";
-            const noteTxt = wi && wi.note ? ` - ${wi.note}` : "";
+            const noteTxt = wi && wi.note ? `<div style="margin-top:8px; border-top:1px dashed rgba(255,255,255,0.3); padding-top:8px; white-space:pre-wrap; line-height:1.4;">// NOTES:<br>${parseMarkdown(wi.note)}</div>` : "";
             document.getElementById('session-header').innerHTML = `
                 <div class="tech-card" style="background:var(--accent-lime)">
                     <span class="label" style="background:#000; color:#fff;">Channel.Active</span>
@@ -784,6 +798,9 @@
                 const tecnicaText = ex.tecnica || ex.notes || "";
                 const isCircuit = tecnicaText.includes('+') || ex.name.toLowerCase().includes('circuito');
                 let labelHtml = `<div style="flex:1"><b>${sanitize(ex.name)}</b>`;
+                if (ex.rpe) {
+                    labelHtml += `<span style="margin-left: 8px; font-size:0.6rem; background:#000; color:var(--accent-lime); padding:2px 5px; font-family:'JetBrains Mono'; font-weight:900;">RPE ${ex.rpe}</span>`;
+                }
                 if (tecnicaText) {
                     labelHtml += `<br><small style="font-size:0.65rem; opacity:0.6; font-family:'JetBrains Mono'; color:var(--accent-pink);">// TEC: ${tecnicaText}</small>`;
                 }
@@ -820,7 +837,9 @@
             while (data.rounds.length < nR) data.rounds.push({ done: false, subLoads: new Array(subExs.length).fill("") });
             if (data.rounds.length > nR) data.rounds = data.rounds.slice(0, nR);
             
-            const isDeload = (currentWeek == w.numWeeks);
+            const wi = w.weeklyStructure ? (w.weeklyStructure.find(s => String(s.week).includes(currentWeek) || s.week === 'W' + currentWeek) || w.weeklyStructure[currentWeek - 1]) : null;
+            const weekText = wi ? ((wi.focus || "") + " " + (wi.note || "")).toLowerCase() : "";
+            const isDeload = weekText.includes('scarico') || weekText.includes('deload');
             
             if (currentWeek > 1) {
                 // Robust Deload Search: find the latest week with recorded loads
@@ -861,6 +880,7 @@
                         <div class="data-box"><span class="v">${ex.sets}</span><span class="l">SETS</span></div>
                         <div class="data-box"><span class="v">${subExs.length > 1 ? 'CIRC' : ex.reps}</span><span class="l">REPS</span></div>
                         <div class="data-box" style="background:${isDeload ? 'var(--accent-pink)' : 'var(--accent-lime)'}"><span class="v">${ex.rest}</span><span class="l">REST</span></div>
+                        ${ex.rpe ? `<div class="data-box"><span class="v">${ex.rpe}</span><span class="l">RPE</span></div>` : ''}
                     </div>
                     ${isDeload ? `<div style="margin-top:10px; font-family:'JetBrains Mono'; font-size:0.5rem; font-weight:900; color:var(--accent-pink);">// WARNING: 80% LOAD CALCULATION APPLIED FROM PREV RECORD</div>` : ''}
                     ${tecnicaText ? `
@@ -981,12 +1001,25 @@
             btn.querySelector('.main-txt').innerText = "PROCESSING..."; 
             setTimeout(() => {
                 let titleStr = "CORE_PROTOCOL";
-                const titleMatch = raw.match(/(?:#|\*\*|Perfetto:)\s*\*?\*?([A-Z0-9]+)\*?\*?/i);
-                if (titleMatch) titleStr = titleMatch[1].toUpperCase() + " - IMPORTED";
 
-                const w = { id: "p-" + Date.now(), title: titleStr, subtitle: "", days: [], numWeeks: 4, progress: {}, weeklyStructure: [] };
+                const periodoMatch = raw.match(/\*\*Periodo:\*\*\s*(.*?)\n/i);
+                const funzioneMatch = raw.match(/\*\*Funzione:\*\*\s*(.*?)\n/i);
+                const prioritaMatch = raw.match(/\*\*Priorit[aà]:\*\*\s*(.*?)\n/i);
+                let subParts = [];
+                if (periodoMatch) subParts.push("**Periodo:** " + periodoMatch[1].trim());
+                if (funzioneMatch) subParts.push("**Funzione:** " + funzioneMatch[1].trim());
+                if (prioritaMatch) subParts.push("**Priorità:** " + prioritaMatch[1].trim());
+
+                if (funzioneMatch && periodoMatch) {
+                    titleStr = `${funzioneMatch[1].trim().toUpperCase()} (${periodoMatch[1].trim().replace(/\.$/, '')})`;
+                } else {
+                    const titleMatch = raw.match(/##\s*Blocco\s*\n\*\*Periodo:\*\*\s*(.*?)\n/i) || raw.match(/(?:#|\*\*|Perfetto:)\s*\*?\*?([A-Z0-9]+)\*?\*?/i);
+                    if (titleMatch) titleStr = titleMatch[1].toUpperCase().replace(/\.$/, '') + " - IMPORTED";
+                }
+
+                const w = { id: "p-" + Date.now(), title: titleStr, subtitle: subParts.join('\n'), days: [], numWeeks: 0, progress: {}, weeklyStructure: [] };
                 
-                // Parse weekly structure
+                // Parse weekly structure from table (legacy)
                 const structMatch = raw.match(/\|\s*Settimana\s*\|.*?\n\|\s*[-:| ]+\s*\|\n((?:\|.*\|\s*\n?)+)/i);
                 if (structMatch) {
                     const rows = structMatch[1].trim().split('\n');
@@ -994,7 +1027,7 @@
                         const cols = r.split('|').map(c => c.trim()).filter(c => c);
                         if (cols.length >= 2) {
                             w.weeklyStructure.push({
-                                week: cols[0],
+                                week: parseInt(cols[0].replace(/\D/g, '') || 1),
                                 focus: cols[1],
                                 note: cols.length > 3 ? cols[3] : (cols.length > 2 ? cols[2] : "")
                             });
@@ -1004,27 +1037,103 @@
 
                 const lines = raw.split('\n');
                 let curD = null;
-                lines.forEach(l => {
-                    if(l.startsWith('## ') && (l.toLowerCase().includes('giorno') || l.toLowerCase().includes('sessione'))) {
+                let activeWeek = 1;
+                let readingDays = true;
+                let tableHeaders = [];
+                
+                for(let i=0; i<lines.length; i++) {
+                    let l = lines[i].trim();
+                    
+                    const wkMatch = l.match(/^##\s*Settimana\s*(\d+)/i);
+                    if (wkMatch) {
+                        activeWeek = parseInt(wkMatch[1], 10);
+                        if (activeWeek > 1) readingDays = false;
+                        w.numWeeks = Math.max(w.numWeeks, activeWeek);
+                        let wObj = w.weeklyStructure.find(x => x.week === activeWeek);
+                        if (!wObj) {
+                            wObj = { week: activeWeek, focus: "", note: "" };
+                            w.weeklyStructure.push(wObj);
+                        }
+                        // try to read next lines for focus/note
+                        let j = i + 1;
+                        let notesAcc = [];
+                        while(j < lines.length && !lines[j].match(/^##\s+/)) {
+                            let nextL = lines[j].trim();
+                            if (nextL.match(/^###?\s+(Giorno|Sessione)/i)) break;
+                            if (nextL.startsWith('**') && (nextL.includes('–') || nextL.includes('-')) && !wObj.focus) {
+                                wObj.focus = nextL.replace(/\*\*/g, '').trim();
+                            } else if (nextL.length > 0) {
+                                notesAcc.push(nextL);
+                            }
+                            j++;
+                        }
+                        if (notesAcc.length > 0 && !wObj.note) wObj.note = notesAcc.join('\n');
+                    }
+
+                    if(readingDays && l.match(/^###?\s+(Giorno|Sessione)/i)) {
                         if(curD) w.days.push(curD);
-                        curD = { name: l.replace('##', '').trim(), exercises: [] };
-                    } else if(curD && l.includes('|') && !l.includes('Esercizio') && !l.includes('---')) {
+                        curD = { name: l.replace(/^###?\s+/, '').trim(), exercises: [] };
+                    } else if(readingDays && curD && l.includes('|') && l.includes('Esercizio')) {
+                        tableHeaders = l.split('|').map(c => c.trim().toLowerCase());
+                    } else if(readingDays && curD && l.includes('|') && !l.includes('---')) {
                         const cols = l.split('|').map(c => c.trim());
                         if(cols.length >= 4) {
-                            const tecnicaVal = cols[5] || "";
-                            curD.exercises.push({ 
-                                name: cols[1], 
-                                sets: cols[2], 
-                                reps: cols[3], 
-                                rest: cols[4] || "90s", 
-                                tecnica: tecnicaVal, 
-                                notes: tecnicaVal 
-                            });
+                            let rpeVal = "";
+                            let tecnicaVal = "";
+                            let restVal = "90s";
+                            
+                            // Map columns based on headers if available, else assume standard format
+                            if (tableHeaders.length > 0) {
+                                const rpeIdx = tableHeaders.findIndex(h => h === 'rpe');
+                                const tecIdx = tableHeaders.findIndex(h => h === 'tecnica' || h === 'note');
+                                const restIdx = tableHeaders.findIndex(h => h === 'rest' || h === 'recupero');
+                                if (rpeIdx !== -1) rpeVal = cols[rpeIdx] || "";
+                                if (tecIdx !== -1) tecnicaVal = cols[tecIdx] || "";
+                                if (restIdx !== -1) restVal = cols[restIdx] || "";
+                            } else {
+                                if (cols.length >= 8) { 
+                                    rpeVal = cols[5] || "";
+                                    tecnicaVal = cols[6] || "";
+                                    restVal = cols[4] || "90s";
+                                } else if (cols.length >= 7) {
+                                    if (cols[5] && cols[5].match(/^[0-9\.]+$/)) {
+                                        rpeVal = cols[5];
+                                        tecnicaVal = cols[6] || "";
+                                    } else {
+                                        tecnicaVal = cols[5] || "";
+                                    }
+                                    restVal = cols[4] || "90s";
+                                }
+                            }
+                            
+                            if (cols[1]) {
+                                curD.exercises.push({ 
+                                    name: cols[1], 
+                                    sets: cols[2], 
+                                    reps: cols[3], 
+                                    rest: restVal, 
+                                    rpe: rpeVal,
+                                    tecnica: tecnicaVal, 
+                                    notes: tecnicaVal 
+                                });
+                            }
                         }
                     }
-                });
+                }
                 if(curD) w.days.push(curD);
-                if(w.days.length > 0) { workouts.unshift(w); save(); showView('view-home'); renderHome(); }
+                if (w.numWeeks === 0) w.numWeeks = 4; // default
+                
+                if(w.days.length > 0) { 
+                    workouts.unshift(w); 
+                    save(); 
+                    document.getElementById('import-text').value = '';
+                    btn.querySelector('.main-txt').innerText = "EXECUTE_SYNC";
+                    showView('view-home'); 
+                    renderHome(); 
+                } else {
+                    btn.querySelector('.main-txt').innerText = "IMPORT FAILED";
+                    setTimeout(() => btn.querySelector('.main-txt').innerText = "EXECUTE_SYNC", 2000);
+                }
             }, 800);
         }
         renderHome();

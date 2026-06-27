@@ -1,0 +1,1558 @@
+{
+  "days": [
+    {
+      "exercises": [
+        {
+          "name": "Lat machine supina",
+          "notes": "1 top + 2 back-off + 1 lin",
+          "reps": "6",
+          "rest": "2'00\"\u20132'30\"",
+          "sessionData": {
+            "1": {
+              "completed": false,
+              "notes": "",
+              "rounds": [
+                {
+                  "done": true,
+                  "subLoads": [
+                    "85"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "80"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "80"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "75"
+                  ]
+                }
+              ]
+            },
+            "2": {
+              "completed": false,
+              "notes": "",
+              "rounds": [
+                {
+                  "done": true,
+                  "subLoads": [
+                    "85"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "80"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "80"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "75"
+                  ]
+                }
+              ]
+            },
+            "4": {
+              "completed": false,
+              "notes": "",
+              "rounds": [
+                {
+                  "done": false,
+                  "subLoads": [
+                    ""
+                  ]
+                },
+                {
+                  "done": false,
+                  "subLoads": [
+                    ""
+                  ]
+                },
+                {
+                  "done": false,
+                  "subLoads": [
+                    ""
+                  ]
+                },
+                {
+                  "done": false,
+                  "subLoads": [
+                    ""
+                  ]
+                }
+              ]
+            }
+          },
+          "sets": "4",
+          "tecnica": "1 top + 2 back-off + 1 lin"
+        },
+        {
+          "name": "Lat Machine T-bar",
+          "notes": "Lineare",
+          "reps": "8",
+          "rest": "2'00\"\u20132'30\"",
+          "sessionData": {
+            "1": {
+              "completed": false,
+              "notes": "",
+              "rounds": [
+                {
+                  "done": true,
+                  "subLoads": [
+                    "70"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "70"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "70"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "70"
+                  ]
+                }
+              ]
+            },
+            "2": {
+              "completed": false,
+              "notes": "",
+              "rounds": [
+                {
+                  "done": true,
+                  "subLoads": [
+                    "70"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "70"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "70"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "70"
+                  ]
+                }
+              ]
+            }
+          },
+          "sets": "4",
+          "tecnica": "Lineare"
+        },
+        {
+          "name": "Pulldown presa neutra stretta",
+          "notes": "Tensione continua",
+          "reps": "10",
+          "rest": "1'30\"\u20131'45\"",
+          "sessionData": {
+            "1": {
+              "completed": false,
+              "notes": "Trazioni",
+              "rounds": [
+                {
+                  "done": true,
+                  "subLoads": [
+                    "0"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "0"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "0"
+                  ]
+                }
+              ]
+            },
+            "2": {
+              "completed": false,
+              "notes": "",
+              "rounds": [
+                {
+                  "done": true,
+                  "subLoads": [
+                    "70"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "70"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "70"
+                  ]
+                }
+              ]
+            }
+          },
+          "sets": "3",
+          "tecnica": "Tensione continua"
+        },
+        {
+          "name": "High row cavo alto",
+          "notes": "Pausa 1\" in chiusura",
+          "reps": "10",
+          "rest": "1'30\"\u20131'45\"",
+          "sessionData": {
+            "1": {
+              "completed": false,
+              "notes": "",
+              "rounds": [
+                {
+                  "done": true,
+                  "subLoads": [
+                    "35"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "35"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "35"
+                  ]
+                }
+              ]
+            },
+            "2": {
+              "completed": false,
+              "notes": "",
+              "rounds": [
+                {
+                  "done": true,
+                  "subLoads": [
+                    "35"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "35"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "35"
+                  ]
+                }
+              ]
+            }
+          },
+          "sets": "3",
+          "tecnica": "Pausa 1\" in chiusura"
+        },
+        {
+          "name": "Face pull",
+          "notes": "Pausa 2\"",
+          "reps": "15",
+          "rest": "1'00\"\u20131'15\"",
+          "sessionData": {
+            "1": {
+              "completed": false,
+              "notes": "",
+              "rounds": [
+                {
+                  "done": true,
+                  "subLoads": [
+                    "45"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "45"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "45"
+                  ]
+                }
+              ]
+            },
+            "2": {
+              "completed": false,
+              "notes": "",
+              "rounds": [
+                {
+                  "done": true,
+                  "subLoads": [
+                    "45"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "45"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "45"
+                  ]
+                }
+              ]
+            }
+          },
+          "sets": "3",
+          "tecnica": "Pausa 2\""
+        },
+        {
+          "name": "Hollow hold",
+          "notes": "Core",
+          "reps": "40\u201345\"",
+          "rest": "30\"\u201345\"",
+          "sessionData": {
+            "1": {
+              "completed": false,
+              "notes": "",
+              "rounds": [
+                {
+                  "done": true,
+                  "subLoads": [
+                    "0"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "0"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "0"
+                  ]
+                }
+              ]
+            },
+            "2": {
+              "completed": false,
+              "notes": "",
+              "rounds": [
+                {
+                  "done": true,
+                  "subLoads": [
+                    "0"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "0"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "0"
+                  ]
+                }
+              ]
+            }
+          },
+          "sets": "3",
+          "tecnica": "Core"
+        },
+        {
+          "name": "Pallof press",
+          "notes": "Core",
+          "reps": "12/lato",
+          "rest": "30\"\u201345\"",
+          "sessionData": {
+            "1": {
+              "completed": false,
+              "notes": "",
+              "rounds": [
+                {
+                  "done": true,
+                  "subLoads": [
+                    "12"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "12"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "12"
+                  ]
+                }
+              ]
+            },
+            "2": {
+              "completed": false,
+              "notes": "",
+              "rounds": [
+                {
+                  "done": true,
+                  "subLoads": [
+                    "12"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "12"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "12"
+                  ]
+                }
+              ]
+            }
+          },
+          "sets": "3",
+          "tecnica": "Core"
+        }
+      ],
+      "name": "Giorno A"
+    },
+    {
+      "exercises": [
+        {
+          "name": "Landmine press",
+          "notes": "1 top set + 2 back-off + 1 lineare",
+          "reps": "8",
+          "rest": "2'00\"\u20132'30\"",
+          "sessionData": {
+            "1": {
+              "completed": false,
+              "notes": "",
+              "rounds": [
+                {
+                  "done": true,
+                  "subLoads": [
+                    "26"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "24"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "24"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "22"
+                  ]
+                }
+              ]
+            },
+            "2": {
+              "completed": false,
+              "notes": "",
+              "rounds": [
+                {
+                  "done": true,
+                  "subLoads": [
+                    "26"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "24"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "24"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "22"
+                  ]
+                }
+              ]
+            }
+          },
+          "sets": "4",
+          "tecnica": "1 top set + 2 back-off + 1 lineare"
+        },
+        {
+          "name": "DB press seduta presa neutra",
+          "notes": "Lineare",
+          "reps": "8",
+          "rest": "1'45\"\u20132'00\"",
+          "sessionData": {
+            "1": {
+              "completed": false,
+              "notes": "",
+              "rounds": [
+                {
+                  "done": true,
+                  "subLoads": [
+                    "26"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "26"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "26"
+                  ]
+                }
+              ]
+            },
+            "2": {
+              "completed": false,
+              "notes": "",
+              "rounds": [
+                {
+                  "done": true,
+                  "subLoads": [
+                    "26"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "26"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "26"
+                  ]
+                }
+              ]
+            }
+          },
+          "sets": "3",
+          "tecnica": "Lineare"
+        },
+        {
+          "name": "Lateral raise al cavo singolo",
+          "notes": "Ultima serie Myo-reps",
+          "reps": "12",
+          "rest": "1'00\"\u20131'15\"",
+          "sessionData": {
+            "1": {
+              "completed": false,
+              "notes": "",
+              "rounds": [
+                {
+                  "done": true,
+                  "subLoads": [
+                    "16"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "16"
+                  ]
+                },
+                {
+                  "done": true,
+                  "myoSets": 3,
+                  "subLoads": [
+                    "16"
+                  ]
+                }
+              ]
+            },
+            "2": {
+              "completed": false,
+              "notes": "",
+              "rounds": [
+                {
+                  "done": true,
+                  "subLoads": [
+                    "14"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "14"
+                  ]
+                },
+                {
+                  "done": true,
+                  "myoSets": 4,
+                  "subLoads": [
+                    "14"
+                  ]
+                }
+              ]
+            }
+          },
+          "sets": "3",
+          "tecnica": "Ultima serie Myo-reps"
+        },
+        {
+          "name": "Side-lying lateral raise",
+          "notes": "Controllo totale",
+          "reps": "12",
+          "rest": "1'00\"",
+          "sessionData": {
+            "1": {
+              "completed": false,
+              "notes": "",
+              "rounds": [
+                {
+                  "done": true,
+                  "subLoads": [
+                    "8"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "8"
+                  ]
+                }
+              ]
+            },
+            "2": {
+              "completed": false,
+              "notes": "",
+              "rounds": [
+                {
+                  "done": true,
+                  "subLoads": [
+                    "8"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "8"
+                  ]
+                }
+              ]
+            }
+          },
+          "sets": "2",
+          "tecnica": "Controllo totale"
+        },
+        {
+          "name": "Rear delt cable fly",
+          "notes": "Pausa 2\"",
+          "reps": "15",
+          "rest": "1'00\"",
+          "sessionData": {
+            "1": {
+              "completed": false,
+              "notes": "",
+              "rounds": [
+                {
+                  "done": true,
+                  "subLoads": [
+                    "10"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "10"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "10"
+                  ]
+                }
+              ]
+            },
+            "2": {
+              "completed": false,
+              "notes": "",
+              "rounds": [
+                {
+                  "done": true,
+                  "subLoads": [
+                    "10"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "10"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "10"
+                  ]
+                }
+              ]
+            }
+          },
+          "sets": "3",
+          "tecnica": "Pausa 2\""
+        },
+        {
+          "name": "Overhead rope extension",
+          "notes": "Stretch pieno",
+          "reps": "10",
+          "rest": "1'15\"\u20131'30\"",
+          "sessionData": {
+            "1": {
+              "completed": false,
+              "notes": "",
+              "rounds": [
+                {
+                  "done": true,
+                  "subLoads": [
+                    "45"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "45"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "45"
+                  ]
+                }
+              ]
+            },
+            "2": {
+              "completed": false,
+              "notes": "",
+              "rounds": [
+                {
+                  "done": true,
+                  "subLoads": [
+                    "45"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "45"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "45"
+                  ]
+                }
+              ]
+            }
+          },
+          "sets": "3",
+          "tecnica": "Stretch pieno"
+        },
+        {
+          "name": "Dead bug",
+          "notes": "Core",
+          "reps": "12/lato",
+          "rest": "30\"\u201345\"",
+          "sessionData": {
+            "1": {
+              "completed": false,
+              "notes": "",
+              "rounds": [
+                {
+                  "done": true,
+                  "subLoads": [
+                    ""
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    ""
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    ""
+                  ]
+                }
+              ]
+            },
+            "2": {
+              "completed": false,
+              "rounds": [
+                {
+                  "done": true,
+                  "subLoads": [
+                    "0"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "0"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "0"
+                  ]
+                }
+              ],
+              "notes": ""
+            }
+          },
+          "sets": "3",
+          "tecnica": "Core"
+        },
+        {
+          "name": "Hollow hold",
+          "notes": "Core",
+          "reps": "35\u201d",
+          "rest": "30\"\u201345\"",
+          "sessionData": {
+            "1": {
+              "completed": false,
+              "notes": "",
+              "rounds": [
+                {
+                  "done": true,
+                  "subLoads": [
+                    ""
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    ""
+                  ]
+                }
+              ]
+            },
+            "2": {
+              "completed": false,
+              "rounds": [
+                {
+                  "done": true,
+                  "subLoads": [
+                    "0"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "0"
+                  ]
+                }
+              ],
+              "notes": ""
+            }
+          },
+          "sets": "2",
+          "tecnica": "Core"
+        }
+      ],
+      "name": "Giorno B"
+    },
+    {
+      "exercises": [
+        {
+          "name": "Curl EZ bilanciere",
+          "notes": "1 top set + 2 back-off + 1 lineare",
+          "reps": "6",
+          "rest": "1'45\"\u20132'00\"",
+          "sessionData": {
+            "1": {
+              "completed": false,
+              "notes": "",
+              "rounds": [
+                {
+                  "done": true,
+                  "subLoads": [
+                    "40"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "37.5"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "37.5"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "35"
+                  ]
+                }
+              ]
+            }
+          },
+          "sets": "4",
+          "tecnica": "1 top set + 2 back-off + 1 lineare"
+        },
+        {
+          "name": "Incline dumbbell curl",
+          "notes": "Eccentrica 3\"",
+          "reps": "8",
+          "rest": "1'30\"\u20131'45\"",
+          "sessionData": {
+            "1": {
+              "completed": false,
+              "notes": "",
+              "rounds": [
+                {
+                  "done": true,
+                  "subLoads": [
+                    "18"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "18"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "18"
+                  ]
+                }
+              ]
+            }
+          },
+          "sets": "3",
+          "tecnica": "Eccentrica 3\""
+        },
+        {
+          "name": "EZ-bar skullcrusher",
+          "notes": "Lineare",
+          "reps": "8",
+          "rest": "1'45\"\u20132'00\"",
+          "sessionData": {
+            "1": {
+              "completed": false,
+              "notes": "",
+              "rounds": [
+                {
+                  "done": true,
+                  "subLoads": [
+                    "45"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "45"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "45"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "45"
+                  ]
+                }
+              ]
+            }
+          },
+          "sets": "4",
+          "tecnica": "Lineare"
+        },
+        {
+          "name": "Pushdown V-bar",
+          "notes": "Ultima serie drop 10%",
+          "reps": "10",
+          "rest": "1'15\"\u20131'30\"",
+          "sessionData": {
+            "1": {
+              "completed": false,
+              "notes": "",
+              "rounds": [
+                {
+                  "done": true,
+                  "subLoads": [
+                    "40"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "40"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "40"
+                  ]
+                }
+              ]
+            }
+          },
+          "sets": "3",
+          "tecnica": "Ultima serie drop 10%"
+        },
+        {
+          "name": "Cross-body hammer curl",
+          "notes": "Lineare",
+          "reps": "10",
+          "rest": "1'15\"",
+          "sessionData": {
+            "1": {
+              "completed": false,
+              "notes": "",
+              "rounds": [
+                {
+                  "done": true,
+                  "subLoads": [
+                    "16"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "16"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "16"
+                  ]
+                }
+              ]
+            }
+          },
+          "sets": "3",
+          "tecnica": "Lineare"
+        },
+        {
+          "name": "Pallof press",
+          "notes": "Core",
+          "reps": "15",
+          "rest": "30\"\u201345\"",
+          "sessionData": {
+            "1": {
+              "completed": false,
+              "notes": "",
+              "rounds": [
+                {
+                  "done": true,
+                  "subLoads": [
+                    "12"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "12"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "12"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "12"
+                  ]
+                }
+              ]
+            }
+          },
+          "sets": "4",
+          "tecnica": "Core"
+        }
+      ],
+      "name": "Giorno C"
+    },
+    {
+      "exercises": [
+        {
+          "name": "Single arm lat pulldown",
+          "notes": "Lineare",
+          "reps": "10/lato",
+          "rest": "1'45\"\u20132'00\"",
+          "sessionData": {
+            "1": {
+              "completed": false,
+              "notes": "",
+              "rounds": [
+                {
+                  "done": true,
+                  "subLoads": [
+                    "42"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "42"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "40"
+                  ]
+                }
+              ]
+            }
+          },
+          "sets": "3",
+          "tecnica": "Lineare"
+        },
+        {
+          "name": "Seal row",
+          "notes": "Pausa 1\"",
+          "reps": "8",
+          "rest": "1'45\"\u20132'00\"",
+          "sessionData": {
+            "1": {
+              "completed": false,
+              "notes": "",
+              "rounds": [
+                {
+                  "done": true,
+                  "subLoads": [
+                    "100"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "100"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "100"
+                  ]
+                }
+              ]
+            }
+          },
+          "sets": "3",
+          "tecnica": "Pausa 1\""
+        },
+        {
+          "name": "Straight-arm pulldown",
+          "notes": "Eccentrica 3\"",
+          "reps": "12",
+          "rest": "1'15\"\u20131'30\"",
+          "sessionData": {
+            "1": {
+              "completed": false,
+              "notes": "",
+              "rounds": [
+                {
+                  "done": true,
+                  "subLoads": [
+                    "35"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "35"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "35"
+                  ]
+                }
+              ]
+            }
+          },
+          "sets": "3",
+          "tecnica": "Eccentrica 3\""
+        },
+        {
+          "name": "Reverse pec deck",
+          "notes": "Ultima serie Myo-reps",
+          "reps": "15",
+          "rest": "1'00\"",
+          "sessionData": {
+            "1": {
+              "completed": false,
+              "notes": "",
+              "rounds": [
+                {
+                  "done": true,
+                  "subLoads": [
+                    "10"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "10"
+                  ]
+                },
+                {
+                  "done": true,
+                  "myoSets": 4,
+                  "subLoads": [
+                    "10"
+                  ]
+                }
+              ]
+            }
+          },
+          "sets": "3",
+          "tecnica": "Ultima serie Myo-reps"
+        },
+        {
+          "name": "Face pull alto",
+          "notes": "Pump",
+          "reps": "20",
+          "rest": "45\"\u20131'00\"",
+          "sessionData": {
+            "1": {
+              "completed": false,
+              "notes": "",
+              "rounds": [
+                {
+                  "done": true,
+                  "subLoads": [
+                    "40"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "40"
+                  ]
+                }
+              ]
+            }
+          },
+          "sets": "2",
+          "tecnica": "Pump"
+        },
+        {
+          "name": "Circuito core",
+          "notes": "Hollow 35\" + Dead bug 12/lato + Pallof 15/lato",
+          "reps": "\u2014",
+          "rest": "1'00\" tra i giri",
+          "sessionData": {
+            "1": {
+              "completed": false,
+              "notes": "",
+              "rounds": [
+                {
+                  "done": true,
+                  "subLoads": [
+                    "0",
+                    "0",
+                    "10"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "0",
+                    "0",
+                    "10"
+                  ]
+                },
+                {
+                  "done": true,
+                  "subLoads": [
+                    "0",
+                    "0",
+                    "10"
+                  ]
+                }
+              ]
+            }
+          },
+          "sets": "3 giri",
+          "tecnica": "Hollow 35\" + Dead bug 12/lato + Pallof 15/lato"
+        }
+      ],
+      "name": "Giorno D"
+    },
+    {
+      "exercises": [
+        {
+          "name": "Hack squat",
+          "notes": "Knee-friendly",
+          "reps": "Top set 8\u201310 + 2 back-off",
+          "rest": "2'00\"\u20132'30\"",
+          "sessionData": {
+            "1": {
+              "completed": false,
+              "notes": "",
+              "rounds": [
+                {
+                  "done": false,
+                  "subLoads": [
+                    ""
+                  ]
+                },
+                {
+                  "done": false,
+                  "subLoads": [
+                    ""
+                  ]
+                },
+                {
+                  "done": false,
+                  "subLoads": [
+                    ""
+                  ]
+                }
+              ]
+            }
+          },
+          "sets": "3",
+          "tecnica": "Knee-friendly"
+        },
+        {
+          "name": "Leg extension bilat",
+          "notes": "Ultima serie Myo-reps",
+          "reps": "10\u201312",
+          "rest": "1'15\"\u20131'30\"",
+          "sessionData": {
+            "1": {
+              "completed": false,
+              "notes": "",
+              "rounds": [
+                {
+                  "done": false,
+                  "subLoads": [
+                    ""
+                  ]
+                },
+                {
+                  "done": false,
+                  "subLoads": [
+                    ""
+                  ]
+                },
+                {
+                  "done": false,
+                  "subLoads": [
+                    ""
+                  ]
+                }
+              ]
+            }
+          },
+          "sets": "3",
+          "tecnica": "Ultima serie Myo-reps"
+        },
+        {
+          "name": "Seated leg curl",
+          "notes": "Pausa 1\"",
+          "reps": "8\u201310",
+          "rest": "1'30\"\u20131'45\"",
+          "sessionData": {
+            "1": {
+              "completed": false,
+              "notes": "",
+              "rounds": [
+                {
+                  "done": false,
+                  "subLoads": [
+                    ""
+                  ]
+                },
+                {
+                  "done": false,
+                  "subLoads": [
+                    ""
+                  ]
+                },
+                {
+                  "done": false,
+                  "subLoads": [
+                    ""
+                  ]
+                }
+              ]
+            }
+          },
+          "sets": "3",
+          "tecnica": "Pausa 1\""
+        },
+        {
+          "name": "L-Sit",
+          "notes": "Pulito",
+          "reps": "60\u201380\"",
+          "rest": "45\"\u201360\"",
+          "sessionData": {
+            "1": {
+              "completed": false,
+              "notes": "",
+              "rounds": [
+                {
+                  "done": false,
+                  "subLoads": [
+                    ""
+                  ]
+                },
+                {
+                  "done": false,
+                  "subLoads": [
+                    ""
+                  ]
+                },
+                {
+                  "done": false,
+                  "subLoads": [
+                    ""
+                  ]
+                }
+              ]
+            }
+          },
+          "sets": "3",
+          "tecnica": "Pulito"
+        },
+        {
+          "name": "Seated calf raise",
+          "notes": "Pausa 2\" in basso",
+          "reps": "10\u201315",
+          "rest": "1'00\"\u20131'15\"",
+          "sessionData": {
+            "1": {
+              "completed": false,
+              "notes": "",
+              "rounds": [
+                {
+                  "done": false,
+                  "subLoads": [
+                    ""
+                  ]
+                },
+                {
+                  "done": false,
+                  "subLoads": [
+                    ""
+                  ]
+                },
+                {
+                  "done": false,
+                  "subLoads": [
+                    ""
+                  ]
+                }
+              ]
+            }
+          },
+          "sets": "3",
+          "tecnica": "Pausa 2\" in basso"
+        }
+      ],
+      "name": "Giorno extra"
+    }
+  ],
+  "id": "p-1779905883419",
+  "lastActive": 1781085588849,
+  "numWeeks": 4,
+  "progress": {
+    "1": {
+      "0": true,
+      "1": true,
+      "2": true,
+      "3": true,
+      "4": true
+    },
+    "2": {
+      "0": true,
+      "1": true
+    }
+  },
+  "subtitle": "",
+  "title": "M8 - Intensificazione ipertrofica"
+}
