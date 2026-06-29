@@ -213,6 +213,22 @@
         .btn-sync-fixed.active { display: flex; }
         .btn-sync-fixed:active { transform: translate(3px, 3px); box-shadow: 0px 0px 0px var(--accent-lime); }
 
+        .rpe-modal {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(5px);
+            z-index: 9999; display: none; padding: 20px;
+            overflow-y: auto; justify-content: center; align-items: flex-start;
+        }
+        .rpe-modal.active { display: flex; }
+        .rpe-table-container {
+            background: var(--bg-canvas); width: 100%; max-width: 600px;
+            border: var(--border-heavy) solid #000; padding: 20px; margin-top: 40px; margin-bottom: 40px;
+        }
+        .rpe-table { width: 100%; border-collapse: collapse; font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; }
+        .rpe-table th, .rpe-table td { border: 1px solid #000; padding: 8px; text-align: left; vertical-align: top; }
+        .rpe-table th { background: #000; color: #fff; text-transform: uppercase; }
+        .rpe-table tr:nth-child(even) { background: rgba(0,0,0,0.05); }
+
         ::-webkit-scrollbar { display: none; }
     </style>
 </head>
@@ -232,6 +248,32 @@
         </div>
         <div class="nav-col right">
             <div class="ctrl-box exit" onclick="logoutAction()">EXIT</div>
+        </div>
+    </div>
+
+    <div id="rpe-modal" class="rpe-modal">
+        <div class="rpe-table-container">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h2 style="font-size:1.2rem; font-weight:900; margin:0;">RPE / RIR TABLE</h2>
+                <div class="dots-btn" style="width:30px; height:30px;" onclick="document.getElementById('rpe-modal').classList.remove('active')">
+                    <span style="transform:rotate(45deg); position:absolute; width:15px; height:2px; border-radius:0;"></span>
+                    <span style="transform:rotate(-45deg); position:absolute; width:15px; height:2px; border-radius:0;"></span>
+                </div>
+            </div>
+            <p style="font-size:0.75rem; font-family:'Outfit'; margin-bottom:15px;">Tabella pratica per convertire RPE (1–10) in RIR (Reps In Reserve).</p>
+            <table class="rpe-table">
+                <tr><th>RPE</th><th>RIR</th><th>Descrizione pratica</th><th>Quando usarla</th></tr>
+                <tr><td><strong>10</strong></td><td>0</td><td>Massimo sforzo; non puoi fare un'altra ripetizione.</td><td>Test massimali o rare serie di picco.</td></tr>
+                <tr><td><strong>9.5</strong></td><td>0–0.5</td><td>Quasi al massimo; forse mezzo ripetizione in più.</td><td>Picchi quasi massimali, usala con cautela.</td></tr>
+                <tr><td><strong>9</strong></td><td>1</td><td>Potresti fare 1 ripetizione in più con buona tecnica.</td><td>Serie molto intense per forza/peaking.</td></tr>
+                <tr><td><strong>8.5</strong></td><td>1–1.5</td><td>Potresti fare 1, forse 2 ripetizioni ancora.</td><td>Transizione tra lavoro pesante e near-failure.</td></tr>
+                <tr><td><strong>8</strong></td><td>2</td><td>Due ripetizioni rimaste nel serbatoio; duro ma gestibile.</td><td>Lavoro principale per ipertrofia/forza quotidiana.</td></tr>
+                <tr><td><strong>7.5</strong></td><td>2–2.5</td><td>Circa 2 ripetizioni rimaste; controllo buono.</td><td>Quando vuoi stimolare senza spingere troppo.</td></tr>
+                <tr><td><strong>7</strong></td><td>3</td><td>Tre ripetizioni rimaste; impegnativo ma non vicino al cedimento.</td><td>Set tecnici o volume sostenuto.</td></tr>
+                <tr><td><strong>6</strong></td><td>4</td><td>Quattro ripetizioni rimaste; intensità moderata.</td><td>Warm-up pesi, lavoro di tecnica o volume.</td></tr>
+                <tr><td><strong>5</strong></td><td>5</td><td>Circa cinque ripetizioni rimaste; sensazione di lavoro leggero.</td><td>Recupero attivo, apprendimento del gesto.</td></tr>
+                <tr><td><strong>&lt;5</strong></td><td>5+</td><td>Molto leggero; molte ripetizioni rimaste.</td><td>Mobilità, riabilitazione, o lavoro molto tecnico.</td></tr>
+            </table>
         </div>
     </div>
 
@@ -803,10 +845,15 @@
             const content = document.getElementById('workout-content');
             content.innerHTML = `
                 <div class="tech-card">
-                    <span class="label">Protocol.Info</span>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span class="label">Protocol.Info</span>
+                        <div class="badge-core" style="padding:4px 8px; flex-direction:row; align-items:center; background:#fff; color:#000; box-shadow:2px 2px 0 #000; cursor:pointer; margin-bottom:15px;" onclick="document.getElementById('rpe-modal').classList.add('active')">
+                            <span style="font-size:0.6rem; font-family:'JetBrains Mono'; font-weight:900;">RPE TABLE</span>
+                        </div>
+                    </div>
                     <h2 class="heading-xl">${sanitize(w.title)}<span>_V4</span></h2>
                     ${w.subtitle ? `<div style="margin-top:15px; font-family:'JetBrains Mono'; font-size:0.75rem; font-weight:700; white-space:pre-wrap; color:#ccc; line-height:1.4;">${parseMarkdown(w.subtitle)}</div>` : ''}
-                    ${weekInfo && (weekInfo.focus || weekInfo.note) ? `<div style="background:var(--bg-canvas); border-left:6px solid var(--accent-blue); padding:15px; margin-top:12px; font-family:'JetBrains Mono'; font-size:0.75rem; white-space:pre-wrap; line-height: 1.4;">// FOCUS: ${weekInfo.focus}<br>${weekInfo.note ? `<br>// LOG:<br>${parseMarkdown(weekInfo.note)}` : ''}</div>` : ''}
+                    ${weekInfo && (weekInfo.focus || weekInfo.note) ? `<div style="background:var(--bg-canvas); border-left:6px solid var(--accent-blue); padding:15px; margin-top:12px; font-family:'JetBrains Mono'; font-size:0.75rem; white-space:pre-wrap; line-height: 1.4; color:var(--text-dark);">// FOCUS: ${parseMarkdown(weekInfo.focus)}<br>${weekInfo.note ? `<br>// LOG:<br>${parseMarkdown(weekInfo.note)}` : ''}</div>` : ''}
                 </div>
                 <div class="selector-row" id="week-selector"></div>
                 <div id="day-list"></div>
@@ -842,15 +889,19 @@
             localStorage.setItem('pale_workouts', JSON.stringify(workouts));
             const d = w.days[dI];
             const wi = w.weeklyStructure ? (w.weeklyStructure.find(s => String(s.week).includes(currentWeek) || s.week === 'W' + currentWeek) || w.weeklyStructure[currentWeek - 1]) : null;
-            const focusTxt = wi && wi.focus ? wi.focus : "Non impostato";
-            const noteTxt = wi && wi.note ? `<div style="margin-top:8px; border-top:1px dashed rgba(255,255,255,0.3); padding-top:8px; white-space:pre-wrap; line-height:1.4;">// NOTES:<br>${parseMarkdown(wi.note)}</div>` : "";
             const weekNoteText = wi ? ((wi.focus || "") + "\n" + (wi.note || "")) : "";
             
             document.getElementById('session-header').innerHTML = `
                 <div class="tech-card" style="background:var(--accent-lime)">
-                    <span class="label" style="background:#000; color:#fff;">Channel.Active</span>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span class="label" style="background:#000; color:#fff;">Channel.Active</span>
+                        <div class="badge-core" style="padding:4px 8px; flex-direction:row; align-items:center; background:#fff; color:#000; box-shadow:2px 2px 0 #000; cursor:pointer; margin-bottom:15px;" onclick="document.getElementById('rpe-modal').classList.add('active')">
+                            <span style="font-size:0.6rem; font-family:'JetBrains Mono'; font-weight:900;">RPE TABLE</span>
+                        </div>
+                    </div>
                     <h2 class="heading-xl">${sanitize(d.name)}<span>_LOG</span></h2>
-                    <div style="background:#000; color:#fff; padding:10px; margin-top:12px; font-family:'JetBrains Mono'; font-size:0.65rem; border:2px solid #000;">// FOCUS: ${focusTxt}${noteTxt}</div>
+                    <div style="font-family:'JetBrains Mono', monospace; font-size:0.8rem; font-weight:900; margin-top:8px;">[ WEEK 0${currentWeek} // DAY 0${dI+1} ]</div>
+                    ${weekNoteText ? `<div style="margin-top:15px; font-family:'JetBrains Mono'; font-size:0.7rem; font-weight:700; background:rgba(255,255,255,0.4); padding:10px; border:1px solid rgba(0,0,0,0.1);">// FOCUS W0${currentWeek}:<br>${parseMarkdown(weekNoteText)}</div>` : ''}
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
                         <span style="font-weight:900; background:#000; color:#fff; padding:5px 15px; font-size:0.75rem; font-family:'JetBrains Mono'">WEEK 0${currentWeek}</span>
                         <button class="dots-btn" style="width:auto; padding:0 10px; font-size:0.5rem; font-weight:900;" onclick="resetDayAction()">RESET</button>

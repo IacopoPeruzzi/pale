@@ -9,6 +9,13 @@ markdown = """
 **Struttura:** 4 giorni upper-focused, nessun giorno solo gambe, lower trekking integrato in ogni seduta.
 **Priorità:** schiena, spalle, braccia, petto, addome; lower sempre secondario rispetto alla qualità dell’upper.
 
+## Regole pratiche di progressione
+- Se chiudi tutte le serie nel top del range con tecnica stabile e RPE in linea, la settimana dopo alzi leggermente il carico.
+- Se non conviene alzare il carico, provi prima a migliorare reps, controllo o qualità delle pause tecniche.
+- Se un esercizio peggiora nettamente già dalla seconda serie, non forzi la progressione: mantieni o riduci leggermente per stare dentro il target del blocco.
+- Negli esercizi trekking/lower l’obiettivo non è la progressione aggressiva, ma stabilità, tolleranza locale e trasferibilità.
+- Il petto progredisce con logica conservativa: prima tolleranza, poi stabilità, poi intensificazione moderata.
+
 ## Giorno 1 — Pull priority + trekking
 
 | Esercizio | Serie | Reps | Rest | Tecnica | RPE W1 | RPE W2 | RPE W3 | RPE W4 |
@@ -81,13 +88,6 @@ Settimana di **consolidamento e resensitization**: il carico può anche restare 
 L’obiettivo non è fare un vero deload passivo, ma uscire dal blocco con buona freschezza sistemica, articolazioni tranquille e tecnica ancora pulita.
 In pratica, confermi gli adattamenti ottenuti senza accumulare fatica che ti sporchi il blocco successivo.
 
-## Regole pratiche di progressione
-
-- Se chiudi tutte le serie nel top del range con tecnica stabile e RPE in linea, la settimana dopo alzi leggermente il carico.
-- Se non conviene alzare il carico, provi prima a migliorare reps, controllo o qualità delle pause tecniche.
-- Se un esercizio peggiora nettamente già dalla seconda serie, non forzi la progressione: mantieni o riduci leggermente per stare dentro il target del blocco.
-- Negli esercizi trekking/lower l’obiettivo non è la progressione aggressiva, ma stabilità, tolleranza locale e trasferibilità.
-- Il petto progredisce con logica conservativa: prima tolleranza, poi stabilità, poi intensificazione moderata.
 """
 
 def extract(pattern, text):
@@ -99,12 +99,13 @@ funzione = extract(r'\*\*Funzione:\*\*\s*(.*?)\n', markdown)
 struttura = extract(r'\*\*Struttura:\*\*\s*(.*?)\n', markdown)
 priorita = extract(r'\*\*Priorit[aà]:\*\*\s*(.*?)\n', markdown)
 
-title = f"{funzione.upper()} ({periodo.replace('.', '')})"
+title = f"{funzione.upper().split('CON')[0].strip()} ({periodo.replace('.', '')})"
 subtitle = []
 if periodo: subtitle.append(f"**Periodo:** {periodo}")
 if funzione: subtitle.append(f"**Funzione:** {funzione}")
 if struttura: subtitle.append(f"**Struttura:** {struttura}")
 if priorita: subtitle.append(f"**Priorità:** {priorita}")
+subtitle.append("\n**Regole pratiche di progressione**\n" + markdown.split("## Regole pratiche di progressione")[1].split("## Giorno 1")[0].strip())
 subtitle = "\n".join(subtitle)
 
 workout = {
@@ -117,7 +118,6 @@ workout = {
     "progress": {}
 }
 
-# Parse weeks from "Progressioni settimanali"
 week_blocks = re.split(r'### Settimana \d+', markdown)
 if len(week_blocks) > 1:
     for i, block in enumerate(week_blocks[1:], 1):
@@ -138,12 +138,6 @@ if len(week_blocks) > 1:
             "note": "\n".join(note_lines).strip()
         })
 
-# Append general rules to week 1 note or general note? The user has "Regole pratiche di progressione"
-rules = markdown.split("## Regole pratiche di progressione")[1].strip()
-for w in workout["weeklyStructure"]:
-    w["note"] += f"\n\n**Regole pratiche di progressione**\n{rules}"
-
-# Parse Days
 day_blocks = re.split(r'## Giorno \d+ — ', markdown)
 if len(day_blocks) > 1:
     for block in day_blocks[1:]:
