@@ -8,6 +8,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>Pale App</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;400;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="default_workout.js"></script>
     <style>
         :root {
             --bg-canvas: #F8F8F8;
@@ -221,7 +222,7 @@
     <div class="ui-anchor">
         <div class="nav-col left">
             <div id="sticky-back-btn" class="nav-btn-sticky" onclick="handleBackAction()">BACK</div>
-            <div id="sync-anchor" class="btn-sync-fixed active" onclick="showView('view-import')">+</div>
+            <div id="sync-anchor" class="btn-sync-fixed" style="display:none !important;" onclick="showView('view-import')">+</div>
         </div>
         <div class="nav-col center">
             <div class="badge-core" onclick="showView('view-home')">
@@ -394,7 +395,7 @@
     </div>
 
     <script>
-        let workouts = JSON.parse(localStorage.getItem('pale_workouts') || '[]');
+        let workouts = [];
         let currentWorkoutIndex = null;
         let currentWeek = 1;
         let currentDayIdx = null;
@@ -402,18 +403,57 @@
         let isManagementMode = false;
         let historyStack = [];
 
+        function mergeDefaultWorkout(storedWorkouts) {
+            if (!storedWorkouts) storedWorkouts = [];
+            const defaultW = typeof PALE_DEFAULT_WORKOUT !== 'undefined' ? PALE_DEFAULT_WORKOUT : null;
+            if (!defaultW) return storedWorkouts;
+            
+            let existingIdx = storedWorkouts.findIndex(w => w.id === defaultW.id);
+            if (existingIdx !== -1) {
+                const currentW = storedWorkouts[existingIdx];
+                // Preserve sessionData and progress
+                defaultW.progress = currentW.progress || {};
+                defaultW.days.forEach((d, dI) => {
+                    d.exercises.forEach((ex, eI) => {
+                        if (currentW.days[dI] && currentW.days[dI].exercises[eI]) {
+                            ex.sessionData = currentW.days[dI].exercises[eI].sessionData || {};
+                        }
+                    });
+                });
+                storedWorkouts[existingIdx] = defaultW;
+            } else {
+                storedWorkouts.unshift(defaultW);
+            }
+            return storedWorkouts;
+        }
+
         async function init() {
             try {
+                let local = JSON.parse(localStorage.getItem('pale_workouts') || '[]');
+                workouts = mergeDefaultWorkout(local);
+                localStorage.setItem('pale_workouts', JSON.stringify(workouts));
+
                 const res = await fetch('/api/workouts');
                 if (res.ok) {
                     const data = await res.json();
                     if (data && data.length > 0) {
-                        workouts = data;
+                        workouts = mergeDefaultWorkout(data);
                         localStorage.setItem('pale_workouts', JSON.stringify(workouts));
-                        renderHome();
                     }
                 }
-            } catch(e) { console.error("Load error:", e); }
+                
+                // Sync back to server to persist the injected default workout
+                fetch('/api/workouts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(workouts)
+                });
+                
+                renderHome();
+            } catch(e) { 
+                console.error("Load error:", e); 
+                renderHome();
+            }
         }
         init();
 
