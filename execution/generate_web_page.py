@@ -599,8 +599,6 @@ def generate_html():
             const nR = parseInt(ex.sets) || 1;
             while (data.rounds.length < nR) data.rounds.push({{ done: false, subLoads: new Array(subExs.length).fill("") }});
             
-            const isDeload = (currentWeek == w.numWeeks);
-            
             if (currentWeek > 1) {{
                 // Robust Deload Search: find the latest week with recorded loads
                 let lastRecordedWeek = null;
@@ -617,10 +615,6 @@ def generate_html():
                             lastRecordedWeek.rounds[rI].subLoads.forEach((sLoad, sI) => {{
                                 if (round.subLoads[sI] === "" || round.subLoads[sI] === undefined) {{
                                     let val = sLoad;
-                                    if (isDeload && val && !isNaN(val)) {{
-                                        val = (parseFloat(val) * 0.8).toFixed(1);
-                                        if (val.endsWith('.0')) val = parseInt(val);
-                                    }}
                                     round.subLoads[sI] = val;
                                 }}
                             }});
@@ -631,14 +625,14 @@ def generate_html():
 
             document.getElementById('ex-header').innerHTML = `
                 <div class="tech-card" style="transform:none;">
-                    <span class="label">${{isDeload ? 'Mode.Deload_Active' : 'Target.Dynamics'}}</span>
+                    <span class="label">Target.Dynamics</span>
                     <h2 class="heading-xl">${{sanitize(ex.name)}}<span>_DATA</span></h2>
                     <div class="data-strip">
                         <div class="data-box"><span class="v">${{ex.sets}}</span><span class="l">SETS</span></div>
                         <div class="data-box"><span class="v">${{subExs.length > 1 ? 'CIRC' : ex.reps}}</span><span class="l">REPS</span></div>
-                        <div class="data-box" style="background:${{isDeload ? 'var(--accent-pink)' : 'var(--accent-lime)'}}"><span class="v">${{ex.rest}}</span><span class="l">REST</span></div>
+                        <div class="data-box" style="background:var(--accent-lime)"><span class="v">${{ex.rest}}</span><span class="l">REST</span></div>
                     </div>
-                    ${{isDeload ? `<div style="margin-top:10px; font-family:'JetBrains Mono'; font-size:0.5rem; font-weight:900; color:var(--accent-pink);">// WARNING: 80% LOAD CALCULATION APPLIED FROM PREV RECORD</div>` : ''}}
+
                     ${{tecnicaText ? `
                     <div style="margin-top:15px; border-top:1.5px dashed rgba(0,0,0,0.15); padding-top:15px;">
                         <span class="label" style="background:var(--accent-pink); color:#fff; margin-bottom:6px;">TECNICA</span>

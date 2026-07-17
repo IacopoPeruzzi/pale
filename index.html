@@ -1009,7 +1009,6 @@
             
             const wi = w.weeklyStructure ? (w.weeklyStructure.find(s => String(s.week).includes(currentWeek) || s.week === 'W' + currentWeek) || w.weeklyStructure[currentWeek - 1]) : null;
             const weekText = wi ? ((wi.focus || "") + " " + (wi.note || "")).toLowerCase() : "";
-            const isDeload = weekText.includes('scarico') || weekText.includes('deload');
             
             if (currentWeek > 1) {
                 // Robust Deload Search: find the latest week with recorded loads
@@ -1027,10 +1026,6 @@
                             lastRecordedWeek.rounds[rI].subLoads.forEach((sLoad, sI) => {
                                 if (round.subLoads[sI] === "" || round.subLoads[sI] === undefined) {
                                     let val = sLoad;
-                                    if (isDeload && val && !isNaN(val)) {
-                                        val = (parseFloat(val) * 0.8).toFixed(1);
-                                        if (val.endsWith('.0')) val = parseInt(val);
-                                    }
                                     round.subLoads[sI] = val;
                                 }
                             });
@@ -1058,17 +1053,17 @@
             document.getElementById('ex-header').innerHTML = `
                 <div class="tech-card" style="transform:none;">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span class="label">${isDeload ? 'Mode.Deload_Active' : 'Target.Dynamics'}</span>
+                        <span class="label">Target.Dynamics</span>
                         <span class="label" style="background:#000; color:#fff; cursor:pointer;" onclick="openEditExercise(currentDayIdx, currentExIdx)">EDIT</span>
                     </div>
                     <h2 class="heading-xl">${sanitize(ex.name)}<span>_DATA</span></h2>
                     <div class="data-strip">
                         <div class="data-box"><span class="v">${ex.sets}</span><span class="l">SETS</span></div>
                         <div class="data-box"><span class="v">${subExs.length > 1 ? 'CIRC' : ex.reps}</span><span class="l">REPS</span></div>
-                        <div class="data-box" style="background:${isDeload ? 'var(--accent-pink)' : 'var(--accent-lime)'}"><span class="v">${ex.rest}</span><span class="l">REST</span></div>
+                        <div class="data-box" style="background:var(--accent-lime)"><span class="v">${ex.rest}</span><span class="l">REST</span></div>
                         ${displayRpe ? `<div class="data-box"><span class="v" style="font-size: ${displayRpe.includes('➔') ? '1.1rem' : '1.8rem'}; line-height: ${displayRpe.includes('➔') ? '2.5' : '1.2'}; font-family:'JetBrains Mono'">${displayRpe}</span><span class="l">RPE</span></div>` : ''}
                     </div>
-                    ${isDeload ? `<div style="margin-top:10px; font-family:'JetBrains Mono'; font-size:0.5rem; font-weight:900; color:var(--accent-pink);">// WARNING: 80% LOAD CALCULATION APPLIED FROM PREV RECORD</div>` : ''}
+
                     ${tecnicaText ? `
                     <div style="margin-top:15px; border-top:1.5px dashed rgba(0,0,0,0.15); padding-top:15px;">
                         <span class="label" style="background:var(--accent-pink); color:#fff; margin-bottom:6px;">TECNICA</span>
